@@ -1,0 +1,33 @@
+/*ant-design的公共样式*/
+//rewrite ant-design style
+// -------- Colors -----------
+@primary-color: rgb(75,157,11);
+
+//custom-style
+@headerHeight: 80px;
+.ant-layout-header{
+  background-color: #ffffff;
+  height: @headerHeight;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.14) ;
+  padding: 0 30px;
+  position: fixed;
+  width: 100%;
+  min-width: 1000px;
+}
+.ant-layout-content{
+  background-color: rgb(250, 249, 255);
+  margin-top: @headerHeight;
+  min-width: 1000px;
+  overflow: hidden;
+  position: relative;
+}
+.ant-input{
+    border-radius: 0;
+    margin: 0 auto;
+    display: block;
+    border: 2px #65ab27 solid;
+    &:hover{
+      border: 2px #65ab27 solid!important;
+      box-shadow: 0 6px 25px 0 rgba(75, 157, 11, 0.2);
+    }
+}
