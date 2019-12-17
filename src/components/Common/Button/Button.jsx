@@ -27,7 +27,7 @@ export default class AppButton extends Component{
   render(){
     return(
       this.props.type == 'normal' ?  <NormalButton {...this.props} >{this.props.children}</NormalButton>
-        : <PrimaryButton type={this.props.type || 'primary'}>{this.props.children}</PrimaryButton>
+        : <PrimaryButton {...this.props}>{this.props.children}</PrimaryButton>
     )
   }
 }

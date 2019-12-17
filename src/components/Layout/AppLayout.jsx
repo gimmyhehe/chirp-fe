@@ -1,10 +1,11 @@
 import React,{ Component } from 'react'
 import styled from 'styled-components'
-import { Layout } from 'antd'
+import { Layout,Avatar,Dropdown,Menu } from 'antd'
 import {  Button } from '@components'
-import yueyiTTF from '@assets/yueyi.ttf'
+// import yueyiTTF from '@assets/yueyi.ttf'
+import {Link} from 'react-router-dom'
 import defaultAvatar from '@assets/icon/user.png'
-const { Header, Content, Footer } = Layout
+const { Header, Content } = Layout
 
 const StyleLayout = styled(Layout)`
   background-color: rgb(250,249,255) !important;
@@ -52,19 +53,57 @@ const User = styled.div`
     font-weight: 600;
   }
 `
+const userLinks = [
+  {
+    to: { pathname: '/user/settings', state: { fromState: 'accountSettings' } },
+    text: 'Settings'
+  },
+  {
+    to: { pathname: '/help', state: { fromState: 'help' } },
+    text: 'Help'
+  },
+  {
+    to: '#logout',
+    text: 'Log Out'
+  }
+]
+
 export default class AppLayout extends Component{
   render(){
+    const isLogin = true
+
+    const DropdwonMenu = (
+      <Menu style={{ minWidth: 150 }}>
+        {userLinks.map(({ to, text }) => (
+          <Menu.Item key={text} onClick={this.onUserLinkSelect}>
+            <Link to={to}>{text}</Link>
+          </Menu.Item>
+        ))}
+      </Menu>
+    )
+
     return (
       <StyleLayout>
         <Header>
           <Logo>Chrip</Logo>
           <Title>Chirps</Title>
-          <User>
-            <Button>Sign Up</Button>
-            <Button type="normal">Sign In</Button>
-            <img src={defaultAvatar} alt=""/>
-            <span>Anonymous</span>
-          </User>
+          {
+            isLogin ?
+              <Dropdown overlay={DropdwonMenu}>
+                <User>
+                  <Avatar size={24} src={defaultAvatar} />
+                  <span>Olivia Wang</span>
+                </User>
+                {/* <DropdwonMenu></DropdwonMenu> */}
+              </Dropdown>
+              : <User>
+                <Button type="primary">Sign Up</Button>
+                <Button type="normal">Sign In</Button>
+                <img src={defaultAvatar} alt=""/>
+                <span>Anonymous</span>
+              </User>
+          }
+
         </Header>
         <Content>{this.props.children}</Content>
       </StyleLayout>

@@ -5,7 +5,8 @@ import { requestErrorHandler } from './errorHandler'
 
 const headers = new Headers({
   Accept: '*/*',
-  'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+  // 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+  'Content-Type': 'application/json; charset=UTF-8',
   'X-Requested-With': 'XMLHttpRequest'
 })
 
@@ -54,7 +55,8 @@ function getFetchOptions(data, fetchOptions) {
     body = data
     option = uploadOptions
   } else {
-    body = serialize(data)
+    // body = serialize(data)
+    body = JSON.stringify(data)
     option = options
   }
 

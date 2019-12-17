@@ -1,5 +1,5 @@
 import { message } from 'antd'
-import history from '../routes/history'
+import history from '../router/history'
 import NProgress from 'nprogress'
 import cookies from '@utils/cookies'
 

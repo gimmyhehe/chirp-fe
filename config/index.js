@@ -8,7 +8,7 @@ module.exports = {
   build: {
     env: '"production"',
     index: path.resolve(__dirname, '../dist/index.html'),
-    title: 'One Pro',
+    title: 'Chirp',
     icon: path.resolve(__dirname, '../src/assets/favicon.png'),
     assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'static',
@@ -49,31 +49,31 @@ module.exports = {
     assetsPublicPath: '/',
 
     // Various Dev Server settings
-    port: 8080, // can be overwritten by process.env.PORT
+    port: 80, // can be overwritten by process.env.PORT
     autoOpenBrowser: false,
     errorOverlay: true,
     notifyOnErrors: true,
     poll: false, // https://webpack.js.org/configuration/dev-server/#devserver-watchoptions-
 
     proxyTable: {
-      '/UCM': {
-        target: 'http://54.169.159.192',
+      // '/UCM': {
+      //   target: 'http://54.169.159.192',
+      //   secure: false,
+      //   changeOrigin: true,
+      // },
+      '/api': {
+        target: 'http://54.144.207.148:8888',
         secure: false,
         changeOrigin: true,
       },
-      '/API': {
-        target: 'http://54.169.159.192:8080',
-        secure: false,
-        changeOrigin: true,
-      },
-      '/test': {
-        target: 'http://localhost:8080/',
-        secure: false,
-        changeOrigin: true,
-        pathRewrite: {
-          '/test$': '/test-dev-server'
-        }
-      }
+      // '/test': {
+      //   target: 'http://localhost:8080/',
+      //   secure: false,
+      //   changeOrigin: true,
+      //   pathRewrite: {
+      //     '/test$': '/test-dev-server'
+      //   }
+      // }
     },
 
     // CSS Sourcemaps off by default because relative paths are "buggy"

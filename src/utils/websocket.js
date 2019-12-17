@@ -1,13 +1,43 @@
 
-const ip = '52.90.125.239'
+const ip = '54.144.207.148'
 const port = 8888
 
-export default function(){
+function serialize(data) {
+  return Object.keys(data)
+    .map(key => {
+      return `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`
+    })
+    .join('&')
+}
+
+export default function(data){
   if ('WebSocket' in window){
-    return 11
+    return new Promise(function (resolve,reject) {
+      var response
+
+      var params = serialize(data)
+      console.log(params)
+      var socket = new WebSocket(`ws:${ip}:${port}?${params}&deviceID=123`)
+      socket.onopen = function(e){
+
+      }
+      socket.onerror = function(error){
+        console.log(`出现异常${error}`)
+        reject(error)
+      }
+      socket.onclose = function(e){
+        console.log('关闭连接')
+      }
+      socket.onmessage = function(e){
+        response = e.data
+        console.log(response)
+        resolve(response)
+      }
+    })
   }
   alert('你的浏览器不支持WebSocket!')
   return
+
 }
 // var curUser
 
@@ -16,19 +46,5 @@ export default function(){
 // }
 
 
-// //socket = new WebSocket("ws:"+ip+":"+port+"?authToken="+authToken+"&deviceID=123");
-// var socket = new WebSocket('ws:'+ip+':'+port+'?email='+email+'&password='+password+'&deviceID=123')
-// socket.onopen = function(e){
+// socket = new WebSocket("ws:"+ip+":"+port+"?authToken="+authToken+"&deviceID=123");
 
-// }
-// socket.onerror = function(error){
-//   console.log(`出现异常${error}`)
-// }
-// socket.onclose = function(e){
-//   curUser = null
-//   console.log('关闭连接')
-// }
-// socket.onmessage = function(e){
-//   var data = e.data
-//   console.log(data)
-// }

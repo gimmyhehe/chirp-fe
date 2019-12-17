@@ -7,11 +7,10 @@ import Calendar from 'react-big-calendar'
 import configureStore from './store'
 import RouterMap from './router/RouterMap'
 import history from './router/history'
-
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import 'nprogress/nprogress.css'
 import 'antd/dist/antd.less'
-import './App.css'
+import './App.less'
 import './antd.less'
 
 Calendar.setLocalizer(Calendar.momentLocalizer(moment))

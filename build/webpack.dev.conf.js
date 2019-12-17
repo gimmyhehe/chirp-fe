@@ -29,6 +29,7 @@ module.exports = merge(baseWebpackConfig, {
     historyApiFallback: true,
     compress: true,
     open: config.dev.autoOpenBrowser,
+    port: config.dev.port,
     proxy: proxy,
     before: function (app) {
       app.get('/test-dev-server', function (req, res) {
