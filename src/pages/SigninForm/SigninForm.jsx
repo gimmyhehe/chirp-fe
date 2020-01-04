@@ -69,6 +69,8 @@ const SigninButton = styled(Button)`
   margin-top: 16px;
 }
 `
+
+
 class SigninForm extends Component{
 
   handleSubmit = (e) =>{
@@ -79,10 +81,41 @@ class SigninForm extends Component{
         values = {
           email: values.email,
           password: values.password,
+          deviceID: '123'
         }
         try {
-          api.login(values).then((response)=>{
+          api.login(values).then(async (response)=>{
             console.log(response)
+            response = JSON.parse(response)
+            await this.props.getUserInfo()
+            console.log(this.props.user)
+            // let res = await getUserInfo()
+            // console.log(res)
+            if (response.code == 10007) {
+
+              NProgress.set(0.5)
+              cookies.set('userName', values.email)
+              cookies.set('password', values.password)
+              cookies.set('uid', response.uid)
+
+              // await this.props.getUserInfo(values.email, 0)
+              NProgress.done()
+
+              const pathname =
+                this.props.location.state && this.props.location.state.from
+              const history = pathname
+                ? { pathname }
+                : {
+                  pathname: 'chirpall',
+                  state: { userName: values.email, businessId: 0 }
+                }
+              this.props.history.push(history)
+            } else {
+              NProgress.done()
+              this.setState({
+                error: true
+              })
+            }
             NProgress.done()
           },e=>{ console.log(e) })
 

@@ -1,8 +1,9 @@
 import React,{ Component } from 'react'
 import styled from 'styled-components'
 import {AppSider} from '@components'
+import api from '@api'
 import { Layout,Menu,Row, Col,Avatar,Icon,Input  } from 'antd'
-
+import cookies from '@utils/cookies'
 import ShareIcon from '@assets/icon/share.png'
 import SettingsIcon from '@assets/icon/settings.png'
 import testImg from '@assets/icon/test.png'
@@ -160,6 +161,20 @@ export default class ChirpAll extends Component{
   handleSettings = () =>{
     alert(456)
   }
+
+  handleSend = async (e) =>{
+    let params = {
+      'from': cookies.get('uid'),
+      'createTime': Math.ceil(Date.now() / 1000),
+      'cmd':11,
+      'group_id': cookies.get('chirpId'),
+      'chatType':'1',
+      'msgType':'0',
+      'content': 'hi hello'
+    }
+    let res = await api.sendMessage(params)
+    console.log(res)
+  }
   render(){
     return(
       <div>
@@ -222,8 +237,8 @@ export default class ChirpAll extends Component{
                 </FileBox>
               </ChatItem>
               <MessegeBox>
-                <Icon type="upload" style={{marginLeft:'8px'} }></Icon>
-                <Icon type="smile" ></Icon>
+                <Icon type="upload" style={{marginLeft:'8px'} } onClick={this.getChirpList}></Icon>
+                <Icon type="smile" onClick={this.handleSend}></Icon>
                 <Input></Input>
               </MessegeBox>
             </ChirpContnet>

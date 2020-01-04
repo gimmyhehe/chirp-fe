@@ -3,6 +3,7 @@ import styled,{ keyframes } from 'styled-components'
 import { fadeInUp } from 'react-animations'
 import api from '../../api'
 import cookies from '../../utils/cookies'
+import { getParams } from '@utils/tool'
 import { Form, Input, Alert,Slider,Switch   } from 'antd'
 import { Button } from '@components'
 import NProgress from 'nprogress'
@@ -16,13 +17,6 @@ const CenterBox = styled.div`
 
 `
 
-const CustomInput = styled(Input)`
-&&{
-  width: 327px;
-  height: 49px;
-  margin-top: 8px;
-}
-`
 
 const Title = styled.h1`
   font-size: 36px;
@@ -103,6 +97,7 @@ class ChirpSetting extends Component{
   state = {
     expirationDay: 0,
     pwdChecked: false,
+    uploadPermission: false,
   }
 
   handleChange = expirationDay => {
@@ -120,34 +115,28 @@ class ChirpSetting extends Component{
 
   handleSubmit = (e) =>{
     e.preventDefault()
+    let searchParams = getParams(this.props.location.search)
     this.props.form.validateFields(async (err, values) => {
       if (!err) {
         NProgress.start()
         values = {
-          firstName: values.firstName,
-          lastName: values.lastName,
-          password: values.password,
-          email: values.email,
+          cmd : 21,
+          chirpName: searchParams.chirpName,
+          isUploadPermitted: +this.state.uploadPermission,
+          expiration: '3d',
+          password: '123'
         }
         try {
-          const response = await api.signUp(values)
+          console.log(values)
+          const response = await api.createChirp(values)
           console.log(response)
-          if (response.code === 0) {
-            values = response.data
-            cookies.set('userName', values.email)
-            cookies.set('businessId', 0)
+          if (response.code === 10022) {
+            cookies.set('chirpId', response.chirpId)
             NProgress.done()
             this.setState({
               error: false
             })
-            alert('sign up success!')
-            // const login = await Promise.resolve(
-            //   api.login({
-            //     emailAddress: values.emailAddress,
-            //     hashedPassword: values.hashedPassword,
-            //   })
-            // )
-            // if(login.code === 200) this.props.history.push('/home')
+            this.props.history.replace('/chirpall')
           } else if(response.code === 400) {
             NProgress.done()
             if(response.message === 'This email has been registered') {
@@ -218,7 +207,10 @@ class ChirpSetting extends Component{
           <Item>
             <div>
               <Label>Upload Permission</Label>
-              <Switch></Switch>
+              <Switch
+                defaultChecked={this.state.uploadPermission}
+                onChange={(uploadPermission)=>{ this.setState({uploadPermission})}}
+              ></Switch>
             </div>
             <p>This will allow everyone in the chirp upload files.</p>
           </Item>
@@ -232,7 +224,7 @@ class ChirpSetting extends Component{
             <p>You can have a maximum of 365 days if you had account with us.  </p>
           </Item>
           <ButtonBox>
-            <SigninButton type='primary' htmlType="submit">Skip</SigninButton>
+            <SigninButton type='primary' htmlType="submit">Create</SigninButton>
           </ButtonBox>
         </FormBox>
       </CenterBox>

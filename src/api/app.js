@@ -1,17 +1,19 @@
 import requests from '@utils/requests'
-import connect from '@utils/websocket'
+import { socketLogin,socketLogout} from '@utils/websocket'
 
 /**
  * 用户登录的接口
  * @param {object} data 用户登录的表单数据
  */
 export const login = data => {
-  return connect(data)
+  return socketLogin(data)
 }
 /**
  * 用户注销登录
  */
-export const logout = () => requests.get('/UCM/logout')
+export const logout = () => {
+  return socketLogout()
+}
 
 /**
  * 用户注册的接口

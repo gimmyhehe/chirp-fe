@@ -1,6 +1,9 @@
 import React,{ Component } from 'react'
 import styled from 'styled-components'
 import { Layout, Menu, Icon } from 'antd'
+import cookies from '@utils/cookies'
+import { withRouter } from 'react-router-dom'
+import api from '@api'
 const { Header, Content, Footer, Sider } = Layout
 
 const CustomSider = styled(Sider)`
@@ -39,8 +42,44 @@ const CustomSider = styled(Sider)`
 
 `
 
-export default class AppSider extends Component{
+class AppSider extends Component{
+  state={
+    chirpList : [],
+  }
+  componentDidMount() {
+    let params ={
+      cmd: 25,
+      memberId: cookies.get('uid')
+    }
+    cookies.get('userName') && api.getChirpList(params).then(res=>{
+      if(res.code==10027){
+        this.setState({chirpList:res.data})
+      }
+      console.log(res)
+    })
+
+
+  }
+  getChirpList = async () =>{1
+    let params ={
+      cmd: 25,
+      memberId: cookies.get('uid')
+    }
+    let res = await api.getChirpList(params)
+    console.log(res)
+  }
+  handleJump = (e) =>{
+    e.preventDefault()
+    this.props.history.push('/chirpjoin')
+  }
+
   render(){
+    const chirpList = this.state.chirpList
+    var NoChirp = ()=>(
+      <Menu.Item key="1">
+        <span className="nav-text">no chirp</span>
+      </Menu.Item>
+    )
     return(
       <CustomSider
         breakpoint="lg"
@@ -54,17 +93,21 @@ export default class AppSider extends Component{
       >
         <div className="title">Chirps</div>
         <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']}>
-          <Menu.Item key="1">
-            <span className="nav-text">My First Chirp</span>
-          </Menu.Item>
-          <Menu.Item key="2">
-            <span className="nav-text">UI Meeting</span>
-          </Menu.Item>
-          <Menu.Item key="3">
-            <span className="nav-text">Hiking Group</span>
+          {
+            chirpList ? chirpList.map((item,index)=>{
+              return(
+                <Menu.Item key={index+1}>
+                  <span className="nav-text">{item.name}</span>
+                </Menu.Item>
+              )
+            }) : <NoChirp/>
+          }
+          <Menu.Item key={chirpList.length+1}>
+            <span className="nav-text" onClick={this.handleJump} style={{color:'#00f'}} >create/join</span>
           </Menu.Item>
         </Menu>
       </CustomSider>
     )
   }
 }
+export default withRouter(AppSider)

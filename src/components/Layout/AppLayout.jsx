@@ -2,9 +2,19 @@ import React,{ Component } from 'react'
 import styled from 'styled-components'
 import { Layout,Avatar,Dropdown,Menu } from 'antd'
 import {  Button } from '@components'
+import { connect } from 'react-redux'
+import cookies from '@utils/cookies'
+import { withRouter } from 'react-router-dom'
+import api from '@api'
 // import yueyiTTF from '@assets/yueyi.ttf'
 import {Link} from 'react-router-dom'
 import defaultAvatar from '@assets/icon/user.png'
+import NProgress from 'nprogress'
+
+const mapStateToProps = state => ({
+  user: state.user
+})
+
 const { Header, Content } = Layout
 
 const StyleLayout = styled(Layout)`
@@ -68,10 +78,32 @@ const userLinks = [
   }
 ]
 
-export default class AppLayout extends Component{
-  render(){
-    const isLogin = true
+const  linkList = {
+  home : { key: 'home' , to: '/chirpall'},
+  signin : { key: 'signin' , to: '/signin'},
+  signup : { key: 'signup' , to: '/signup'},
+}
+class AppLayout extends Component{
+  onUserLinkSelect = item => {
+    if (item.key === 'Log Out') {
+      cookies.remove('userName')
+      cookies.remove('password')
+      cookies.remove('uid')
+      NProgress.start()
+      api.logout().then(() => {
+        NProgress.done()
+        this.props.history.push('/signin')
+      })
+    }
+  }
 
+  handleJump = (e)=>{
+    let path = e.target.getAttribute('to')
+    this.props.history.replace(path)
+  }
+  render(){
+    const isLogin = cookies.get('userName') && this.props.user.data.firstName ? true : false
+    const userName = isLogin && this.props.user.data.firstName + this.props.user.data.lastName
     const DropdwonMenu = (
       <Menu style={{ minWidth: 150 }}>
         {userLinks.map(({ to, text }) => (
@@ -85,20 +117,20 @@ export default class AppLayout extends Component{
     return (
       <StyleLayout>
         <Header>
-          <Logo>Chrip</Logo>
+          <Logo to={linkList.home.to} onClick={this.handleJump}>Chirp</Logo>
           <Title>Chirps</Title>
           {
             isLogin ?
               <Dropdown overlay={DropdwonMenu}>
                 <User>
                   <Avatar size={24} src={defaultAvatar} />
-                  <span>Olivia Wang</span>
+                  <span>{userName}</span>
                 </User>
                 {/* <DropdwonMenu></DropdwonMenu> */}
               </Dropdown>
               : <User>
-                <Button type="primary">Sign Up</Button>
-                <Button type="normal">Sign In</Button>
+                <Button to={linkList.signup.to} type="primary" onClick={this.handleJump}>Sign Up</Button>
+                <Button to={linkList.signin.to} type="normal" onClick={this.handleJump}>Sign In</Button>
                 <img src={defaultAvatar} alt=""/>
                 <span>Anonymous</span>
               </User>
@@ -111,3 +143,5 @@ export default class AppLayout extends Component{
   }
 
 }
+
+export default connect(mapStateToProps, null)(withRouter(AppLayout))

@@ -5,26 +5,18 @@ export function getUserInfo(userName, businessId) {
   return async dispatch => {
     dispatch({ type: USER_INFO_PENDING, data: 'loading' })
     try {
-      let identity, data
-      if (businessId == 0) {
-        identity = 'mu'
-        data = await api.getMasterUser(userName, businessId)
-      } else {
-        identity = 'su'
-        data = await api.getStaffUser(userName, businessId)
-        if (data.masterUserBusinessId) {
-          data.businessId = data.masterUserBusinessId
-        }
+      console.log('this is redux test!')
+      let res = await api.getUserInfo()
+      if(res.code == '10005'){
+        dispatch({
+          type: USER_INFO_FULFILLED,
+          data: {
+            ...res.data
+          }
+        })
+      }else{
+        alert('some error happen')
       }
-      dispatch({
-        type: USER_INFO_FULFILLED,
-        data: {
-          userName,
-          businessId,
-          identity,
-          ...data
-        }
-      })
     } catch (error) {
       const invalidValue = !userName || !businessId
       if (invalidValue) {
