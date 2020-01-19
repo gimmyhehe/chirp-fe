@@ -5,6 +5,7 @@ import { Input,Form } from 'antd'
 import api from '../../api'
 import cookies from '../../utils/cookies'
 import { Button } from '@components'
+
 import NProgress from 'nprogress'
 
 const Title = styled.h1`
@@ -88,7 +89,8 @@ class SigninForm extends Component{
             console.log(response)
             response = JSON.parse(response)
             await this.props.getUserInfo()
-            console.log(this.props.user)
+
+            //console.log(this.props.user)
             // let res = await getUserInfo()
             // console.log(res)
             if (response.code == 10007) {
@@ -97,7 +99,7 @@ class SigninForm extends Component{
               cookies.set('userName', values.email)
               cookies.set('password', values.password)
               cookies.set('uid', response.uid)
-
+              await this.props.getChirpList()
               // await this.props.getUserInfo(values.email, 0)
               NProgress.done()
 

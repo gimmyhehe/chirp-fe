@@ -1,12 +1,13 @@
 /*
  * @Author: your name
  * @Date: 2019-12-10 00:54:02
- * @LastEditTime : 2020-01-05 00:14:47
+ * @LastEditTime : 2020-01-17 01:43:44
  * @LastEditors  : Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \chrip-fe\src\utils\websocket.js
  */
-
+import { store } from '../store'
+import { setChirpList } from '@actions/chirps'
 export default  function Socket(obj){
   /*
     websocket接口地址
@@ -31,6 +32,9 @@ export default  function Socket(obj){
     console.log(this.socket.onmessage)
     this.handleResponse = callback
     this.socket.send(params)
+  }
+  this.receiveMessage = (data) =>{
+    store.dispatch(setChirpList(data.data))
   }
   //接口地址url
   this.url = protocol + host + port
@@ -93,7 +97,15 @@ Socket.prototype.connect = function () {
       console.log(response)
       this.socket.onmessage = (res) =>{
         console.log('onmessage 方法被调用了！')
-        this.handleResponse(res)
+        console.log(res)
+        let data = JSON.parse(res.data)
+        //this.handleResponse(res)
+        if(data.command =='11'){
+          this.receiveMessage(data)
+        }else{
+
+          this.handleResponse(res)
+        }
       }
       resolve(response)
     }

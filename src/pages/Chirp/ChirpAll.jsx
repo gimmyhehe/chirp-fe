@@ -2,7 +2,9 @@ import React,{ Component } from 'react'
 import styled from 'styled-components'
 import {AppSider} from '@components'
 import api from '@api'
-import { Layout,Menu,Row, Col,Avatar,Icon,Input  } from 'antd'
+import { connect } from 'react-redux'
+import { Layout,Menu,Row, Col,Avatar,Icon,Input,Popover } from 'antd'
+import {  Button } from '@components'
 import cookies from '@utils/cookies'
 import ShareIcon from '@assets/icon/share.png'
 import SettingsIcon from '@assets/icon/settings.png'
@@ -114,6 +116,36 @@ const ChatItem = styled.div`
     font-size:17px;
   }
 `
+const SelfChatItem = styled(ChatItem)`
+  overflow:hidden;
+  .avatar{
+    float: right;
+  }
+  .info{
+    float: right;
+    &:after{
+      content: "";
+      display: block;
+      height: 0;
+      clear:both;
+      visibility: hidden;
+    }
+  }
+  p{
+    float: right;
+    margin-bottom: 0;
+    clear:both;
+  }
+  &:after{
+    content: "";
+    display: block;
+    height: 0;
+    clear:both;
+    visibility: hidden;
+  }
+`
+
+
 const PhotoBox = styled(Row)`
   .ant-col{
     overflow: hidden;
@@ -152,30 +184,114 @@ const FileBox = styled.div`
     margin-left:16px;
   }
 `
+const ShareBox = styled.div`
+  .chirp-link{
+    font-size: 16px;
+    display: block;
+    color: #4b9d0b;
+    margin-bottom: 16px;
+  }
+  .email-share{
+    border-top: 2px solid #ebedf0;
+    font-size: 20px;
+    letter-spacing: 0.35px;
+    margin-top: 24px;
+    padding-top: 20px;
+  }
+  .invite-btn{
+    margin-top: 24px;
+  }
+`
 
-
-export default class ChirpAll extends Component{
+class ChirpAll extends Component{
   handleShare = () =>{
-    alert(123)
+
   }
   handleSettings = () =>{
-    alert(456)
-  }
 
+  }
+  state = {
+    message: null,
+    messageList: [
+      {
+        from: 'aaa',
+        content:'Hi there! 👋🏼',
+        createTime: 1579107542,
+        msgType: 0,
+        isSelf: false
+      },
+      {
+        from: 'aaa',
+        content:'123431',
+        createTime: 1579107542,
+        msgType: 0,
+        isSelf: false
+      },
+      {
+        from: 'self',
+        content:'hi this is my message!',
+        createTime: 1579107542,
+        msgType: 0,
+        isSelf: true
+      },
+      {
+        from: 'aaa',
+        content:'123431',
+        createTime: 1579107542,
+        msgType: 0,
+        isSelf: false
+      },
+    ]
+  }
+  hide = () => {
+    this.setState({
+      visible: false,
+    })
+  };
+  handleMessageChange = (e) =>{
+    this.setState({message:e.target.value})
+  }
   handleSend = async (e) =>{
     let params = {
       'from': cookies.get('uid'),
       'createTime': Math.ceil(Date.now() / 1000),
       'cmd':11,
-      'group_id': cookies.get('chirpId'),
+      'group_id': this.props.chirps.currentChirp.id,
       'chatType':'1',
       'msgType':'0',
-      'content': 'hi hello'
+      'content': this.state.message
     }
+    this.setState({message:null})
     let res = await api.sendMessage(params)
     console.log(res)
   }
   render(){
+    var chirpsMessage =[]
+    if(this.props.chirps.chirpsMessage && this.props.chirps.currentChirp){
+      chirpsMessage = this.props.chirps.chirpsMessage[this.props.chirps.currentChirp.id]
+      chirpsMessage.forEach(element => {
+        if(element.from == cookies.get('uid')){
+          element.isSelf = true
+        }else{
+          element.isSelf = false
+        }
+      })
+    }
+    var ShareContent = () =>{
+      return(
+        <ShareBox>
+          <span className='chirp-link'>https://chirp.com/myfirstchirp</span>
+          <Button style={{width:'160px',height:'44px'}} type='primary'>Copy Link</Button>
+          <h3 className='email-share'>Invite People By Email</h3>
+          <Input
+            style={{width: '360px',height:'44px'}}
+            placeholder="type email here…"
+          ></Input>
+          <Button className='invite-btn' style={{width:'160px',height:'44px'}} type='normal'>Send Invite</Button>
+        </ShareBox>
+
+      )
+    }
     return(
       <div>
         <CustomLayout>
@@ -193,53 +309,103 @@ export default class ChirpAll extends Component{
                 <Menu.Item key="4">File</Menu.Item>
               </Menu>
               <Rightbox>
-                <span>My First Chirp</span>
-                <Share onClick={this.handleShare}></Share>
-                <Settings onClick={this.handleSettings}></Settings>
+                <span>{this.props.chirps.currentChirp && this.props.chirps.currentChirp.name}</span>
+                <Popover
+                  placement="bottomRight"
+                  content={<ShareContent />}
+                  title="Public Share Link"
+                  trigger="click"
+                >
+                  <Share onClick={this.handleShare}></Share>
+                </Popover>
+                <Popover
+                  placement="bottomRight"
+                  content={<a onClick={this.hide}>Close</a>}
+                  title="Title"
+                  trigger="click"
+                >
+                  <Settings onClick={this.handleSettings}></Settings>
+                </Popover>
+
               </Rightbox>
             </Header>
             <ChirpContnet>
-              <ChatItem>
-                <UserInfo>
-                  <Avatar size={36} icon="user"></Avatar>
-                  <div style={{display:'inline-block', verticalAlign: 'middle',marginLeft: '6px'}}>
-                    <span className='username'>Mike</span>
-                    <span className='sendtime' id='font-size10'>Sep 1, 2019</span>
-                  </div>
-                </UserInfo>
-                <p>Hi there! 👋🏼</p>
-                <p>Thanks for being here, feel free to share any document about this event! 😄</p>
-                <PhotoBox gutter={10}>
-                  <Col className="gutter-row" span={4}>
-                    <img src={testImg}></img>
-                  </Col>
-                  <Col className="gutter-row" span={4}>
-                    <img src={testImg}></img>
-                  </Col>
-                  <Col className="gutter-row" span={4}>
-                    <img src={testImg}></img>
-                  </Col>
-                  <Col className="gutter-row" span={4}>
-                    <img src={testImg}></img>
-                  </Col>
-                  <Col className="gutter-row" span={4}>
-                    <img src={testImg}></img>
-                  </Col>
-                  <Col style={{position:'relative'}} className='more' span={4}>
-                    <div>
-                      +16 more
-                    </div>
-                  </Col>
-                </PhotoBox>
-                <FileBox>
-                  <div className='filelogo'></div>
-                  <span>abc.pdf</span>
-                </FileBox>
-              </ChatItem>
+              { chirpsMessage.map((message,index)=>{
+                if (message.isSelf){
+                  return(
+                    <SelfChatItem key={index}>
+                      <UserInfo>
+                        <Avatar className='avatar' size={36} icon="user"></Avatar>
+                        <div  className='info' style={{display:'inline-block', verticalAlign: 'middle',marginLeft: '6px'}}>
+                          <span className='username'>{message.fromName}</span>
+                          <span className='sendtime' id='font-size10'>{message.createTime}</span>
+                        </div>
+                      </UserInfo>
+                      <p>{message.content}</p>
+                    </SelfChatItem>
+                  )
+                }else{
+                  return(
+                    <ChatItem key={index}>
+                      <UserInfo>
+                        <Avatar className='avatar' size={36} icon="user"></Avatar>
+                        <div className='info' style={{display:'inline-block', verticalAlign: 'middle',marginLeft: '6px'}}>
+                          <span className='username'>{message.fromName}</span>
+                          <span className='sendtime' id='font-size10'>{message.createTime}</span>
+                        </div>
+                      </UserInfo>
+                      <p>{message.content}</p>
+                    </ChatItem>
+                  )
+                }
+
+              })}
+              {/* <ChatItem>
+                    <UserInfo>
+                      <Avatar size={36} icon="user"></Avatar>
+                      <div style={{display:'inline-block', verticalAlign: 'middle',marginLeft: '6px'}}>
+                        <span className='username'>{message.from}</span>
+                        <span className='sendtime' id='font-size10'>{message.createTime}</span>
+                      </div>
+                    </UserInfo>
+                    <p>Hi there! 👋🏼</p>
+                    <p>Thanks for being here, feel free to share any document about this event! 😄</p>
+                    <PhotoBox gutter={10}>
+                      <Col className="gutter-row" span={4}>
+                        <img src={testImg}></img>
+                      </Col>
+                      <Col className="gutter-row" span={4}>
+                        <img src={testImg}></img>
+                      </Col>
+                      <Col className="gutter-row" span={4}>
+                        <img src={testImg}></img>
+                      </Col>
+                      <Col className="gutter-row" span={4}>
+                        <img src={testImg}></img>
+                      </Col>
+                      <Col className="gutter-row" span={4}>
+                        <img src={testImg}></img>
+                      </Col>
+                      <Col style={{position:'relative'}} className='more' span={4}>
+                        <div>
+                          +16 more
+                        </div>
+                      </Col>
+                    </PhotoBox>
+                    <FileBox>
+                      <div className='filelogo'></div>
+                      <span>abc.pdf</span>
+                    </FileBox>
+                  </ChatItem> */}
               <MessegeBox>
                 <Icon type="upload" style={{marginLeft:'8px'} } onClick={this.getChirpList}></Icon>
                 <Icon type="smile" onClick={this.handleSend}></Icon>
-                <Input></Input>
+                <Input
+                  placeholder='Press Enter to send messege'
+                  value = {this.state.message}
+                  onPressEnter={this.handleSend}
+                  onChange = {this.handleMessageChange}
+                ></Input>
               </MessegeBox>
             </ChirpContnet>
           </Layout>
@@ -248,3 +414,9 @@ export default class ChirpAll extends Component{
     )
   }
 }
+
+const mapStateToProps = state => ({
+  chirps: state.chirps
+})
+
+export default connect(mapStateToProps, null)(ChirpAll)

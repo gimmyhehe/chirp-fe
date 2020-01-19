@@ -3,6 +3,8 @@ import styled from 'styled-components'
 import { Layout, Menu, Icon } from 'antd'
 import cookies from '@utils/cookies'
 import { withRouter } from 'react-router-dom'
+import { connect } from 'react-redux'
+import { getCurrentChirp } from '@actions/chirps'
 import api from '@api'
 const { Header, Content, Footer, Sider } = Layout
 
@@ -47,34 +49,18 @@ class AppSider extends Component{
     chirpList : [],
   }
   componentDidMount() {
-    let params ={
-      cmd: 25,
-      memberId: cookies.get('uid')
-    }
-    cookies.get('userName') && api.getChirpList(params).then(res=>{
-      if(res.code==10027){
-        this.setState({chirpList:res.data})
-      }
-      console.log(res)
-    })
+    console.log(this.props.chirps)
 
-
-  }
-  getChirpList = async () =>{1
-    let params ={
-      cmd: 25,
-      memberId: cookies.get('uid')
-    }
-    let res = await api.getChirpList(params)
-    console.log(res)
   }
   handleJump = (e) =>{
     e.preventDefault()
     this.props.history.push('/chirpjoin')
   }
-
+  handleClick = (e,chirp) =>{
+    this.props.getCurrentChirp(chirp)
+  }
   render(){
-    const chirpList = this.state.chirpList
+    const chirpList = this.props.chirps.chirpList ? this.props.chirps.chirpList : []
     var NoChirp = ()=>(
       <Menu.Item key="1">
         <span className="nav-text">no chirp</span>
@@ -94,10 +80,10 @@ class AppSider extends Component{
         <div className="title">Chirps</div>
         <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']}>
           {
-            chirpList ? chirpList.map((item,index)=>{
+            chirpList ? chirpList.map((chirp,index)=>{
               return(
-                <Menu.Item key={index+1}>
-                  <span className="nav-text">{item.name}</span>
+                <Menu.Item key={index+1} onClick={(e)=>{this.handleClick(e,chirp)}}>
+                  <span className="nav-text">{chirp.name}</span>
                 </Menu.Item>
               )
             }) : <NoChirp/>
@@ -110,4 +96,9 @@ class AppSider extends Component{
     )
   }
 }
-export default withRouter(AppSider)
+
+const mapStateToProps = state => ({
+  chirps: state.chirps
+})
+
+export default connect(mapStateToProps, {getCurrentChirp})(withRouter(AppSider))

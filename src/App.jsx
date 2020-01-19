@@ -3,7 +3,7 @@ import { render } from 'react-dom'
 import { Provider } from 'react-redux'
 import moment from 'moment'
 import Calendar from 'react-big-calendar'
-import configureStore from './store'
+import { store } from './store'
 import RouterMap from './router/RouterMap'
 import history from './router/history'
 
@@ -11,6 +11,7 @@ import cookies from '@utils/cookies'
 import api from '@api'
 import NProgress from 'nprogress'
 import { getUserInfo } from './actions/user'
+import { getChirpList } from './actions/chirps'
 
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import 'nprogress/nprogress.css'
@@ -21,6 +22,7 @@ import './antd.less'
 Calendar.setLocalizer(Calendar.momentLocalizer(moment))
 
 if(cookies.get('password')){
+  NProgress.start()
   let values = {
     email: cookies.get('userName'),
     password: cookies.get('password'),
@@ -28,7 +30,8 @@ if(cookies.get('password')){
   }
   api.login(values).then(async (response)=>{
     response = JSON.parse(response)
-    await getUserInfo()
+    await store.dispatch(getUserInfo())
+    await store.dispatch(getChirpList())
     if (response.code == 10007) {
       NProgress.set(0.5)
       NProgress.done()
@@ -43,7 +46,7 @@ if(cookies.get('password')){
   },e=>{ console.log(e) })
 }
 
-const store = configureStore(history)
+
 render((
   <Provider store={store}>
     <RouterMap history={history}/>

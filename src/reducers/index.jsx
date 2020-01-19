@@ -5,6 +5,7 @@ import user from './user'
 import works from './works'
 import staffs from './staffs'
 import invoices from './invoices'
+import chirps from './chirps'
 
 export default combineReducers({
   router,
@@ -12,5 +13,6 @@ export default combineReducers({
   user,
   staffs,
   works,
-  invoices
+  invoices,
+  chirps
 })

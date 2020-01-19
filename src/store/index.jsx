@@ -1,13 +1,13 @@
 import { createStore, applyMiddleware } from 'redux'
 import { routerMiddleware } from 'react-router-redux'
 import { createLogger } from 'redux-logger'
+import history from '../router/history'
 import thunk from 'redux-thunk'
 import reducers from '@reducers'
 import apiMiddleware from './apiMiddleware'
 
 const initialState = window.__INITIAL_STATE__ || {}
-
-export default history => {
+const configureStore =  history => {
   const middleware = [
     thunk,
     apiMiddleware,
@@ -36,3 +36,6 @@ export default history => {
 
   return store
 }
+
+export default configureStore
+export const store = configureStore(history)
