@@ -1,3 +1,11 @@
+<!--
+ * @Author: your name
+ * @Date: 2019-12-09 01:11:36
+ * @LastEditTime: 2020-01-22 00:30:56
+ * @LastEditors: your name
+ * @Description: In User Settings Edit
+ * @FilePath: \chrip-fe\README.md
+ -->
 ## 项目运行
 ```
 // 拷贝项目至本地，并进入项目文件夹
@@ -8,7 +16,7 @@ cd front-end-react
 npm install
 
 // 如果是 node_modules 的模块有变化，或者是第一次运行，请运行以下命令
-npm start
+npm run dev:first
 
 // 如果不是第一次运行，则直接运行以下命令
 npm run dev
@@ -36,7 +44,7 @@ npm run dev
 ```
 
 ## 项目文档
-[后台 API 接口文档](https://gitlab.com/gdufs-ucm/UCM_Back_End/blob/master/apiDoc.md)
+[后台 API 接口文档](https://www.showdoc.cc/chirp?page_id=3197129221488132)
 
 ## 代码编写规范
 首先，请安装对应 IDE 下的两个插件： eslint 和 editorconfig 。
@@ -86,8 +94,3 @@ HTML 和 CSS 的编码规范参考 [Bootstrap 的编码规范](http://codeguide.
 
 ### 其他相关资料
 [Git 中 Commit message 和 Change log 编写指南](http://www.ruanyifeng.com/blog/2016/01/commit_message_change_log.html)
-
-## 写在最后
-在查阅资料的过程中，如果发现了对开发有用的文档，欢迎放上来跟大家一起分享（或者可以直接分享在微信群）
-
-最后祝大家工作愉快(～￣▽￣)～
