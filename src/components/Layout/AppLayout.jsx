@@ -102,8 +102,9 @@ class AppLayout extends Component{
     this.props.history.replace(path)
   }
   render(){
-    const isLogin = cookies.get('userName') && this.props.user.data.firstName ? true : false
-    const userName = isLogin && this.props.user.data.firstName + this.props.user.data.lastName
+    const userInfo = this.props.user.data
+    const isLogin = cookies.get('uid') ? true : false
+    const userName = isLogin && userInfo.firstName + userInfo.lastName
     const DropdwonMenu = (
       <Menu style={{ minWidth: 150 }}>
         {userLinks.map(({ to, text }) => (

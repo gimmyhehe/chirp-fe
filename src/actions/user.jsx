@@ -1,12 +1,16 @@
 import { USER_INFO_PENDING, USER_INFO_FULFILLED, USER_INFO_REJECTED } from '@constants/actionTypes'
 import api from '@api'
-
+import cookies from '@utils/cookies'
 export function getUserInfo(userName, businessId) {
   return async dispatch => {
     dispatch({ type: USER_INFO_PENDING, data: 'loading' })
     try {
-      console.log('this is redux test!')
-      let res = await api.getUserInfo()
+      let params ={
+        cmd: 17,
+        type: '0',
+        uid: cookies.get('uid')
+      }
+      let res = await api.getUserInfo(params)
       if(res.code == '10005'){
         dispatch({
           type: USER_INFO_FULFILLED,

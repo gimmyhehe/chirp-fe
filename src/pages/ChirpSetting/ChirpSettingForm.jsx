@@ -1,31 +1,13 @@
 import React,{ Component } from 'react'
-import styled,{ keyframes } from 'styled-components'
-import { fadeInUp } from 'react-animations'
+import styled from 'styled-components'
 import api from '../../api'
-import cookies from '../../utils/cookies'
 import { getParams } from '@utils/tool'
 import { connect } from 'react-redux'
 import { getChirpList } from '@actions/chirps'
-import { Form, Input, Alert,Slider,Switch   } from 'antd'
+import { Form, Input,Slider,Switch   } from 'antd'
 import { Button } from '@components'
 import NProgress from 'nprogress'
 
-const CenterBox = styled.div`
-  display: inline-block;
-  top: 50%;
-  position: absolute;
-  left: 50%;
-  transform: translate(-50%, -50%);
-
-`
-
-
-const Title = styled.h1`
-  font-size: 36px;
-  letter-spacing: -0.86px;
-  text-align: center;
-  font-weight: 600;
-`
 const FormBox = styled(Form)`
   &&{
     width: 375px;
@@ -72,14 +54,6 @@ const SigninButton = styled(Button)`
 }
 `
 
-const fadeInUpAnimation = keyframes`${fadeInUp}`
-const AlertWrapper = styled.div`
-    position:absolute;
-    z-index: 2;
-    top: 100px;
-    width: 340px;
-    animation: 0.5s ${fadeInUpAnimation};
-`
 const CustomSlider = styled(Slider)`
   .ant-tooltip-inner{
     background: unset;
@@ -94,14 +68,23 @@ const Label = styled.span`
   font-weight:600;
 `
 
-class ChirpSetting extends Component{
+class ChirpSettingForm extends Component{
 
-  state = {
-    expirationDay: 0,
-    pwdChecked: false,
-    uploadPermission: false,
-    password: null
+  constructor(porps){
+    super(porps)
+    let defaultSetting = {
+      expirationDay:  0,
+      pwdChecked:  false,
+      uploadPermission:  false,
+      password:  null
+    }
+    this.state = {
+      ...defaultSetting,
+      ...this.props.chirpSetting
+    }
+
   }
+
 
   handleChange = expirationDay => {
     this.setState({ expirationDay })
@@ -169,71 +152,50 @@ class ChirpSetting extends Component{
       7: '7Day'
     }
     return(
-      <CenterBox>
-        {
-          this.state.error ? (
-            <AlertWrapper>
-              <Alert
-                message="Sign up Fail"
-                description={this.state.errorMsg}
-                type="error"
-                showIcon
-                closable
-                onClose={() => {
-                  this.setState({
-                    error: false
-                  })
+      <FormBox onSubmit={this.handleSubmit}>
+        <Item>
+          <div>
+            <Label>Password</Label>
+            <Switch defaultChecked={this.state.pwdChecked} onChange={this.onChange}></Switch>
+          </div>
+          <p>Setting password will avoid people join chirp with only chirp name.</p>
+          {
+            this.state.pwdChecked ?
+              <Input
+                style={{height:'40px'}}
+                value={this.state.password}
+                onChange = {(e)=>{
+                  this.setState({password:e.target.value})
                 }}
-              />
-            </AlertWrapper>
-          ) : null
-        }
-        <Title>Chirp Setting</Title>
-        <FormBox onSubmit={this.handleSubmit}>
-          <Item>
-            <div>
-              <Label>Password</Label>
-              <Switch defaultChecked={this.state.pwdChecked} onChange={this.onChange}></Switch>
-            </div>
-            <p>Setting password will avoid people join chirp with only chirp name.</p>
-            {
-              this.state.pwdChecked ?
-                <Input
-                  style={{height:'40px'}}
-                  value={this.state.password}
-                  onChange = {(e)=>{
-                    this.setState({password:e.target.value})
-                  }}
-                  placeholder='type password here…'
-                /> :null
-            }
-          </Item>
-          <Item>
-            <div>
-              <Label>Upload Permission</Label>
-              <Switch
-                defaultChecked={this.state.uploadPermission}
-                onChange={(uploadPermission)=>{ this.setState({uploadPermission})}}
-              ></Switch>
-            </div>
-            <p>This will allow everyone in the chirp upload files.</p>
-          </Item>
-          <Item style={{borderBottom:'none'}}>
-            <Label>Chirp Expiration Date</Label>
-            <CustomSlider marks={marks} min={1} max={7}
-              onChange={this.handleChange}
-              tipFormatter={(value)=> `${value}Day` }
-              value={expirationDay}
-              defaultValue={3} />
-            <p>You can have a maximum of 365 days if you had account with us.  </p>
-          </Item>
-          <ButtonBox>
-            <SigninButton type='primary' htmlType="submit">Create</SigninButton>
-          </ButtonBox>
-        </FormBox>
-      </CenterBox>
+                placeholder='type password here…'
+              /> :null
+          }
+        </Item>
+        <Item>
+          <div>
+            <Label>Upload Permission</Label>
+            <Switch
+              defaultChecked={this.state.uploadPermission}
+              onChange={(uploadPermission)=>{ this.setState({uploadPermission})}}
+            ></Switch>
+          </div>
+          <p>This will allow everyone in the chirp upload files.</p>
+        </Item>
+        <Item style={{borderBottom:'none'}}>
+          <Label>Chirp Expiration Date</Label>
+          <CustomSlider marks={marks} min={1} max={7}
+            onChange={this.handleChange}
+            tipFormatter={(value)=> `${value}Day` }
+            value={expirationDay}
+            defaultValue={3} />
+          <p>You can have a maximum of 365 days if you had account with us.  </p>
+        </Item>
+        <ButtonBox>
+          <SigninButton type='primary' htmlType="submit">Create</SigninButton>
+        </ButtonBox>
+      </FormBox>
     )
   }
 }
 
-export default connect(null, {getChirpList})(Form.create()(ChirpSetting))
+export default connect(null, {getChirpList})(Form.create()(ChirpSettingForm))

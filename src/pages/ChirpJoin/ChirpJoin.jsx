@@ -1,6 +1,8 @@
 import React,{ Component } from 'react'
 import styled from 'styled-components'
 import api from '@api'
+import { connect } from 'react-redux'
+import { getChirpList } from '@actions/chirps'
 import NProgress from 'nprogress'
 import { Input,message } from 'antd'
 import {  Button } from '@components'
@@ -52,7 +54,7 @@ const ButtonBox = styled.div`
   margin: 48px auto 0;
   display: flex;
 `
-export default class ChirpJoin extends Component{
+class ChirpJoin extends Component{
   constructor(props){
     super(props)
     this.state = {
@@ -67,7 +69,7 @@ export default class ChirpJoin extends Component{
   handleChangePWD = (e)=>{
     this.setState({chirpPassword: e.target.value})
   }
-  createChirp = (e) =>{
+  createChirp = () =>{
     console.log(this.state.chirpName)
     this.props.history.push({
       pathname: '/chirpsetting',
@@ -84,11 +86,15 @@ export default class ChirpJoin extends Component{
     let res =await api.joinChirp(params)
     if(res.code == 10025){
       message.success('join the chirp success!')
+      await this.props.getChirpList()
       NProgress.done()
       this.props.history.replace('chirpall')
     }else if(res.code == 10030){
       this.setState({hasPassword:true})
       message.warning('This chirp need a password!')
+      NProgress.done()
+    }else{
+      message.error(res.msg)
       NProgress.done()
     }
   }
@@ -128,3 +134,6 @@ export default class ChirpJoin extends Component{
     )
   }
 }
+
+
+export default connect(null, {getChirpList})(ChirpJoin)

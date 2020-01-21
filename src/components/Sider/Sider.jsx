@@ -1,12 +1,10 @@
 import React,{ Component } from 'react'
 import styled from 'styled-components'
-import { Layout, Menu, Icon } from 'antd'
-import cookies from '@utils/cookies'
+import { Layout, Menu } from 'antd'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { getCurrentChirp } from '@actions/chirps'
-import api from '@api'
-const { Header, Content, Footer, Sider } = Layout
+const {  Sider } = Layout
 
 const CustomSider = styled(Sider)`
 

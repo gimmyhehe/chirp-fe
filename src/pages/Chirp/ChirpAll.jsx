@@ -6,10 +6,12 @@ import { connect } from 'react-redux'
 import { Layout,Menu,Row, Col,Avatar,Icon,Input,Popover } from 'antd'
 import {  Button } from '@components'
 import cookies from '@utils/cookies'
+import ChirpSettingForm from '../ChirpSetting/ChirpSettingForm'
 import ShareIcon from '@assets/icon/share.png'
 import SettingsIcon from '@assets/icon/settings.png'
 import testImg from '@assets/icon/test.png'
 import pdfIcon from '@assets/icon/pdf.png'
+import chirp from '../../api/chirp'
 const { Header, Content } = Layout
 
 const CustomLayout = styled(Layout)`
@@ -266,10 +268,11 @@ class ChirpAll extends Component{
     console.log(res)
   }
   render(){
-    var chirpsMessage =[]
-    if(this.props.chirps.chirpsMessage && this.props.chirps.currentChirp){
-      chirpsMessage = this.props.chirps.chirpsMessage[this.props.chirps.currentChirp.id]
-      chirpsMessage.forEach(element => {
+    const chirps = this.props.chirps
+    var chirpMessage =[]
+    if(chirps.allChirpsMessage.length!=0 && chirps.currentChirp){
+      chirpMessage = chirps.allChirpsMessage[chirps.currentChirp.id]
+      chirpMessage.forEach(element => {
         if(element.from == cookies.get('uid')){
           element.isSelf = true
         }else{
@@ -292,6 +295,13 @@ class ChirpAll extends Component{
 
       )
     }
+    const chirpSetting ={
+      expirationDay: 3,
+      pwdChecked: +chirps.currentChirp.passwordEnabled,
+      uploadPermission: +chirps.currentChirp.uploadPermissionEnabled,
+      password: '123'
+    }
+    console.log(chirpSetting)
     return(
       <div>
         <CustomLayout>
@@ -320,8 +330,7 @@ class ChirpAll extends Component{
                 </Popover>
                 <Popover
                   placement="bottomRight"
-                  content={<a onClick={this.hide}>Close</a>}
-                  title="Title"
+                  content={<ChirpSettingForm chirpSetting = {chirpSetting} />}
                   trigger="click"
                 >
                   <Settings onClick={this.handleSettings}></Settings>
@@ -330,7 +339,7 @@ class ChirpAll extends Component{
               </Rightbox>
             </Header>
             <ChirpContnet>
-              { chirpsMessage.map((message,index)=>{
+              { chirpMessage.map((message,index)=>{
                 if (message.isSelf){
                   return(
                     <SelfChatItem key={index}>

@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-01-05 10:06:54
- * @LastEditTime : 2020-01-17 02:15:05
+ * @LastEditTime : 2020-01-22 00:27:30
  * @LastEditors  : Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \chrip-fe\src\reducers\chirps.js
@@ -12,7 +12,7 @@ import { chirps } from '@utils/storage'
 export default (state = {
   chirpList: chirps.get('chirpList', []),
   currentChirp: chirps.get('currentChirp',{}),
-  chirpsMessage: chirps.get('chirpsMessage',{})
+  allChirpsMessage: chirps.get('allChirpsMessage',{})
 }, action) => {
   switch (action.type) {
     case actionTypes.CHIRPS_INFO_PENDING:
@@ -23,14 +23,15 @@ export default (state = {
     case actionTypes.CHIRPS_INFO_FULFILLED:{
 
       chirps.set('chirpList', action.data)
-      let chirpsMessage ={}
+      let allChirpsMessage ={}
       action.data.forEach(element => {
-        chirpsMessage[element.id] = []
+        allChirpsMessage[element.id] = []
       })
-      chirps.set('chirpsMessage',chirpsMessage)
+      chirps.set('allChirpsMessage',allChirpsMessage)
       return {
         ...state,
         chirpList: action.data,
+        allChirpsMessage: allChirpsMessage,
         loading: false
       }
     }
@@ -68,13 +69,12 @@ export default (state = {
       }
     case actionTypes.SET_CHIRP_FULFILLED:
     {
-      let chirpsMessage = chirps.get('chirpsMessage')
-      chirpsMessage[action.data.group_id].push(action.data)
-      chirps.set('chirpsMessage',chirpsMessage)
-      console.log(chirpsMessage)
+      let allChirpsMessage = chirps.get('allChirpsMessage')
+      allChirpsMessage[action.data.group_id].push(action.data)
+      chirps.set('allChirpsMessage',allChirpsMessage)
       return {
         ...state,
-        chirpsMessage: chirpsMessage,
+        allChirpsMessage: allChirpsMessage,
         loading: false
       }
     }

@@ -4,8 +4,7 @@ import { fadeInUp } from 'react-animations'
 import api from '../../api'
 import { Link } from 'react-router-dom'
 import { shouldContainLetters, shouldContainNumber, shouldNotHaveSpecialChar } from '../../utils/validation'
-import cookies from '../../utils/cookies'
-import { Form, Input, Alert } from 'antd'
+import { Form, Input, Alert,message } from 'antd'
 import { Button } from '@components'
 import NProgress from 'nprogress'
 
@@ -120,23 +119,14 @@ class SignupForm extends Component{
         }
         try {
           const response = await api.signUp(values)
-          console.log(response)
           if (response.code === 0) {
             values = response.data
-            cookies.set('userName', values.email)
-            cookies.set('businessId', 0)
             NProgress.done()
             this.setState({
               error: false
             })
-            alert('sign up success!')
-            // const login = await Promise.resolve(
-            //   api.login({
-            //     emailAddress: values.emailAddress,
-            //     hashedPassword: values.hashedPassword,
-            //   })
-            // )
-            // if(login.code === 200) this.props.history.push('/home')
+            message.success('sign up success! you can signin now!')
+            this.props.history.push('/signin')
           } else if(response.code === 1001) {
             NProgress.done()
             this.setState({

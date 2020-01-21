@@ -90,11 +90,7 @@ class SigninForm extends Component{
             response = JSON.parse(response)
             await this.props.getUserInfo()
 
-            //console.log(this.props.user)
-            // let res = await getUserInfo()
-            // console.log(res)
             if (response.code == 10007) {
-
               NProgress.set(0.5)
               cookies.set('userName', values.email)
               cookies.set('password', values.password)
