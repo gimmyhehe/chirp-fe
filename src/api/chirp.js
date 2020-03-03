@@ -1,11 +1,12 @@
 /*
  * @Author: your name
  * @Date: 2019-12-29 12:01:50
- * @LastEditTime : 2020-01-04 14:53:11
- * @LastEditors  : Please set LastEditors
+ * @LastEditTime: 2020-02-18 22:09:31
+ * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \chrip-fe\src\api\chirp.js
  */
+import requests from '@utils/requests'
 import { sendRequest } from '@utils/websocket'
 
 export function createChirp(params){
@@ -23,9 +24,12 @@ export function joinChirp(params) {
   return sendRequest(params)
 }
 
+export const upload = params => requests.post('/upload', params)
+
 export default {
   createChirp,
   sendMessage,
   getChirpList,
   joinChirp,
+  upload
 }

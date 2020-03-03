@@ -14,8 +14,10 @@
     "antd": "^3.6.2",
     "axios": "^0.18.0",
     "es6-promise": "^4.1.1",
+    "file-saver": "^2.0.2",
     "history": "^4.7.2",
     "isomorphic-fetch": "^2.2.1",
+    "jszip": "^3.2.2",
     "moment": "^2.22.2",
     "nprogress": "^0.2.0",
     "react": "^16.0.0",
@@ -29,8 +31,9 @@
     "redux": "^3.7.2",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.2.0",
+    "spark-md5": "^3.0.0",
     "string-random": "^0.1.0",
-    "styled-components": "^4.4.0"
+    "styled-components": "^5.0.1"
   },
   "devDependencies": {
     "autoprefixer": "^8.3.0",

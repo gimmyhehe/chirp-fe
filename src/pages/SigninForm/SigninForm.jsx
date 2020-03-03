@@ -86,17 +86,16 @@ class SigninForm extends Component{
         }
         try {
           api.login(values).then(async (response)=>{
-            console.log(response)
             response = JSON.parse(response)
-            await this.props.getUserInfo()
+
 
             if (response.code == 10007) {
               NProgress.set(0.5)
               cookies.set('userName', values.email)
               cookies.set('password', values.password)
               cookies.set('uid', response.uid)
+              await this.props.getUserInfo()
               await this.props.getChirpList()
-              // await this.props.getUserInfo(values.email, 0)
               NProgress.done()
 
               const pathname =

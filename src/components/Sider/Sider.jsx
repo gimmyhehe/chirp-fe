@@ -76,7 +76,8 @@ class AppSider extends Component{
         }}
       >
         <div className="title">Chirps</div>
-        <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']}>
+        {/* defaultSelectedKeys={['1']} */}
+        <Menu theme="dark" mode="inline" >
           {
             chirpList ? chirpList.map((chirp,index)=>{
               return(

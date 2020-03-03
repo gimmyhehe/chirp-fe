@@ -10,6 +10,7 @@ export function getUserInfo(userName, businessId) {
         type: '0',
         uid: cookies.get('uid')
       }
+      console.log(cookies.get('uid'))
       let res = await api.getUserInfo(params)
       if(res.code == '10005'){
         dispatch({
@@ -19,7 +20,7 @@ export function getUserInfo(userName, businessId) {
           }
         })
       }else{
-        alert('some error happen')
+        alert('getUserInfo fail!')
       }
     } catch (error) {
       const invalidValue = !userName || !businessId

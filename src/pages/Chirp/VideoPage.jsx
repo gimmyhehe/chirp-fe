@@ -1,0 +1,27 @@
+import React,{ Component } from 'react'
+import styled from 'styled-components'
+import api from '@api'
+import { connect } from 'react-redux'
+import { getChirpList } from '@actions/chirps'
+
+class VideoPage extends Component{
+  constructor(props){
+    super(props)
+    this.state = {
+      chirpName: null,
+      hasPassword: false,
+      chirpPassword: null
+    }
+  }
+
+  render(){
+    return (
+      <div>
+        this is VideoPage!
+      </div>
+    )
+  }
+}
+
+
+export default connect(null, {getChirpList})(VideoPage)

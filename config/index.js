@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2019-12-09 01:11:11
+ * @LastEditTime: 2020-02-18 21:56:15
+ * @LastEditors: your name
+ * @Description: In User Settings Edit
+ * @FilePath: \chrip-fe\config\index.js
+ */
 // https://webpack.js.org/configuration/dev-server/#devserver-watchoptions-
 var path = require('path')
 var resolve = function (dir) {
@@ -63,6 +71,11 @@ module.exports = {
       // },
       '/api': {
         target: 'http://54.144.207.148:8888',
+        secure: false,
+        changeOrigin: true,
+      },
+      '/upload': {
+        target: 'http://54.144.207.148:8080',
         secure: false,
         changeOrigin: true,
       },
