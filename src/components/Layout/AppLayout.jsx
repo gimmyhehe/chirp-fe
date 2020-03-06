@@ -93,7 +93,7 @@ class AppLayout extends Component{
       api.logout().then(() => {
         NProgress.done()
         this.props.history.push('/signin')
-      })
+      }).catch((error)=>{ console.error(`logout error ${error}`) })
     }
   }
 
@@ -104,7 +104,7 @@ class AppLayout extends Component{
   render(){
     const userInfo = this.props.user.data
     const isLogin = cookies.get('uid') ? true : false
-    const userName = isLogin && userInfo.firstName + userInfo.lastName
+    const userName = isLogin && userInfo.firstName  && userInfo.firstName + userInfo.lastName
     const DropdwonMenu = (
       <Menu style={{ minWidth: 150 }}>
         {userLinks.map(({ to, text }) => (
@@ -127,7 +127,6 @@ class AppLayout extends Component{
                   <Avatar size={24} src={defaultAvatar} />
                   <span>{userName}</span>
                 </User>
-                {/* <DropdwonMenu></DropdwonMenu> */}
               </Dropdown>
               : <User>
                 <Button to={linkList.signup.to} type="primary" onClick={this.handleJump}>Sign Up</Button>
