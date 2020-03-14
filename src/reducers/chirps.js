@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-01-05 10:06:54
- * @LastEditTime: 2020-03-12 23:34:36
+ * @LastEditTime: 2020-03-14 16:06:45
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \chrip-fe\src\reducers\chirps.js
@@ -11,7 +11,7 @@ import { chirps } from '@utils/storage'
 
 export default (state = {
   chirpList: chirps.get('chirpList', []),
-  currentChirp: chirps.get('currentChirp',{}),
+  currentChirp: chirps.get('currentChirp',null),
   allChirpsMessage: chirps.get('allChirpsMessage',{})
 }, action) => {
   switch (action.type) {

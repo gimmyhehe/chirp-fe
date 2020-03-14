@@ -17,7 +17,7 @@ class VideoPage extends Component{
   render(){
     return (
       <div>
-        this is VideoPage!
+            开发中。。。
       </div>
     )
   }

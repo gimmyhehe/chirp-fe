@@ -127,7 +127,7 @@ class ChirpSetting extends Component{
           ) : null
         }
         <Title>Chirp Setting</Title>
-        <ChirpSettingFrom operaiton ='create' history={this.props.history} chirpName={ getParams(this.props.location.search).chirpName } />
+        <ChirpSettingFrom operation ='create' history={this.props.history} chirpName={ getParams(this.props.location.search).chirpName } />
       </CenterBox>
     )
   }

@@ -92,11 +92,17 @@ background-image: url(${SettingsIcon});
 
 
 const ShareBox = styled.div`
+  padding: 20px 32px;
+  overflow: hidden;
   .chirp-link{
     font-size: 16px;
     display: block;
     color: #4b9d0b;
     margin-bottom: 16px;
+  }
+  .link-share{
+    font-size: 20px;
+    letter-spacing: 0.35px;
   }
   .email-share{
     border-top: 2px solid #ebedf0;
@@ -136,20 +142,30 @@ class ChirpAll extends Component{
 
   render(){
     const chirps = this.props.chirps
-    var chirpMessage =[]
-    if(chirps.allChirpsMessage.length!=0 && chirps.currentChirp && chirps.currentChirp.id){
-      chirpMessage = chirps.allChirpsMessage[chirps.currentChirp.id]
-      chirpMessage.forEach(element => {
-        if(element.from == cookies.get('uid')){
-          element.isSelf = true
-        }else{
-          element.isSelf = false
-        }
-      })
+    const {allChirpsMessage,currentChirp} = chirps
+    var chirpSetting,chirpMessage
+    if(currentChirp){
+      chirpSetting ={
+        expirationDay: (currentChirp.expiredDate - currentChirp.createTime) / 24*60*60,
+        pwdChecked: !!currentChirp.passwordEnabled,
+        uploadPermission: !!currentChirp.uploadPermissionEnabled,
+        password: ''
+      }
+      if(allChirpsMessage.length!=0){
+        chirpMessage = allChirpsMessage[currentChirp.id]
+        chirpMessage.forEach(element => {
+          if(element.from == cookies.get('uid')){
+            element.isSelf = true
+          }else{
+            element.isSelf = false
+          }
+        })
+      }
     }
     var ShareContent = () =>{
       return(
         <ShareBox>
+          <h3 className='link-share'>Public Share Link</h3>
           <span className='chirp-link'>https://chirp.com/myfirstchirp</span>
           <Button style={{width:'160px',height:'44px'}} type='primary'>Copy Link</Button>
           <h3 className='email-share'>Invite People By Email</h3>
@@ -165,11 +181,10 @@ class ChirpAll extends Component{
     var TabBarExtraContent = () =>{
       return(
         <Rightbox>
-          <span>{this.props.chirps.currentChirp && this.props.chirps.currentChirp.name}</span>
+          <span>{currentChirp.name}</span>
           <Popover
             placement="bottomRight"
             content={<ShareContent />}
-            title="Public Share Link"
             trigger="click"
           >
             <Share onClick={this.handleShare}></Share>
@@ -185,22 +200,15 @@ class ChirpAll extends Component{
         </Rightbox>
       )
     }
-    var defaultSetting  = chirps.currentChirp ? chirps.currentChirp : {passwordEnabled:false,uploadPermissionEnabled:false}
-    const chirpSetting ={
-      expirationDay: 3,
-      pwdChecked: +defaultSetting.passwordEnabled,
-      uploadPermission: +defaultSetting.uploadPermissionEnabled,
-      password: '123'
-    }
     return(
       <div>
         <CustomLayout>
           <AppSider></AppSider>
           {
-            chirps.currentChirp == null ? null :
+            currentChirp == null ? null :
               <CustomTab tabBarExtraContent={<TabBarExtraContent/>}>
                 <TabPane tab="All" key="1">
-                  <AllContnet chirpMessage ={chirpMessage} currentChirp = {this.props.chirps.currentChirp}/>
+                  <AllContnet chirpMessage ={chirpMessage} currentChirp = {currentChirp}/>
                 </TabPane>
                 <TabPane tab="Photo" key="2">
                   <PhotoContent chirpMessage ={chirpMessage} />

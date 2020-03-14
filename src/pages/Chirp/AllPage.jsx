@@ -161,7 +161,14 @@ class AllPage extends Component{
       console.error(error)
     })
   }
+  handleEmoji =()=>{
+
+  }
   uploadFile = () => {
+    if(this.props.currentChirp.uploadPermissionEnabled != 1){
+      alert('sorry this chirp does not open the upload permission')
+      return false
+    }
     document.getElementById('upload').click()
   }
   doRealUpload = async () =>{
@@ -282,8 +289,8 @@ class AllPage extends Component{
          </ChirpContent>
          <MessegeBox>
            <Icon type="upload" style={{marginLeft:'8px'} } onClick={this.uploadFile}></Icon>
-           <input id="upload" type="file" multiple onChange={this.doRealUpload} style={{display: 'none'}} />
-           <Icon type="smile" onClick={this.handleSend}></Icon>
+           <input id="upload" type="file"  onChange={this.doRealUpload} style={{display: 'none'}} />
+           <Icon type="smile" onClick={this.handleEmoji} ></Icon>
            <Input
              placeholder='Press Enter to send messege'
              value = {this.state.message}

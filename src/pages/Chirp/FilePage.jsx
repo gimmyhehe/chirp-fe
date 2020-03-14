@@ -39,10 +39,11 @@ class FilePage extends Component{
   render(){
     return (
       <div>
-        <FileBox>
+        {/* <FileBox>
           <div className='filelogo'></div>
           <span>abc.pdf</span>
-        </FileBox>
+        </FileBox> */}
+            开发中...
       </div>
     )
   }

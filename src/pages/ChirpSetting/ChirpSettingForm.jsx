@@ -3,12 +3,12 @@ import styled from 'styled-components'
 import api from '../../api'
 import { connect } from 'react-redux'
 import { getChirpList } from '@actions/chirps'
-import { Form, Input,Slider,Switch   } from 'antd'
+import { Form, Input,Slider,Switch,Modal   } from 'antd'
 import { Button } from '@components'
 import NProgress from 'nprogress'
 const FormBox = styled(Form)`
   &&{
-    width: 375px;
+    width: 424px;
     box-shadow: 0 1px 2px 0 rgba(0,0,0,0.14);
     position: relative;
     overflow: hidden;
@@ -34,21 +34,30 @@ const Item = styled(Form.Item)`
   border-bottom: rgb(216,219,226) 1px solid;
   .ant-switch{
     float: right;
+    margin: 4px 0 4px;
+  }
+  p{
+    margin: 0;
+    line-height: 1.45;
   }
 `
 const ButtonBox = styled.div`
-  width: 326px;
+  width: 100%;
   margin: 20px auto 0;
   display: flex;
 `
 
-const SigninButton = styled(Button)`
+const CustomButton = styled(Button)`
 &&{
   width: 327px;
   height: 48px;
   margin: 0 auto;
   display: block;
-  margin-top: 16px;
+}
+`
+const SettingButton = styled(CustomButton)`
+&&{
+  width : 160px;
 }
 `
 
@@ -77,6 +86,7 @@ class ChirpSettingForm extends Component{
       password:  null
     }
     this.state = {
+      modalVisible: false,
       ...defaultSetting,
       ...this.props.chirpSetting
     }
@@ -158,6 +168,16 @@ class ChirpSettingForm extends Component{
       }
     })
   }
+  handleDelete = () =>{
+    this.setState({ modalVisible: true})
+  }
+  handleCancel = ()=>{
+    this.setState({ modalVisible: false})
+  }
+  handleDeleteChirp = ()=>{
+    // to do deletechirp
+    this.setState({ modalVisible: false})
+  }
   onChange = (pwdChecked)=> {
     this.setState({pwdChecked})
   }
@@ -167,14 +187,14 @@ class ChirpSettingForm extends Component{
       if(this.props.operation == 'create'){
         return (
           <ButtonBox>
-            <SigninButton type='primary' htmlType="submit">Create</SigninButton>
+            <CustomButton type='primary' htmlType="submit">Create</CustomButton>
           </ButtonBox>
         )
       }else{
         return (
           <ButtonBox>
-            <SigninButton type='primary' onClick={this.handleSave}>Save</SigninButton>
-            <SigninButton type='primary' htmlType="submit">Delete</SigninButton>
+            <SettingButton type='primary' onClick={this.handleSave}>Save</SettingButton>
+            <SettingButton type='normal' onClick={this.handleDelete}>Delete Chirp</SettingButton>
           </ButtonBox>
         )
       }
@@ -185,15 +205,25 @@ class ChirpSettingForm extends Component{
       7: '7Day'
     }
     return(
-      <FormBox onSubmit={this.handleSubmit}>
-        <Item>
-          <div>
-            <Label>Password</Label>
-            <Switch defaultChecked={this.state.pwdChecked} onChange={this.onChange}></Switch>
-          </div>
-          <p>Setting password will avoid people join chirp with only chirp name.</p>
-          {
-            this.state.pwdChecked ?
+      <div>
+        <Modal
+          title="Delete Chirp"
+          visible={this.state.modalVisible}
+          onOk={this.handleDeleteChirp}
+          confirmLoading={this.confirmLoading}
+          onCancel={this.handleCancel}
+        >
+          <p>Are you sure to delete this chirp?</p>
+        </Modal>
+        <FormBox onSubmit={this.handleSubmit}>
+          <Item>
+            <div>
+              <Label>Password</Label>
+              <Switch defaultChecked={this.state.pwdChecked} onChange={this.onChange}></Switch>
+            </div>
+            <p>Setting password will avoid people join chirp with only chirp name.</p>
+            {
+              this.state.pwdChecked ?
               // getFieldDecorator('password',{
               //   rules:[
               //     {
@@ -203,38 +233,39 @@ class ChirpSettingForm extends Component{
               //   ],
               //   validateTrigger: ['onBlur']
               // })(<Input.Password style={{height:'40px'}} placeholder='type password here…' />)
-              <Input
-                style={{height:'40px'}}
-                value={this.state.password}
-                onChange = {(e)=>{
-                  this.setState({password:e.target.value})
-                }}
-                placeholder='type password here…'
-              />
-              :null
-          }
-        </Item>
-        <Item>
-          <div>
-            <Label>Upload Permission</Label>
-            <Switch
-              defaultChecked={this.state.uploadPermission}
-              onChange={(uploadPermission)=>{ this.setState({uploadPermission})}}
-            ></Switch>
-          </div>
-          <p>This will allow everyone in the chirp upload files.</p>
-        </Item>
-        <Item style={{borderBottom:'none'}}>
-          <Label>Chirp Expiration Date</Label>
-          <CustomSlider marks={marks} min={1} max={7}
-            onChange={this.handleChange}
-            tipFormatter={(value)=> `${value}Day` }
-            value={expirationDay}
-            defaultValue={3} />
-          <p>You can have a maximum of 365 days if you had account with us.  </p>
-        </Item>
-        <ButtonGroup />
-      </FormBox>
+                <Input
+                  style={{height:'40px'}}
+                  value={this.state.password}
+                  onChange = {(e)=>{
+                    this.setState({password:e.target.value})
+                  }}
+                  placeholder='type password here…'
+                />
+                :null
+            }
+          </Item>
+          <Item>
+            <div>
+              <Label>Upload Permission</Label>
+              <Switch
+                defaultChecked={this.state.uploadPermission}
+                onChange={(uploadPermission)=>{ this.setState({uploadPermission})}}
+              ></Switch>
+            </div>
+            <p>This will allow everyone in the chirp upload files.</p>
+          </Item>
+          <Item style={{borderBottom:'none'}}>
+            <Label>Chirp Expiration Date</Label>
+            <CustomSlider marks={marks} min={1} max={7}
+              onChange={this.handleChange}
+              tipFormatter={(value)=> `${value}Day` }
+              value={expirationDay}
+              defaultValue={3} />
+            <p>You can have a maximum of 365 days if you had account with us.  </p>
+          </Item>
+          <ButtonGroup />
+        </FormBox>
+      </div>
     )
   }
 }
