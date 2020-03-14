@@ -25,7 +25,7 @@ module.exports = merge(baseWebpackConfig, {
   },
   devServer: {
     // webpack-dev-server options
-    hot: false,
+    hot: true,
     historyApiFallback: true,
     compress: true,
     open: config.dev.autoOpenBrowser,

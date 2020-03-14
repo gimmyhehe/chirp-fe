@@ -1,8 +1,8 @@
 /*
  * @Author: your name
  * @Date: 2020-01-05 10:06:54
- * @LastEditTime : 2020-01-22 00:27:30
- * @LastEditors  : Please set LastEditors
+ * @LastEditTime: 2020-03-12 23:34:36
+ * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \chrip-fe\src\reducers\chirps.js
  */
@@ -23,7 +23,7 @@ export default (state = {
     case actionTypes.CHIRPS_INFO_FULFILLED:{
 
       chirps.set('chirpList', action.data)
-      let allChirpsMessage ={}
+      let allChirpsMessage =state.allChirpsMessage
       action.data.forEach(element => {
         allChirpsMessage[element.id] = []
       })
@@ -85,6 +85,54 @@ export default (state = {
         error: action.error,
         loading: false
       }
+    case actionTypes.SEND_MSG_PENDING:{
+      return {
+        ...state,
+        loading: true
+      }
+    }
+    case actionTypes.SEND_MSG_FULFILLED:{
+      let allChirpsMessage = chirps.get('allChirpsMessage')
+      allChirpsMessage[action.msg.chirpId][action.msg.index] = action.msg.data
+      chirps.set('allChirpsMessage',allChirpsMessage)
+      return {
+        ...state,
+        allChirpsMessage: allChirpsMessage,
+        loading: false
+      }
+    }
+    case actionTypes.SEND_MSG_REJECTED:{
+      chirps.set('error', action.error)
+      return {
+        ...state,
+        error: action.error,
+        loading: false
+      }
+    }
+    case actionTypes.SEND_MSG_SUCCESS_PENDING:{
+      return {
+        ...state,
+        loading: true
+      }
+    }
+    case actionTypes.SEND_MSG_SUCCESS_FULFILLED:{
+      let allChirpsMessage = chirps.get('allChirpsMessage')
+      allChirpsMessage[action.data.chirpId][action.data.index].sending = false
+      chirps.set('allChirpsMessage',allChirpsMessage)
+      return {
+        ...state,
+        allChirpsMessage: allChirpsMessage,
+        loading: false
+      }
+    }
+    case actionTypes.SEND_MSG_SUCCESS_REJECTED:{
+      chirps.set('error', action.error)
+      return {
+        ...state,
+        error: action.error,
+        loading: false
+      }
+    }
     default:
       return {
         ...state,

@@ -1,45 +1,33 @@
 /*
  * @Author: your name
  * @Date: 2019-12-10 00:54:02
- * @LastEditTime : 2020-01-17 01:43:44
- * @LastEditors  : Please set LastEditors
+ * @LastEditTime: 2020-03-14 13:57:26
+ * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \chrip-fe\src\utils\websocket.js
  */
 import { store } from '../store'
 import { setChirpList } from '@actions/chirps'
-export default  function Socket(obj){
-  /*
-    websocket接口地址
-    1、http请求还是https请求 前缀不一样
-	2、ip地址host
-    3、端口号
-    */
-  const protocol = 'ws:'
-  const host =  '54.144.207.148'
-  const port = ':8888'
+import { serialize } from '@utils/tool'
+import cookies from '@utils/cookies'
+function SocketBase(obj){
   this.params = obj.params
-  this.handleResponse = (msg) =>{
-    console.log('initail handleResponse')
-    console.log(msg)
-  }
+  this.connectSuccess
+  this.connectFail
+  this.handleResponse = () =>{}
   this.sendRequest = (params,callback) =>{
     if(!this.isHeartflag){
       console.log('no connect')
       return false
     }
-    console.log(this.socket)
-    console.log(this.socket.onmessage)
     this.handleResponse = callback
     this.socket.send(params)
   }
   this.receiveMessage = (data) =>{
     store.dispatch(setChirpList(data.data))
   }
-  //接口地址url
-  this.url = protocol + host + port
   //socket对象,用于保存原生websocket的属性、方法
-  this.socket
+  this.socket = null
   //心跳状态  为false时不能执行操作 等待重连
   this.isHeartflag = false
   //重连状态  避免不间断的重连操作
@@ -52,67 +40,74 @@ export default  function Socket(obj){
   })
   //自定义Ws消息接收函数：服务器向前端推送消息时触发
   this.onmessage = ((res) => {
-    //处理各种推送消息
-    // console.log(message)
-    this.handleResponse(res)
+    let response = res.data
+    if(typeof response == 'string'){
+      response = JSON.parse(response)
+    }
+    this.connectSuccess(response)
+    //登录成功后重写onmessage方法
+    this.onmessage = (res) =>{
+      console.log('onmessage 方法被调用了!!!')
+      console.log(res)
+      let data = JSON.parse(res.data)
+      //this.handleResponse(res)
+      if(data.command =='11'){
+        //判断如果是自己的消息则不做处理
+        if(cookies.get('uid') == data.data.from){
+          return
+        }else{
+          this.receiveMessage(data)
+        }
+      }else{
+        this.handleResponse(res)
+      }
+    }
   })
   //自定义Ws异常事件：Ws报错后触发
   this.onerror = ((e) => {
-    console.log('error')
+    console.log(`websocket connect error${e}`)
+    if(typeof this.disconnectFail == 'function'){
+      this.disconnectFail
+    }
     this.isHeartflag = false
     this.reConnect()
   })
   //自定义Ws关闭事件：Ws连接关闭后触发
-  this.onclose = ((e) => {
-    console.log('close')
+  this.onclose = ((msg) => {
+    console.log(`The websocket is close${msg}`)
   })
+  this.connect()
 }
 
 //初始化websocket连接
-Socket.prototype.connect = function () {
+SocketBase.prototype.connect = function () {
   window.WebSocket = window.WebSocket || window.MozWebSocket
   if (!window.WebSocket) { // 检测浏览器支持
     alert('错误: 浏览器不支持websocket')
     return
   }
-  var response
   let paramsStr = serialize(this.params)
-  return new Promise((resolve,reject) => {
-
-    this.socket = new WebSocket(`${this.url}?${paramsStr}`)
-
-    this.socket.onopen = (msg)=>{
-      this.onopen(msg)
-    }
-    this.socket.onerror =(error)=>{
-      this.onerror(error)
-      reject(error)
-    }
-    this.socket.onclose = (msg)=>{
-      this.onclose(msg)
-      this.socket = null // 清理
-    }
-    this.socket.onmessage = (msg)=>{
-      response = msg.data
-      console.log(response)
-      this.socket.onmessage = (res) =>{
-        console.log('onmessage 方法被调用了！')
-        console.log(res)
-        let data = JSON.parse(res.data)
-        //this.handleResponse(res)
-        if(data.command =='11'){
-          this.receiveMessage(data)
-        }else{
-
-          this.handleResponse(res)
-        }
-      }
-      resolve(response)
-    }
-  })
+  console.log('与服务器器连接websocket中。。。')
+  //WEBSOCKET_URL是webpack的DefinePlugin需要替换的变量
+  // eslint-disable-next-line no-undef
+  this.socket = new WebSocket(WEBSOCKET_URL+`?${paramsStr}`)
+  //将原生socket的各种方法绑定到自定义的Socket类上
+  this.socket.onopen = (msg)=>{
+    this.onopen(msg)
+  }
+  this.socket.onerror =(error)=>{
+    this.onerror(error)
+  }
+  this.socket.onclose = (msg)=>{
+    this.onclose(msg)
+    this.socket = null // 清理
+  }
+  this.socket.onmessage = (res)=>{
+    this.onmessage(res)
+  }
 }
 
-Socket.prototype.disconnect = function () {
+SocketBase.prototype.disconnect = function () {
   this.socket.close()
   return new Promise((resolve,reject)=>{
     this.socket.onclose=(msg)=>{
@@ -120,11 +115,15 @@ Socket.prototype.disconnect = function () {
       delete window.appSocket
       resolve(msg)
     }
+    this.disconnectFail = (error)=>{
+      reject(error)
+    }
   })
 }
 
-Socket.prototype.reConnect = function () {
+SocketBase.prototype.reConnect = function () {
   if (this.isReconnect) return
+  console.info('wecsocket is reconnenting')
   this.isReconnect = true
   //没连接上会一直重连，设置延迟避免请求过多
   setTimeout( ()=> {
@@ -133,15 +132,20 @@ Socket.prototype.reConnect = function () {
   }, 2000)
 }
 
-function serialize(data) {
-  return Object.keys(data)
-    .map(key => {
-      return `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`
-    })
-    .join('&')
-}
+var SocketSingleTon = (function(){
+  let instance = null
+  return function(paramsObj){
+    if(instance == null){
+      instance = new SocketBase(paramsObj)
+    }
+    return instance
+  }
+})()
+
 
 export function sendRequest(params) {
+  console.log('websocket 请求发送中 参数如下')
+  console.log(params)
   return new Promise((reslove,reject)=>{
     try{
       window.appSocket.sendRequest(JSON.stringify(params),function(res){
@@ -155,9 +159,19 @@ export function sendRequest(params) {
 }
 
 export function socketLogin(params) {
-  var appSocket = new Socket({params})
+  if(window.appSocket){
+    return Promise.resolve({code:10007})
+  }
+  var appSocket = new SocketSingleTon({params})
   window.appSocket = appSocket
-  return appSocket.connect()
+  return new Promise((resolve,reject)=>{
+    appSocket.connectSuccess = (res) =>{
+      resolve(res)
+    }
+    appSocket.connectFail = (error) =>{
+      reject(error)
+    }
+  })
 }
 
 export function socketLogout() {

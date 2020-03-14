@@ -3,10 +3,11 @@ import styled from 'styled-components'
 import api from '@api'
 import SparkMD5 from 'spark-md5'
 import cookies from '@utils/cookies'
+import {formatTime} from '@utils/tool'
 import {Avatar,Col,Icon,Input,Row } from 'antd'
 import { connect } from 'react-redux'
-import { getChirpList } from '@actions/chirps'
-
+import { sendMsg, sendMsgSuccess } from '@actions/chirps'
+import {Loading} from '@components'
 const AllContnet = styled.div`
   width: 100%;
   height: 100%;
@@ -37,6 +38,7 @@ const ChirpContent = styled.div`
 
 const ChatItem = styled.div`
   padding:16px;
+  position: relative;
   border-bottom: 2px solid #ebedf0;
   p{
     font-size:17px;
@@ -116,7 +118,7 @@ class AllPage extends Component{
       message: null,
       chirpName: null,
       hasPassword: false,
-      chirpPassword: null
+      chirpPassword: null,
     }
     this.content = React.createRef()
   }
@@ -124,7 +126,13 @@ class AllPage extends Component{
   handleMessageChange = (e) =>{
     this.setState({message:e.target.value})
   }
+  componentDidUpdate() {
+    if(this.content.current.scrollHeight > this.content.current.clientHeight) {
+      //设置滚动条到最底部
+      this.content.current.scrollTop = this.content.current.scrollHeight
+    }
 
+  }
   handleSend = async (obj) =>{
     let {fileList} = obj
     let params = {
@@ -137,13 +145,21 @@ class AllPage extends Component{
       'content': this.state.message,
       fileList
     }
+    console.log(this.props.chirpMessage)
+    let index = this.props.chirpMessage.length
+    let chirpId = this.props.currentChirp.id
     this.setState({message:null})
-    let res = await api.sendMessage(params)
-    if(this.content.current.scrollHeight > this.content.current.clientHeight) {
-      //设置滚动条到最底部
-      this.content.current.scrollTop = this.content.current.scrollHeight
-    }
-    console.log(res)
+    params.sending = true
+    this.props.sendMsg({index,chirpId,data:params})
+    await api.sendMessage(params).then((res)=>{
+      if(res.code == 10000){
+        this.props.sendMsgSuccess({index,chirpId})
+      }else{
+        throw new Error('send message fail')
+      }
+    }).catch((error)=>{
+      console.error(error)
+    })
   }
   uploadFile = () => {
     document.getElementById('upload').click()
@@ -163,7 +179,6 @@ class AllPage extends Component{
     var res = await api.upload(formData)
     let fileList = [res.data]
     this.handleSend({fileList})
-    console.log(res)
   }
    get_filemd5sum = (ofile) => {
      return new Promise((resolve,reject)=>{
@@ -207,7 +222,6 @@ class AllPage extends Component{
    }
    render(){
      var chirpMessage = this.props.chirpMessage
-     console.log(chirpMessage)
      return (
        <AllContnet>
          <ChirpContent ref ={this.content}>
@@ -220,9 +234,10 @@ class AllPage extends Component{
                      <Avatar className='avatar' size={36} icon="user"></Avatar>
                      <div  className='info' style={{display:'inline-block', verticalAlign: 'middle',marginLeft: '6px'}}>
                        <span className='username'>{message.fromName}</span>
-                       <span className='sendtime' id='font-size10'>{message.createTime}</span>
+                       <span className='sendtime' id='font-size10'>{formatTime(message.createTime*1000)}</span>
                      </div>
                    </UserInfo>
+                   {message.sending ? <Loading customStyle ={{position: 'absolute',top:'32px',fontSize:'3px'}} /> : null}
                    {message.fileList ?
                      <PhotoBox gutter={10}>
                        <Col className="gutter-row" span={4}>
@@ -240,7 +255,7 @@ class AllPage extends Component{
                      <Avatar className='avatar' size={36} icon="user"></Avatar>
                      <div className='info' style={{display:'inline-block', verticalAlign: 'middle',marginLeft: '6px'}}>
                        <span className='username'>{message.fromName}</span>
-                       <span className='sendtime' id='font-size10'>{message.createTime}</span>
+                       <span className='sendtime' id='font-size10'>{formatTime(message.createTime*1000)}</span>
                      </div>
                    </UserInfo>
                    {message.fileList ?
@@ -264,7 +279,6 @@ class AllPage extends Component{
              //    </Col>
              //  </PhotoBox>
            })}
-
          </ChirpContent>
          <MessegeBox>
            <Icon type="upload" style={{marginLeft:'8px'} } onClick={this.uploadFile}></Icon>
@@ -282,5 +296,8 @@ class AllPage extends Component{
    }
 }
 
+const mapStateToProps = state => ({
+  user: state.user
+})
 
-export default connect(null, {getChirpList})(AllPage)
+export default connect(mapStateToProps, { sendMsg ,sendMsgSuccess})(AllPage)

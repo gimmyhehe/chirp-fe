@@ -86,9 +86,6 @@ class SigninForm extends Component{
         }
         try {
           api.login(values).then(async (response)=>{
-            response = JSON.parse(response)
-
-
             if (response.code == 10007) {
               NProgress.set(0.5)
               cookies.set('userName', values.email)
@@ -136,9 +133,10 @@ class SigninForm extends Component{
         <FormBox onSubmit={this.handleSubmit}>
           <Form.Item label='Email'>
             {getFieldDecorator('email', {
-              rules: [{
-                type: 'email', message: 'Please enter a valid email address.',
-              }, { required: true, message: 'Please enter a valid email address.' }],
+              rules: [
+                { type: 'email', message: 'Please enter a valid email address.',},
+                { required: true, message: 'Please enter a valid email address.' }
+              ],
               validateTrigger: ['onBlur']
             })(
               <CustomInput placeholder="Your email"></CustomInput>
@@ -147,14 +145,18 @@ class SigninForm extends Component{
           <Form.Item label='Password'>
             {
               getFieldDecorator('password', {
-                rules: [{
-                  required: true, message: 'Please enter your password.',
-                }, {
-                  validator: this.validateToNextPassword,
-                }, {
-                  min: 8, message: 'The password should contain at least 8 characters, at least one number and at least one letter. Upper case letter and special letter are recommended.'
-                }
-                ], validateFirst: true,
+                rules: [
+                  {
+                    required: true, message: 'Please enter your password.',
+                  },
+                  {
+                    validator: this.validateToNextPassword,
+                  },
+                  {
+                    min: 8, message: 'The password should contain at least 8 characters, at least one number and at least one letter. Upper case letter and special letter are recommended.'
+                  }
+                ],
+                validateFirst: true,
                 validateTrigger: ['onBlur']
               })(
                 <CustomInput  type="password" placeholder="Your password"></CustomInput>

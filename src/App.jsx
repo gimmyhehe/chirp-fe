@@ -11,7 +11,6 @@ import cookies from '@utils/cookies'
 import api from '@api'
 import NProgress from 'nprogress'
 import { getUserInfo } from './actions/user'
-import { getChirpList } from './actions/chirps'
 
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import 'nprogress/nprogress.css'
@@ -29,9 +28,8 @@ if(cookies.get('password')){
     deviceID: '123'
   }
   api.login(values).then(async (response)=>{
-    response = JSON.parse(response)
+    console.log(response)
     await store.dispatch(getUserInfo())
-    await store.dispatch(getChirpList())
     if (response.code == 10007) {
       NProgress.set(0.5)
       NProgress.done()
@@ -53,7 +51,7 @@ render((
   </Provider>
 ), document.getElementById('root'))
 
-// if (module.hot) {
-//   module.hot.accept()
-// }
+if (module.hot) {
+  module.hot.accept()
+}
 

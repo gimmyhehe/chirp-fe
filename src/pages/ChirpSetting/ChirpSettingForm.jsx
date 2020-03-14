@@ -1,13 +1,11 @@
 import React,{ Component } from 'react'
 import styled from 'styled-components'
 import api from '../../api'
-import { getParams } from '@utils/tool'
 import { connect } from 'react-redux'
 import { getChirpList } from '@actions/chirps'
 import { Form, Input,Slider,Switch   } from 'antd'
 import { Button } from '@components'
 import NProgress from 'nprogress'
-
 const FormBox = styled(Form)`
   &&{
     width: 375px;
@@ -31,7 +29,7 @@ const FormBox = styled(Form)`
     }
   }
 `
-const Item = styled.div`
+const Item = styled(Form.Item)`
   padding:24px 8px 14px;
   border-bottom: rgb(216,219,226) 1px solid;
   .ant-switch{
@@ -101,14 +99,13 @@ class ChirpSettingForm extends Component{
 
   handleSubmit = (e) =>{
     e.preventDefault()
-    let searchParams = getParams(this.props.location.search)
     this.props.form.validateFields(async (err, values) => {
       if (!err) {
         NProgress.start()
         let { expirationDay,password,uploadPermission } = this.state
         values = {
           cmd : 21,
-          chirpName: searchParams.chirpName,
+          chirpName: this.props.chirpName,
           isUploadPermitted: +uploadPermission,
           expiration: `${expirationDay}d`,
           password: password
@@ -142,10 +139,46 @@ class ChirpSettingForm extends Component{
       }
     })
   }
+  handleSave =(e)=>{
+    e.preventDefault()
+    this.props.form.validateFields(async (err, values) => {
+      if(!err){
+        console.log(this.props)
+        let { expirationDay,password,uploadPermission,pwdChecked } = this.state
+        values = {
+          cmd : 27,
+          chirpName: this.props.currentChirp.id,
+          isUploadPermitted: +uploadPermission,
+          expiration: `${expirationDay}d`,
+          passwordEnabled: +pwdChecked,
+          password: password
+        }
+        const response = await api.createChirp(values)
+        console.log(response)
+      }
+    })
+  }
   onChange = (pwdChecked)=> {
     this.setState({pwdChecked})
   }
   render(){
+    const { getFieldDecorator } = this.props.form
+    const ButtonGroup = () =>{
+      if(this.props.operation == 'create'){
+        return (
+          <ButtonBox>
+            <SigninButton type='primary' htmlType="submit">Create</SigninButton>
+          </ButtonBox>
+        )
+      }else{
+        return (
+          <ButtonBox>
+            <SigninButton type='primary' onClick={this.handleSave}>Save</SigninButton>
+            <SigninButton type='primary' htmlType="submit">Delete</SigninButton>
+          </ButtonBox>
+        )
+      }
+    }
     const { expirationDay } = this.state
     const marks ={
       1: '1Day',
@@ -161,6 +194,15 @@ class ChirpSettingForm extends Component{
           <p>Setting password will avoid people join chirp with only chirp name.</p>
           {
             this.state.pwdChecked ?
+              // getFieldDecorator('password',{
+              //   rules:[
+              //     {
+              //       required: true,
+              //       message: 'Please input your password!',
+              //     },
+              //   ],
+              //   validateTrigger: ['onBlur']
+              // })(<Input.Password style={{height:'40px'}} placeholder='type password here…' />)
               <Input
                 style={{height:'40px'}}
                 value={this.state.password}
@@ -168,7 +210,8 @@ class ChirpSettingForm extends Component{
                   this.setState({password:e.target.value})
                 }}
                 placeholder='type password here…'
-              /> :null
+              />
+              :null
           }
         </Item>
         <Item>
@@ -190,12 +233,10 @@ class ChirpSettingForm extends Component{
             defaultValue={3} />
           <p>You can have a maximum of 365 days if you had account with us.  </p>
         </Item>
-        <ButtonBox>
-          <SigninButton type='primary' htmlType="submit">Create</SigninButton>
-        </ButtonBox>
+        <ButtonGroup />
       </FormBox>
     )
   }
 }
 
-export default connect(null, {getChirpList})(Form.create()(ChirpSettingForm))
+export default connect(null, {getChirpList})(Form.create({name:'chirpSettingForm'})(ChirpSettingForm))

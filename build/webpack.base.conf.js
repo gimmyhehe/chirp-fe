@@ -71,7 +71,8 @@ var webpackConfig = {
     // DefinePlugin 是webpack 的内置插件，该插件可以在打包时候替换制定的变量
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': isProduction ?
-        config.build.env : config.dev.env
+        config.build.env : config.dev.env,
+      'WEBSOCKET_URL' : isProduction ? config.build.websocketUrl : config.dev.websocketUrl
     })
   ]
 }

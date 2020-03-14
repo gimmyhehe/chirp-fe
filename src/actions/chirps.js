@@ -1,15 +1,17 @@
 /*
  * @Author: your name
  * @Date: 2020-01-05 10:12:49
- * @LastEditTime : 2020-01-21 19:35:40
- * @LastEditors  : Please set LastEditors
+ * @LastEditTime: 2020-03-11 18:59:49
+ * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \chrip-fe\src\actions\chirps.js
  */
 import {
   CHIRPS_INFO_PENDING, CHIRPS_INFO_FULFILLED, CHIRPS_INFO_REJECTED,
   CURRENT_CHIRP_PENDING, CURRENT_CHIRP_FULFILLED, CURRENT_CHIRP_REJECTED,
-  SET_CHIRP_PENDING, SET_CHIRP_FULFILLED, SET_CHIRP_REJECTED
+  SET_CHIRP_PENDING, SET_CHIRP_FULFILLED, SET_CHIRP_REJECTED,
+  SEND_MSG_PENDING, SEND_MSG_FULFILLED, SEND_MSG_REJECTED,
+  SEND_MSG_SUCCESS_PENDING, SEND_MSG_SUCCESS_FULFILLED, SEND_MSG_SUCCESS_REJECTED,
 } from '@constants/actionTypes'
 import cookies from '@utils/cookies'
 import api from '@api'
@@ -24,7 +26,6 @@ export function getChirpList() {
       }
       console.log(cookies.get('uid'))
       const {data} = await api.getChirpList(params)
-      console.log('-----------66666666666---------')
       dispatch({ type: CHIRPS_INFO_FULFILLED, data })
     } catch (error) {
 
@@ -56,4 +57,25 @@ export function setChirpList(data) {
   }
 }
 
+export function sendMsg(msg){
+  return async (dispatch) =>{
+    dispatch({ type: SEND_MSG_PENDING, data: 'loading' })
+    try{
+      dispatch({ type: SEND_MSG_FULFILLED, msg })
+    }catch(error){
+      dispatch({ type: SEND_MSG_REJECTED, error })
+    }
+  }
+}
+
+export function sendMsgSuccess(data){
+  return async (dispatch) =>{
+    dispatch({ type: SEND_MSG_SUCCESS_PENDING, data: 'loading' })
+    try{
+      dispatch({ type: SEND_MSG_SUCCESS_FULFILLED, data })
+    }catch(error){
+      dispatch({ type: SEND_MSG_SUCCESS_REJECTED, error })
+    }
+  }
+}
 

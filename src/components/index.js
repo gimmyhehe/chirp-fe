@@ -9,3 +9,4 @@
 export { default as Button } from './CustomUI/Button'
 export { default as AppLayout } from './Layout/AppLayout'
 export { default as AppSider } from './Sider/Sider'
+export { default as Loading } from './Loading/Loading'

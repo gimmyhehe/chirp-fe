@@ -1,10 +1,16 @@
 /*
  * @Author: your name
  * @Date: 2019-12-27 00:12:36
- * @LastEditTime : 2019-12-29 11:49:03
- * @LastEditors  : Please set LastEditors
+ * @LastEditTime: 2020-03-08 18:14:24
+ * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \chrip-fe\src\utils\tool.js
+ */
+import moment from 'moment'
+/**
+ * @description: 生成uid
+ * @param null
+ * @return: uid
  */
 export function guid() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -21,7 +27,7 @@ export function guid() {
  */
 export function getParams(url) {
   try {
-    var index = url.indexOf('?')
+    // var index = url.indexOf('?')
     url = url.match(/\?([^#]+)/)[1]
     var obj = {}, arr = url.split('&')
     for (var i = 0; i < arr.length; i++) {
@@ -35,4 +41,16 @@ export function getParams(url) {
   } catch (err) {
     return null
   }
+}
+
+export function formatTime(timestamp){
+  return moment(timestamp).format('MMMM Do, hh:mm')
+}
+
+export function serialize(data) {
+  return Object.keys(data)
+    .map(key => {
+      return `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`
+    })
+    .join('&')
 }

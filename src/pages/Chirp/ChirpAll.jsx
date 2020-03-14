@@ -176,7 +176,7 @@ class ChirpAll extends Component{
           </Popover>
           <Popover
             placement="bottomRight"
-            content={<ChirpSettingForm chirpSetting = {chirpSetting} />}
+            content={<ChirpSettingForm {...this.props.chirps} chirpSetting = {chirpSetting} />}
             trigger="click"
           >
             <Settings onClick={this.handleSettings}></Settings>
@@ -192,7 +192,6 @@ class ChirpAll extends Component{
       uploadPermission: +defaultSetting.uploadPermissionEnabled,
       password: '123'
     }
-    console.log(chirps.currentChirp)
     return(
       <div>
         <CustomLayout>
