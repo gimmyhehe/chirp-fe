@@ -182,7 +182,6 @@ class ChirpSettingForm extends Component{
     this.setState({pwdChecked})
   }
   render(){
-    const { getFieldDecorator } = this.props.form
     const ButtonGroup = () =>{
       if(this.props.operation == 'create'){
         return (

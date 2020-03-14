@@ -8,6 +8,7 @@ import {Avatar,Col,Icon,Input,Row } from 'antd'
 import { connect } from 'react-redux'
 import { sendMsg, sendMsgSuccess } from '@actions/chirps'
 import {Loading} from '@components'
+import imgError from '@assets/img/imgerror.jpg'
 const AllContnet = styled.div`
   width: 100%;
   height: 100%;
@@ -74,6 +75,7 @@ const SelfChatItem = styled(ChatItem)`
 `
 const fontSize =14
 const UserInfo = styled.div`
+  overflow: hidden;
   .username{
     display: block;
     font-size: 14px;
@@ -90,6 +92,7 @@ const UserInfo = styled.div`
 
 const PhotoBox = styled(Row)`
   padding: 16px;
+  display: flex;
   .ant-col{
     overflow: hidden;
     width: 190px;
@@ -115,6 +118,7 @@ class AllPage extends Component{
   constructor(props){
     super(props)
     this.state = {
+      showImg: false,
       message: null,
       chirpName: null,
       hasPassword: false,
@@ -133,36 +137,41 @@ class AllPage extends Component{
     }
 
   }
-  handleSend = async (obj) =>{
-    let {fileList} = obj
-    let params = {
-      'from': cookies.get('uid'),
-      'createTime': Math.ceil(Date.now() / 1000),
-      'cmd':11,
-      'group_id': this.props.currentChirp.id,
-      'chatType':'1',
-      'msgType':'0',
-      'content': this.state.message,
-      fileList
-    }
-    console.log(this.props.chirpMessage)
-    let index = this.props.chirpMessage.length
-    let chirpId = this.props.currentChirp.id
-    this.setState({message:null})
-    params.sending = true
-    this.props.sendMsg({index,chirpId,data:params})
-    await api.sendMessage(params).then((res)=>{
-      if(res.code == 10000){
-        this.props.sendMsgSuccess({index,chirpId})
-      }else{
-        throw new Error('send message fail')
+  handleSendMessage = async (e) =>{
+    if (e.key === 'Tab') {
+      e.preventDefault()
+    }else if(e.key === 'Enter' && this.state.message!=null){
+      let params = {
+        'from': cookies.get('uid'),
+        'createTime': Math.ceil(Date.now() / 1000),
+        'cmd':11,
+        'group_id': this.props.currentChirp.id,
+        'chatType':'1',
+        'msgType':'0',
+        'content': this.state.message
       }
-    }).catch((error)=>{
-      console.error(error)
-    })
+      let index = this.props.chirpMessage.length
+      let chirpId = this.props.currentChirp.id
+      this.setState({message:null})
+      params.sending = true
+      this.props.sendMsg({type:'msg',index,chirpId,data:params})
+      await api.sendMessage(params).then((res)=>{
+        if(res.code == 10000){
+          this.props.sendMsgSuccess({type:'msg',index,chirpId})
+        }else{
+          throw new Error('send message fail')
+        }
+      }).catch((error)=>{
+        console.error(error)
+      })
+    }
   }
   handleEmoji =()=>{
 
+  }
+  handleImgError = (e)=>{
+    e.target.onerror = null
+    e.target.src = imgError
   }
   uploadFile = () => {
     if(this.props.currentChirp.uploadPermissionEnabled != 1){
@@ -174,18 +183,39 @@ class AllPage extends Component{
   doRealUpload = async () =>{
     var uploadfile = document.getElementById('upload')
     var file = uploadfile.files[0]
-    console.log(file)
+    let imgSrc = URL.createObjectURL(file)
+    let params = {
+      'from': cookies.get('uid'),
+      'createTime': Math.ceil(Date.now() / 1000),
+      'cmd':11,
+      'group_id': this.props.currentChirp.id,
+      'chatType':'1',
+      'msgType':'0',
+      'content': '',
+      fileList: [imgSrc]
+    }
+    let index = this.props.chirpMessage.length
+    let chirpId = this.props.currentChirp.id
+    params.sending = true
+    this.props.sendMsg({type:'img',index,chirpId,data:params})
     var formData = new FormData()
     formData.append('chirpId',this.props.currentChirp.id)
     formData.append('userId',cookies.get('uid'))
     formData.append('fileName',file.name)
     var md5Str =  await this.get_filemd5sum(file)
     formData.append('md5',md5Str)
-    console.log(md5Str)
     formData.append('file',file)
     var res = await api.upload(formData)
-    let fileList = [res.data]
-    this.handleSend({fileList})
+    params.fileList = [res.data]
+    api.sendMessage(params).then((res)=>{
+      if(res.code == 10000){
+        this.props.sendMsgSuccess({type:'img',index,chirpId})
+      }else{
+        throw new Error('send message fail')
+      }
+    }).catch((error)=>{
+      console.error(error)
+    })
   }
    get_filemd5sum = (ofile) => {
      return new Promise((resolve,reject)=>{
@@ -246,9 +276,9 @@ class AllPage extends Component{
                    </UserInfo>
                    {message.sending ? <Loading customStyle ={{position: 'absolute',top:'32px',fontSize:'3px'}} /> : null}
                    {message.fileList ?
-                     <PhotoBox gutter={10}>
+                     <PhotoBox style={{justifyContent: 'flex-end'}} gutter={10}>
                        <Col className="gutter-row" span={4}>
-                         <img src={message.fileList[0]}></img>
+                         <img src={message.fileList[0]} onError={this.handleImgError}></img>
                        </Col>
                      </PhotoBox>
                      :<p>{message.content}</p>}
@@ -268,13 +298,14 @@ class AllPage extends Component{
                    {message.fileList ?
                      <PhotoBox gutter={10}>
                        <Col className="gutter-row" span={4}>
-                         <img src={message.fileList[0]}></img>
+                         <img src={message.fileList[0]} onError={this.handleImgError}></img>
                        </Col>
                      </PhotoBox>
                      :<p>{message.content}</p>}
                  </ChatItem>
                )
              }
+
              //    <PhotoBox gutter={10}>
              //    <Col className="gutter-row" span={4}>
              //      <img src={message.fileList[0]}></img>
@@ -286,15 +317,24 @@ class AllPage extends Component{
              //    </Col>
              //  </PhotoBox>
            })}
+           {
+             this.state.showImg ?
+               <PhotoBox gutter={10}>
+                 <Col className="gutter-row" span={4}>
+                   <img src={this.state.imgSrc}></img>
+                 </Col>
+               </PhotoBox>
+               :null
+           }
          </ChirpContent>
          <MessegeBox>
            <Icon type="upload" style={{marginLeft:'8px'} } onClick={this.uploadFile}></Icon>
-           <input id="upload" type="file"  onChange={this.doRealUpload} style={{display: 'none'}} />
+           <input id="upload" type="file" accept="image/jpg,image/jpeg,image/png,image/PNG"  onChange={this.doRealUpload} style={{display: 'none'}} />
            <Icon type="smile" onClick={this.handleEmoji} ></Icon>
            <Input
              placeholder='Press Enter to send messege'
              value = {this.state.message}
-             onPressEnter={this.handleSend}
+             onKeyDown={this.handleSendMessage}
              onChange = {this.handleMessageChange}
            ></Input>
          </MessegeBox>

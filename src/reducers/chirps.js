@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-01-05 10:06:54
- * @LastEditTime: 2020-03-14 16:06:45
+ * @LastEditTime: 2020-03-15 01:24:55
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \chrip-fe\src\reducers\chirps.js
@@ -93,7 +93,11 @@ export default (state = {
     }
     case actionTypes.SEND_MSG_FULFILLED:{
       let allChirpsMessage = chirps.get('allChirpsMessage')
-      allChirpsMessage[action.msg.chirpId][action.msg.index] = action.msg.data
+      if(action.msg.type ==='msg'){
+        allChirpsMessage[action.msg.chirpId][action.msg.index] = action.msg.data
+      }else if(action.msg.type ==='img'){
+        allChirpsMessage[action.msg.chirpId][action.msg.index] = action.msg.data
+      }
       chirps.set('allChirpsMessage',allChirpsMessage)
       return {
         ...state,
@@ -117,7 +121,11 @@ export default (state = {
     }
     case actionTypes.SEND_MSG_SUCCESS_FULFILLED:{
       let allChirpsMessage = chirps.get('allChirpsMessage')
-      allChirpsMessage[action.data.chirpId][action.data.index].sending = false
+      if(action.data.type ==='msg'){
+        allChirpsMessage[action.data.chirpId][action.data.index].sending = false
+      }else if(action.data.type ==='img'){
+        allChirpsMessage[action.data.chirpId][action.data.index].sending = false
+      }
       chirps.set('allChirpsMessage',allChirpsMessage)
       return {
         ...state,
