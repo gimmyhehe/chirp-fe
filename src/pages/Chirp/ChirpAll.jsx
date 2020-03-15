@@ -219,7 +219,6 @@ class ChirpAll extends Component{
         </Rightbox>
       )
     }
-    console.log(!cookies.get('uid'))
     return(
       <div>
         <CustomLayout>

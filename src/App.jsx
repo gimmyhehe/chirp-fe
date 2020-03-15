@@ -27,12 +27,12 @@ if(cookies.get('password')){
     password: cookies.get('password'),
     deviceID: '123'
   }
-  api.login(values).then(async (response)=>{
-    console.log(response)
+  api.login(values).then(async ({response,appSocket})=>{
     await store.dispatch(getUserInfo())
     if (response.code == 10007) {
       NProgress.set(0.5)
       NProgress.done()
+      window.appSocket = appSocket
       // this.props.history.push('chirpall')
     } else {
       NProgress.done()
