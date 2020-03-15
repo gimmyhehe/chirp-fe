@@ -6,6 +6,39 @@ import { getChirpList } from '@actions/chirps'
 import { Form, Input,Slider,Switch,Modal   } from 'antd'
 import { Button } from '@components'
 import NProgress from 'nprogress'
+
+const CustomSwitch = styled(Switch)`
+  &.ant-switch{
+    transition: unset;
+    min-width: unset;
+    width: 28px;
+    height: 19px;
+    border: #000 solid 3px;
+    background: #fff;
+    &::after{
+      transition: right 0.36s cubic-bezier(0.78, 0.14, 0.15, 0.86);
+      transition: unset;
+      width: 19px;
+      height: 19px;
+      border: 3px #000 solid;
+      top: -3px;
+      left: -3px;
+    }
+  }
+  &.ant-switch-checked{
+    background: #4b9d0b;
+    border: none;
+    &::after{
+      left: unset;
+      right: 3px;
+      top: 3px;
+      transform: unset;
+      width: 13px;
+      height: 13px;
+      border: none;
+    }
+  }
+`
 const FormBox = styled(Form)`
   &&{
     width: 424px;
@@ -80,7 +113,7 @@ class ChirpSettingForm extends Component{
   constructor(porps){
     super(porps)
     let defaultSetting = {
-      expirationDay:  0,
+      expirationDay:  30,
       pwdChecked:  false,
       uploadPermission:  false,
       password:  null
@@ -201,7 +234,7 @@ class ChirpSettingForm extends Component{
     const { expirationDay } = this.state
     const marks ={
       1: '1Day',
-      7: '7Day'
+      365: '365Day'
     }
     return(
       <div>
@@ -218,7 +251,7 @@ class ChirpSettingForm extends Component{
           <Item>
             <div>
               <Label>Password</Label>
-              <Switch defaultChecked={this.state.pwdChecked} onChange={this.onChange}></Switch>
+              <CustomSwitch defaultChecked={this.state.pwdChecked} onChange={this.onChange}></CustomSwitch>
             </div>
             <p>Setting password will avoid people join chirp with only chirp name.</p>
             {
@@ -246,20 +279,20 @@ class ChirpSettingForm extends Component{
           <Item>
             <div>
               <Label>Upload Permission</Label>
-              <Switch
+              <CustomSwitch
                 defaultChecked={this.state.uploadPermission}
                 onChange={(uploadPermission)=>{ this.setState({uploadPermission})}}
-              ></Switch>
+              ></CustomSwitch>
             </div>
             <p>This will allow everyone in the chirp upload files.</p>
           </Item>
           <Item style={{borderBottom:'none'}}>
             <Label>Chirp Expiration Date</Label>
-            <CustomSlider marks={marks} min={1} max={7}
+            <CustomSlider marks={marks} min={1} max={365}
               onChange={this.handleChange}
               tipFormatter={(value)=> `${value}Day` }
               value={expirationDay}
-              defaultValue={3} />
+              defaultValue={30} />
             <p>You can have a maximum of 365 days if you had account with us.  </p>
           </Item>
           <ButtonGroup />
