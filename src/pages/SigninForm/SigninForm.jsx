@@ -1,7 +1,7 @@
 import React,{ Component } from 'react'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
-import { Input,Form } from 'antd'
+import { Input,Form,message } from 'antd'
 import api from '../../api'
 import cookies from '../../utils/cookies'
 import { Button } from '@components'
@@ -85,12 +85,14 @@ class SigninForm extends Component{
           deviceID: '123'
         }
         try {
-          api.login(values).then(async (response)=>{
+          api.login(values).then(async ({response,appSocket})=>{
+            console.log(response)
             if (response.code == 10007) {
               NProgress.set(0.5)
               cookies.set('userName', values.email)
               cookies.set('password', values.password)
               cookies.set('uid', response.uid)
+              window.appSocket = appSocket
               await this.props.getUserInfo()
               await this.props.getChirpList()
               NProgress.done()
@@ -104,11 +106,12 @@ class SigninForm extends Component{
                   state: { userName: values.email, businessId: 0 }
                 }
               this.props.history.push(history)
-            } else {
+            } else if(response.code == 10007 && !response.uid){
               NProgress.done()
-              this.setState({
-                error: true
-              })
+              message.error('email or password error')
+            }else {
+              NProgress.done()
+              message.error(response.msg)
             }
             NProgress.done()
           },e=>{ console.log(e) })

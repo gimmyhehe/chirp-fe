@@ -72,7 +72,7 @@ var webpackConfig = {
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': isProduction ?
         config.build.env : config.dev.env,
-      'WEBSOCKET_URL' : isProduction ? config.build.websocketUrl : config.dev.websocketUrl
+      'process.env.WEBSOCKET_URL' : isProduction ? config.build.websocketUrl : config.dev.websocketUrl
     })
   ]
 }

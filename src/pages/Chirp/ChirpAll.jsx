@@ -2,13 +2,13 @@ import React,{ Component } from 'react'
 import styled from 'styled-components'
 import {AppSider} from '@components'
 import { connect } from 'react-redux'
-import { Layout, Tabs,Input,Popover } from 'antd'
+import { Layout, Tabs,Input,Popover,Modal } from 'antd'
 import {  Button } from '@components'
 import cookies from '@utils/cookies'
 import AllContnet from './AllPage'
 import PhotoContent from './PhotoPage'
-import VideoContent from './VideoPage'
-import FileContent from './FilePage'
+// import VideoContent from './VideoPage'
+// import FileContent from './FilePage'
 import ChirpSettingForm from '../ChirpSetting/ChirpSettingForm'
 import ShareIcon from '@assets/icon/share.png'
 import SettingsIcon from '@assets/icon/settings.png'
@@ -116,6 +116,7 @@ const ShareBox = styled.div`
   }
 `
 
+
 class ChirpAll extends Component{
   handleShare = () =>{
 
@@ -130,7 +131,8 @@ class ChirpAll extends Component{
         content:'Hi there! 👋🏼',
         createTime: 1579107542,
         msgType: 0,
-        isSelf: false
+        isSelf: false,
+        isLogin: false
       }
     ]
   }
@@ -139,7 +141,24 @@ class ChirpAll extends Component{
       visible: false,
     })
   };
-
+  componentDidMount(){
+    if(cookies.get('uid')){
+      this.setState({isLogin:true})
+    }else{
+      this.setState({isLogin:false})
+      Modal.info({
+        title: 'No permission',
+        content: (
+          <div>
+            <p>you should login first!</p>
+          </div>
+        ),
+        onOk: ()=> {
+          this.props.history.replace('/signin')
+        },
+      })
+    }
+  }
   render(){
     const chirps = this.props.chirps
     const {allChirpsMessage,currentChirp} = chirps
@@ -200,12 +219,13 @@ class ChirpAll extends Component{
         </Rightbox>
       )
     }
+    console.log(!cookies.get('uid'))
     return(
       <div>
         <CustomLayout>
-          <AppSider></AppSider>
+          {!this.state.isLogin ? <div></div> : <AppSider></AppSider> }
           {
-            currentChirp == null ? null :
+            !cookies.get('uid') || currentChirp == null ? null :
               <CustomTab tabBarExtraContent={<TabBarExtraContent/>}>
                 <TabPane tab="All" key="1">
                   <AllContnet chirpMessage ={chirpMessage} currentChirp = {currentChirp}/>
@@ -213,12 +233,12 @@ class ChirpAll extends Component{
                 <TabPane tab="Photo" key="2">
                   <PhotoContent chirpMessage ={chirpMessage} />
                 </TabPane>
-                <TabPane tab="Video" key="3">
+                {/* <TabPane tab="Video" key="3">
                   <VideoContent />
                 </TabPane>
                 <TabPane tab="File" key="4">
                   <FileContent />
-                </TabPane>
+                </TabPane> */}
               </CustomTab>
           }
         </CustomLayout>

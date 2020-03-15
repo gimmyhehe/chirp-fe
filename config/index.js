@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2019-12-09 01:11:11
- * @LastEditTime: 2020-03-14 13:54:02
+ * @LastEditTime: 2020-03-15 11:50:02
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \chrip-fe\config\index.js
@@ -21,7 +21,7 @@ module.exports = {
     assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    websocketUrl: '"ws:54.144.207.148:8888"',
+    websocketUrl: '"ws://54.144.207.148:8888"',
     productionSourceMap: false,
     // Gzip off by default as many popular static hosts such as
     // Surge or Netlify already gzip all static assets for you.
@@ -56,7 +56,7 @@ module.exports = {
     env: '"development"',
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    websocketUrl: '"ws:54.144.207.148:8888"',
+    websocketUrl: '"ws://54.144.207.148:8888"',
     // Various Dev Server settings
     port: 3000, // can be overwritten by process.env.PORT
     autoOpenBrowser: false,
@@ -65,10 +65,12 @@ module.exports = {
     poll: false, // https://webpack.js.org/configuration/dev-server/#devserver-watchoptions-
 
     proxyTable: {
-      '/test' : {
-        target : 'http://localhost:7777',
+      '/ws' : {
+        target : 'ws://54.144.207.148:8888',
         secure: false,
-        pathRewrite: {"^/test" : ""}
+        changeOrigin: true,
+        ws:true,
+        pathRewrite: {"^/ws" : ""}
       },
       '/api': {
         target: 'http://54.144.207.148:8888',

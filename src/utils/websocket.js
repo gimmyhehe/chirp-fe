@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2019-12-10 00:54:02
- * @LastEditTime: 2020-03-14 13:57:26
+ * @LastEditTime: 2020-03-15 16:46:13
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \chrip-fe\src\utils\websocket.js
@@ -88,9 +88,9 @@ SocketBase.prototype.connect = function () {
   }
   let paramsStr = serialize(this.params)
   console.log('与服务器器连接websocket中。。。')
-  //WEBSOCKET_URL是webpack的DefinePlugin需要替换的变量
+  //process.env.WEBSOCKET_URL是webpack的DefinePlugin需要替换的变量
   // eslint-disable-next-line no-undef
-  this.socket = new WebSocket(WEBSOCKET_URL+`?${paramsStr}`)
+  this.socket = new WebSocket(process.env.WEBSOCKET_URL+`?${paramsStr}`)
   //将原生socket的各种方法绑定到自定义的Socket类上
   this.socket.onopen = (msg)=>{
     this.onopen(msg)
@@ -103,6 +103,8 @@ SocketBase.prototype.connect = function () {
     this.socket = null // 清理
   }
   this.socket.onmessage = (res)=>{
+    console.log(`原生websocket返回结果：
+                  ${res}`)
     this.onmessage(res)
   }
 }
@@ -112,7 +114,7 @@ SocketBase.prototype.disconnect = function () {
   return new Promise((resolve,reject)=>{
     this.socket.onclose=(msg)=>{
       this.socket = null
-      delete window.appSocket
+      window.appSocket = null
       resolve(msg)
     }
     this.disconnectFail = (error)=>{
@@ -160,13 +162,12 @@ export function sendRequest(params) {
 
 export function socketLogin(params) {
   if(window.appSocket){
-    return Promise.resolve({code:10007})
+    return Promise.resolve({code:10007,msg:'msg'})
   }
-  var appSocket = new SocketSingleTon({params})
-  window.appSocket = appSocket
+  var appSocket = new SocketBase({params})
   return new Promise((resolve,reject)=>{
-    appSocket.connectSuccess = (res) =>{
-      resolve(res)
+    appSocket.connectSuccess = (response) =>{
+      resolve({response,appSocket})
     }
     appSocket.connectFail = (error) =>{
       reject(error)
@@ -175,5 +176,8 @@ export function socketLogin(params) {
 }
 
 export function socketLogout() {
+  cookies.remove('uid')
+  cookies.remove('userName')
+  cookies.remove('password')
   return window.appSocket.disconnect()
 }

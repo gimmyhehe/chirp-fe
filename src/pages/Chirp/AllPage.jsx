@@ -154,6 +154,8 @@ class AllPage extends Component{
       let chirpId = this.props.currentChirp.id
       this.setState({message:null})
       params.sending = true
+      let { firstName,lastName } = this.props.user.data
+      params.fromName = firstName+lastName
       this.props.sendMsg({type:'msg',index,chirpId,data:params})
       await api.sendMessage(params).then((res)=>{
         if(res.code == 10000){
@@ -197,6 +199,8 @@ class AllPage extends Component{
     let index = this.props.chirpMessage.length
     let chirpId = this.props.currentChirp.id
     params.sending = true
+    let { firstName,lastName } = this.props.user.data
+    params.fromName = firstName+lastName
     this.props.sendMsg({type:'img',index,chirpId,data:params})
     var formData = new FormData()
     formData.append('chirpId',this.props.currentChirp.id)
