@@ -7,7 +7,8 @@ import { getChirpList } from '@actions/chirps'
 import { Button } from '@components'
 import checkIcon from '@assets/icon/check.svg'
 import selectCheckIcon from '@assets/icon/select-check.svg'
-
+import imgError from '@assets/img/imgerror.jpg'
+import { message } from 'antd'
 const ButtonBox = styled.div`
   position: absolute;
   padding: 16px;
@@ -29,11 +30,13 @@ const PhotoBox = styled.div`
 
 `
 const PhotoItem = styled.div`
+  vertical-align: top;
   width: 180px;
   height: 180px;
   display: inline-block;
   margin: 10px 0 0 10px;
   position: relative;
+  background-color: #ccc;
 `
 
 const Check = styled.div`
@@ -51,23 +54,28 @@ const SelectCheck = styled(Check)`
 class PhotoPage extends Component{
   constructor(props){
     super(props)
-    let aaa = []
-    this.props.chirpMessage.forEach((item)=>{
-      if(item.fileList && item.fileList.length> 0){
-        item.fileList.forEach((item)=>{
-          aaa.push(item)
-        })
-      }
-    })
+
     this.state = {
-      chirpMessage:this.props.chirpMessage,
-      photoList: aaa.map((item)=>{
-        return {
-          url: item,
-          selected: false
-        }
-      })
+      photoList: this.props.photoList,
+      selfChange: false
     }
+  }
+  static getDerivedStateFromProps(nextProps,prevState) {
+    // 当父组件的 props 改变时，重新请求数据
+    // let { chirpMessage } = nextProps
+    console.log(prevState)
+    console.log(nextProps)
+    return nextProps
+    // if(prevState.selfChange){
+    //   return
+    // }
+    // let photoList = nextProps.photoList.map((item)=>{
+    //   return {
+    //     url: item,
+    //     selected: false
+    //   }
+    // })
+    // return {photoList}
   }
   getBase64 = (img) =>{
     if (!img) return
@@ -101,6 +109,10 @@ class PhotoPage extends Component{
         return item.selected == true
       })
     }
+    if(_photoList.length == 0){
+      message.info('no image to download!')
+      return
+    }
     let promises = _photoList.map( (item)=>{
       return this.getBase64(item.url)
     })
@@ -117,13 +129,13 @@ class PhotoPage extends Component{
   changeSelect = (index) =>{
     let _photoList = this.state.photoList
     _photoList[index]['selected'] = !_photoList[index]['selected']
-    this.setState({photoList : _photoList})
+    this.setState((state) => ({
+      photoList : _photoList,selfChange:!state.selfChange
+    })
+    )
 
   }
   render(){
-    console.log(this.state.photoList)
-    console.log(this.props.chirpMessage)
-    console.log(this.state.chirpMessage)
     return (
       <div>
         <ButtonBox>

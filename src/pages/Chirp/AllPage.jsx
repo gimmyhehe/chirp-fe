@@ -4,7 +4,7 @@ import api from '@api'
 import SparkMD5 from 'spark-md5'
 import cookies from '@utils/cookies'
 import {formatTime} from '@utils/tool'
-import {Avatar,Col,Icon,Input,Row } from 'antd'
+import {Avatar,Col,Icon,Input,Row, message } from 'antd'
 import { connect } from 'react-redux'
 import { sendMsg, sendMsgSuccess } from '@actions/chirps'
 import {Loading} from '@components'
@@ -19,8 +19,9 @@ const MessegeBox = styled.div`
   bottom: 4px;
   right: 1px;
   left: 1px;
+  display: flex;
+  align-items: center;
   background-color: #f9f9f9;
-  height: 8%;
   .anticon{
     font-size:21px;
     margin-right:20px;
@@ -177,7 +178,7 @@ class AllPage extends Component{
   }
   uploadFile = () => {
     if(this.props.currentChirp.uploadPermissionEnabled != 1){
-      alert('sorry this chirp does not open the upload permission')
+      message.warn('sorry this chirp does not open the upload permission')
       return false
     }
     document.getElementById('upload').click()
@@ -209,11 +210,11 @@ class AllPage extends Component{
     var md5Str =  await this.get_filemd5sum(file)
     formData.append('md5',md5Str)
     formData.append('file',file)
-    var res = await api.upload(formData)
-    params.fileList = [res.data]
+    var result = await api.upload(formData)
+    params.fileList = [result.data]
     api.sendMessage(params).then((res)=>{
       if(res.code == 10000){
-        this.props.sendMsgSuccess({type:'img',index,chirpId})
+        this.props.sendMsgSuccess({type:'img',index,chirpId,imgUrl:result.data})
       }else{
         throw new Error('send message fail')
       }

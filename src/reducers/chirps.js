@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-01-05 10:06:54
- * @LastEditTime: 2020-03-15 01:24:55
+ * @LastEditTime: 2020-03-16 10:02:01
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \chrip-fe\src\reducers\chirps.js
@@ -12,7 +12,8 @@ import { chirps } from '@utils/storage'
 export default (state = {
   chirpList: chirps.get('chirpList', []),
   currentChirp: chirps.get('currentChirp',null),
-  allChirpsMessage: chirps.get('allChirpsMessage',{})
+  allChirpsMessage: {},
+  chirpsPhoto: {},
 }, action) => {
   switch (action.type) {
     case actionTypes.CHIRPS_INFO_PENDING:
@@ -24,14 +25,17 @@ export default (state = {
 
       chirps.set('chirpList', action.data)
       let allChirpsMessage =state.allChirpsMessage
+      let chirpsPhoto = state.chirpsPhoto
       action.data.forEach(element => {
         allChirpsMessage[element.id] = []
+        chirpsPhoto[element.id] = []
       })
-      chirps.set('allChirpsMessage',allChirpsMessage)
+      // chirps.set('allChirpsMessage',allChirpsMessage)
       return {
         ...state,
         chirpList: action.data,
-        allChirpsMessage: allChirpsMessage,
+        allChirpsMessage,
+        chirpsPhoto,
         loading: false
       }
     }
@@ -69,9 +73,9 @@ export default (state = {
       }
     case actionTypes.SET_CHIRP_FULFILLED:
     {
-      let allChirpsMessage = chirps.get('allChirpsMessage')
+      let allChirpsMessage = state.allChirpsMessage
       allChirpsMessage[action.data.group_id].push(action.data)
-      chirps.set('allChirpsMessage',allChirpsMessage)
+      // chirps.set('allChirpsMessage',allChirpsMessage)
       return {
         ...state,
         allChirpsMessage: allChirpsMessage,
@@ -92,13 +96,13 @@ export default (state = {
       }
     }
     case actionTypes.SEND_MSG_FULFILLED:{
-      let allChirpsMessage = chirps.get('allChirpsMessage')
+      let allChirpsMessage = state.allChirpsMessage
       if(action.msg.type ==='msg'){
         allChirpsMessage[action.msg.chirpId][action.msg.index] = action.msg.data
       }else if(action.msg.type ==='img'){
         allChirpsMessage[action.msg.chirpId][action.msg.index] = action.msg.data
       }
-      chirps.set('allChirpsMessage',allChirpsMessage)
+      // chirps.set('allChirpsMessage',allChirpsMessage)
       return {
         ...state,
         allChirpsMessage: allChirpsMessage,
@@ -120,16 +124,19 @@ export default (state = {
       }
     }
     case actionTypes.SEND_MSG_SUCCESS_FULFILLED:{
-      let allChirpsMessage = chirps.get('allChirpsMessage')
+      let allChirpsMessage = state.allChirpsMessage
+      let chirpsPhoto = state.chirpsPhoto
       if(action.data.type ==='msg'){
         allChirpsMessage[action.data.chirpId][action.data.index].sending = false
       }else if(action.data.type ==='img'){
-        allChirpsMessage[action.data.chirpId][action.data.index].sending = false
+        if(action.data.index!=null)  allChirpsMessage[action.data.chirpId][action.data.index].sending = false
+        chirpsPhoto[state.currentChirp.id].push({url:action.data.imgUrl,selected: false})
       }
-      chirps.set('allChirpsMessage',allChirpsMessage)
+      // chirps.set('allChirpsMessage',allChirpsMessage)
       return {
         ...state,
-        allChirpsMessage: allChirpsMessage,
+        allChirpsMessage,
+        chirpsPhoto,
         loading: false
       }
     }

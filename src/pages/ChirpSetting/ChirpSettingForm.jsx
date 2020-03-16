@@ -190,7 +190,7 @@ class ChirpSettingForm extends Component{
         let { expirationDay,password,uploadPermission,pwdChecked } = this.state
         values = {
           cmd : 27,
-          chirpName: this.props.currentChirp.id,
+          chirpId: this.props.currentChirp.id,
           isUploadPermitted: +uploadPermission,
           expiration: `${expirationDay}d`,
           passwordEnabled: +pwdChecked,

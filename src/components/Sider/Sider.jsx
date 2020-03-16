@@ -13,6 +13,10 @@ const CustomSider = styled(Sider)`
     padding: 32px 24px 64px;
     box-shadow: 0 1px 2px 0 rgba(0,0,0,0.14);
     height: min-content;
+    .ant-layout-sider-zero-width-trigger{
+      right: -16px;
+      background: #489d0b;
+    }
     &.ant-layout-sider-collapsed{
       padding:0;
     }
@@ -45,10 +49,6 @@ const CustomSider = styled(Sider)`
 class AppSider extends Component{
   state={
     chirpList : [],
-  }
-  componentDidMount() {
-    console.log(this.props.chirps)
-
   }
   handleJump = (e) =>{
     e.preventDefault()

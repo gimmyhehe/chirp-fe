@@ -1,13 +1,13 @@
 /*
  * @Author: your name
  * @Date: 2019-12-10 00:54:02
- * @LastEditTime: 2020-03-15 16:46:13
+ * @LastEditTime: 2020-03-16 23:22:14
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \chrip-fe\src\utils\websocket.js
  */
 import { store } from '../store'
-import { setChirpList } from '@actions/chirps'
+import { setChirpList,sendMsgSuccess } from '@actions/chirps'
 import { serialize } from '@utils/tool'
 import cookies from '@utils/cookies'
 function SocketBase(obj){
@@ -25,6 +25,9 @@ function SocketBase(obj){
   }
   this.receiveMessage = (data) =>{
     store.dispatch(setChirpList(data.data))
+    if(data.data.fileList){
+      store.dispatch(sendMsgSuccess({type:'img',index:null,chirpId:data.data.group_id,imgUrl:data.data.fileList[0]}))
+    }
   }
   //socket对象,用于保存原生websocket的属性、方法
   this.socket = null
@@ -162,7 +165,8 @@ export function sendRequest(params) {
 
 export function socketLogin(params) {
   if(window.appSocket){
-    return Promise.resolve({code:10007,msg:'msg'})
+    let response = {code:10007,msg:'msg'} , appSocket = window.appSocket
+    return Promise.resolve({response,appSocket})
   }
   var appSocket = new SocketBase({params})
   return new Promise((resolve,reject)=>{

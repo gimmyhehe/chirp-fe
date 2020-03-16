@@ -11,6 +11,7 @@ import cookies from '@utils/cookies'
 import api from '@api'
 import NProgress from 'nprogress'
 import { getUserInfo } from './actions/user'
+import { getChirpList } from './actions/chirps'
 
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import 'nprogress/nprogress.css'
@@ -28,11 +29,14 @@ if(cookies.get('password')){
     deviceID: '123'
   }
   api.login(values).then(async ({response,appSocket})=>{
-    await store.dispatch(getUserInfo())
+    console.log(response)
     if (response.code == 10007) {
+      window.appSocket = appSocket
+      await store.dispatch(getUserInfo())
+      await store.dispatch(getChirpList())
       NProgress.set(0.5)
       NProgress.done()
-      window.appSocket = appSocket
+
       // this.props.history.push('chirpall')
     } else {
       NProgress.done()

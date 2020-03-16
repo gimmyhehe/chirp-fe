@@ -2,7 +2,7 @@ import React,{ Component } from 'react'
 import styled from 'styled-components'
 import {AppSider} from '@components'
 import { connect } from 'react-redux'
-import { Layout, Tabs,Input,Popover,Modal } from 'antd'
+import { Layout, Tabs,Input,Popover,Modal,message } from 'antd'
 import {  Button } from '@components'
 import cookies from '@utils/cookies'
 import AllContnet from './AllPage'
@@ -16,11 +16,12 @@ import SettingsIcon from '@assets/icon/settings.png'
 const { TabPane } = Tabs
 const CustomLayout = styled(Layout)`
   &.ant-layout{
-    padding: 24px;
+    padding: 24px 24px 0 24px;
     background: unset;
     position: relative;
     .ant-tabs{
       width: 1168px;
+      min-width: 800px;
       position: relative;
       margin-left: 24px;
       background: unset;
@@ -49,9 +50,11 @@ const CustomLayout = styled(Layout)`
         border-bottom: none;
       }
       .ant-tabs-content{
-        position: relative;
+        position: absolute;
         padding: 0 1px 4px;
-        height: 92%;
+        min-width: 800px;
+        top:70px;
+        bottom:0;
       }
       .ant-tabs-tabpane{
         background-color: #fff;
@@ -121,20 +124,15 @@ class ChirpAll extends Component{
   handleShare = () =>{
 
   }
-  handleSettings = () =>{
-
+  handleSettings = (chirp) =>{
+    if(cookies.get('uid') !=  chirp.hostUid){
+      message.warn('you are not the owner of this chirp')
+    }
   }
   state = {
-    messageList: [
-      {
-        from: 'aaa',
-        content:'Hi there! 👋🏼',
-        createTime: 1579107542,
-        msgType: 0,
-        isSelf: false,
-        isLogin: false
-      }
-    ]
+    settingPermission: false,
+    messageList: [],
+    activeKey: 1
   }
   hide = () => {
     this.setState({
@@ -161,8 +159,8 @@ class ChirpAll extends Component{
   }
   render(){
     const chirps = this.props.chirps
-    const {allChirpsMessage,currentChirp} = chirps
-    var chirpSetting,chirpMessage
+    const {allChirpsMessage,currentChirp,chirpsPhoto} = chirps
+    var chirpSetting={},chirpMessage=[],photoList = []
     if(currentChirp){
       chirpSetting ={
         expirationDay: (currentChirp.expiredDate - currentChirp.createTime) / 24*60*60,
@@ -170,13 +168,18 @@ class ChirpAll extends Component{
         uploadPermission: !!currentChirp.uploadPermissionEnabled,
         password: ''
       }
-      if(allChirpsMessage.length!=0){
+      if(JSON.stringify(allChirpsMessage)!='{}'){
         chirpMessage = allChirpsMessage[currentChirp.id]
         chirpMessage.forEach(element => {
           if(element.from == cookies.get('uid')){
             element.isSelf = true
           }else{
             element.isSelf = false
+          }
+          if(element.fileList && element.fileList.length> 0){
+            element.fileList.forEach((item)=>{
+              photoList.push(item)
+            })
           }
         })
       }
@@ -210,10 +213,10 @@ class ChirpAll extends Component{
           </Popover>
           <Popover
             placement="bottomRight"
-            content={<ChirpSettingForm {...this.props.chirps} chirpSetting = {chirpSetting} />}
+            content={  cookies.get('uid') ==  currentChirp.hostUid ? <ChirpSettingForm {...this.props.chirps} chirpSetting = {chirpSetting} /> : null}
             trigger="click"
           >
-            <Settings onClick={this.handleSettings}></Settings>
+            <Settings onClick={this.handleSettings.bind(this,currentChirp)}></Settings>
           </Popover>
 
         </Rightbox>
@@ -225,12 +228,19 @@ class ChirpAll extends Component{
           {!this.state.isLogin ? <div></div> : <AppSider></AppSider> }
           {
             !cookies.get('uid') || currentChirp == null ? null :
-              <CustomTab tabBarExtraContent={<TabBarExtraContent/>}>
+              <CustomTab tabBarExtraContent={<TabBarExtraContent/>} onChange={(activeKey)=>{this.setState({activeKey})}}>
                 <TabPane tab="All" key="1">
-                  <AllContnet chirpMessage ={chirpMessage} currentChirp = {currentChirp}/>
+                  <AllContnet
+                    chirpMessage ={chirpMessage}
+                    currentChirp = {currentChirp}
+                    tabInfo = {{key : 2 ,activeKey : this.state.activeKey}}
+                  />
                 </TabPane>
                 <TabPane tab="Photo" key="2">
-                  <PhotoContent chirpMessage ={chirpMessage} />
+                  <PhotoContent
+                    photoList ={chirpsPhoto[currentChirp.id]}
+                    currentChirp = {currentChirp}
+                    tabInfo = {{key : 2 ,activeKey : this.state.activeKey}} />
                 </TabPane>
                 {/* <TabPane tab="Video" key="3">
                   <VideoContent />
