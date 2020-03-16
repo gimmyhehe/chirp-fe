@@ -10,11 +10,11 @@ import NProgress from 'nprogress'
 
 const CenterBox = styled.div`
   display: inline-block;
-  top: 50%;
+  top: 2vh;
   position: absolute;
   left: 50%;
-  transform: translate(-50%, -50%);
-
+  transform: translate(-50%, 0);
+  min-height: 750px;
 `
 
 const CustomInput = styled(Input)`
