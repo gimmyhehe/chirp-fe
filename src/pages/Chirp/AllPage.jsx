@@ -186,6 +186,7 @@ class AllPage extends Component{
   doRealUpload = async () =>{
     var uploadfile = document.getElementById('upload')
     var file = uploadfile.files[0]
+    if(!file) return
     let imgSrc = URL.createObjectURL(file)
     let params = {
       'from': cookies.get('uid'),
@@ -210,7 +211,16 @@ class AllPage extends Component{
     var md5Str =  await this.get_filemd5sum(file)
     formData.append('md5',md5Str)
     formData.append('file',file)
-    var result = await api.upload(formData)
+    var result
+    await api.upload(formData)
+      .then(res=>{
+        result = res
+        URL.revokeObjectURL(imgSrc)
+      })
+      .catch(err=>{
+        message.error('upload fail!')
+        console.error(err)
+      })
     params.fileList = [result.data]
     api.sendMessage(params).then((res)=>{
       if(res.code == 10000){
