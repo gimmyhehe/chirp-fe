@@ -92,7 +92,7 @@ SocketBase.prototype.connect = function () {
   let paramsStr = serialize(this.params)
   console.log('与服务器器连接websocket中。。。')
   //process.env.WEBSOCKET_URL是webpack的DefinePlugin需要替换的变量
-  let protocal = window.location.protocol == 'https' ? 'wss' : 'ws'
+  let protocal = window.location.protocol == 'https' ? 'wss:' : 'ws:'
   // eslint-disable-next-line no-undef
   this.socket = new WebSocket(protocal+process.env.WEBSOCKET_URL+`?${paramsStr}`)
   //将原生socket的各种方法绑定到自定义的Socket类上
