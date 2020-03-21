@@ -56,7 +56,7 @@ module.exports = {
     env: '"development"',
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    websocketUrl: '"ws://54.144.207.148:8888"',
+    websocketUrl: '"//54.144.207.148:8888"',
     // Various Dev Server settings
     port: 3000, // can be overwritten by process.env.PORT
     autoOpenBrowser: false,

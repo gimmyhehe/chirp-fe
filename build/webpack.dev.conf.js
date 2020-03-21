@@ -25,6 +25,7 @@ module.exports = merge(baseWebpackConfig, {
   },
   devServer: {
     // webpack-dev-server options
+    host: "0.0.0.0",
     hot: true,
     historyApiFallback: true,
     compress: true,
