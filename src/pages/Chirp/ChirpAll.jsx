@@ -160,7 +160,7 @@ class ChirpAll extends Component{
   render(){
     const chirps = this.props.chirps
     const {allChirpsMessage,currentChirp,chirpsPhoto} = chirps
-    var chirpSetting={},chirpMessage=[],photoList = []
+    var chirpSetting={},chirpMessage=[]
     if(currentChirp){
       chirpSetting ={
         expirationDay: (currentChirp.expiredDate - currentChirp.createTime) / 24*60*60,
@@ -175,11 +175,6 @@ class ChirpAll extends Component{
             element.isSelf = true
           }else{
             element.isSelf = false
-          }
-          if(element.fileList && element.fileList.length> 0){
-            element.fileList.forEach((item)=>{
-              photoList.push(item)
-            })
           }
         })
       }

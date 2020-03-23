@@ -86,7 +86,6 @@ class SigninForm extends Component{
         }
         try {
           api.login(values).then(async ({response,appSocket})=>{
-            console.log(response)
             if (response.code == 10007) {
               NProgress.set(0.5)
               cookies.set('userName', values.email)

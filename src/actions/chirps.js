@@ -12,6 +12,7 @@ import {
   SET_CHIRP_PENDING, SET_CHIRP_FULFILLED, SET_CHIRP_REJECTED,
   SEND_MSG_PENDING, SEND_MSG_FULFILLED, SEND_MSG_REJECTED,
   SEND_MSG_SUCCESS_PENDING, SEND_MSG_SUCCESS_FULFILLED, SEND_MSG_SUCCESS_REJECTED,
+  DELETE_CHIRP_PENDING,  DELETE_CHIRP_FULFILLED,  DELETE_CHIRP_REJECTED,
 } from '@constants/actionTypes'
 import cookies from '@utils/cookies'
 import api from '@api'
@@ -79,3 +80,14 @@ export function sendMsgSuccess(data){
   }
 }
 
+
+export function deleteChirp(chirp){
+  return async (dispatch) =>{
+    dispatch({ type: DELETE_CHIRP_PENDING, data: 'loading' })
+    try{
+      dispatch({ type: DELETE_CHIRP_FULFILLED, chirp })
+    }catch(error){
+      dispatch({ type: DELETE_CHIRP_REJECTED, error })
+    }
+  }
+}

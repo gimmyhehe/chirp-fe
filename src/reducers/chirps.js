@@ -130,7 +130,7 @@ export default (state = {
         allChirpsMessage[action.data.chirpId][action.data.index].sending = false
       }else if(action.data.type ==='img'){
         if(action.data.index!=null)  allChirpsMessage[action.data.chirpId][action.data.index].sending = false
-        chirpsPhoto[state.currentChirp.id].push({url:action.data.imgUrl,selected: false})
+        chirpsPhoto[state.currentChirp.id].push({imgObj:action.data.imgObj,selected: false})
       }
       // chirps.set('allChirpsMessage',allChirpsMessage)
       return {

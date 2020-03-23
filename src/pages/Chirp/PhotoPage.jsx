@@ -36,7 +36,6 @@ const PhotoItem = styled.div`
   display: inline-block;
   margin: 10px 0 0 10px;
   position: relative;
-  background-color: #ccc;
 `
 
 const Check = styled.div`
@@ -114,7 +113,7 @@ class PhotoPage extends Component{
       return
     }
     let promises = _photoList.map( (item)=>{
-      return this.getBase64(item.url)
+      return this.getBase64(item.imgObj.imgUrl)
     })
     let results = await Promise.all(promises)
     results.forEach((item,index) => {
@@ -125,6 +124,10 @@ class PhotoPage extends Component{
         // see FileSaver.js
         saveAs(content, 'download.zip')
       })
+  }
+  handleImgError = (e)=>{
+    e.target.onerror = null
+    e.target.src = imgError
   }
   changeSelect = (index) =>{
     let _photoList = this.state.photoList
@@ -147,10 +150,10 @@ class PhotoPage extends Component{
             this.state.photoList.map((item,index)=>{
               return (
                 <PhotoItem
-                  style={{backgroundImage:`url(${item.url})`}}
                   key={index}
                   onClick = {this.changeSelect.bind(this,index)}
                 >
+                  <img src={item.imgObj.imgUrl} width={item.imgObj.width}  height={item.imgObj.height} onError={this.handleImgError} />
                   { item.selected ? <SelectCheck /> : <Check /> }
                 </PhotoItem>
               )

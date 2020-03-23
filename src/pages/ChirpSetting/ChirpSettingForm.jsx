@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import api from '../../api'
 import { connect } from 'react-redux'
 import { getChirpList } from '@actions/chirps'
-import { Form, Input,Slider,Switch,Modal   } from 'antd'
+import { Form, Input,Slider,Switch,Modal, message   } from 'antd'
 import { Button } from '@components'
 import NProgress from 'nprogress'
 
@@ -146,7 +146,7 @@ class ChirpSettingForm extends Component{
       if (!err) {
         NProgress.start()
         let { expirationDay,password,uploadPermission } = this.state
-        values = {
+        let param = {
           cmd : 21,
           chirpName: this.props.chirpName,
           isUploadPermitted: +uploadPermission,
@@ -155,21 +155,15 @@ class ChirpSettingForm extends Component{
         }
         try {
           console.log(values)
-          const response = await api.createChirp(values)
+          const response = await api.createChirp(param)
           console.log(response)
           if (response.code === 10022) {
             await this.props.getChirpList()
             NProgress.done()
-            this.setState({
-              error: false
-            })
             this.props.history.replace('/chirpall')
           } else {
             NProgress.done()
-            this.setState({
-              error: true,
-              errorMsg: response.msg
-            })
+            Modal.error({ content: response.msg })
           }
         } catch (err) {
           NProgress.done()
@@ -209,6 +203,14 @@ class ChirpSettingForm extends Component{
   }
   handleDeleteChirp = ()=>{
     // to do deletechirp
+    let param = { 'cmd':29,'chirpId':this.props.currentChirp.id}
+    api.deleteChirp(param).then(res=>{
+      console.log(res)
+      message.success('delete chirp success')
+    })
+      .catch(err=>{
+        console.log(err)
+      })
     this.setState({ modalVisible: false})
   }
   onChange = (pwdChecked)=> {

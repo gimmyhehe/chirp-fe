@@ -15,14 +15,7 @@ function SocketBase(obj){
   this.connectSuccess
   this.connectFail
   this.handleResponse = () =>{}
-  this.sendRequest = (params,callback) =>{
-    if(!this.isHeartflag){
-      console.log('no connect')
-      return false
-    }
-    this.handleResponse = callback
-    this.socket.send(params)
-  }
+
   this.receiveMessage = (data) =>{
     store.dispatch(setChirpList(data.data))
     if(data.data.fileList){
@@ -61,8 +54,11 @@ function SocketBase(obj){
         }else{
           this.receiveMessage(data)
         }
+      }else if(data.command =='12'){
+        this.emit('sendMessage',res)
       }else{
-        this.handleResponse(res)
+        console.log(this._callbacks)
+        this.emit('default',res)
       }
     }
   })
@@ -80,6 +76,36 @@ function SocketBase(obj){
     console.log(`The websocket is close${msg}`)
   })
   this.connect()
+}
+
+SocketBase.prototype.sendRequest =
+SocketBase.prototype.addEventListener = function(event, data,callback){
+  if(!this.isHeartflag){
+    console.log('no connect')
+    return false
+  }
+  this._callbacks = this._callbacks || {};
+  (this._callbacks['$' + event] = this._callbacks['$' + event] || []).unshift(callback)
+  this.socket.send(data)
+  return this
+}
+
+SocketBase.prototype.emit = function(event){
+  this._callbacks = this._callbacks || {}
+
+  var args = new Array(arguments.length - 1)
+    , callbacks = this._callbacks['$' + event]
+
+  for (var i = 1; i < arguments.length; i++) {
+    args[i - 1] = arguments[i]
+  }
+  if (callbacks) {
+    var callback = callbacks.pop()
+    callback.apply(this, args)
+
+  }
+
+  return this
 }
 
 //初始化websocket连接
@@ -149,13 +175,14 @@ var SocketSingleTon = (function(){
 })()
 
 
-export function sendRequest(params) {
+export function sendRequest(params,event = 'default') {
   console.log('websocket 请求发送中 参数如下')
   console.log(params)
   return new Promise((reslove,reject)=>{
     try{
-      window.appSocket.sendRequest(JSON.stringify(params),function(res){
+      window.appSocket.sendRequest(event,JSON.stringify(params),function(res){
         let data = JSON.parse(res.data)
+        console.log(data)
         reslove(data)
       })
     }catch(error){

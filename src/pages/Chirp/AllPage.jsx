@@ -1,7 +1,7 @@
 import React,{ Component } from 'react'
 import styled from 'styled-components'
 import api from '@api'
-import SparkMD5 from 'spark-md5'
+import { get_filemd5sum, readDiskFile, thumbnail} from '../../utils/fileHandle'
 import cookies from '@utils/cookies'
 import {formatTime} from '@utils/tool'
 import {Avatar,Col,Icon,Input,Row, message } from 'antd'
@@ -176,18 +176,17 @@ class AllPage extends Component{
     e.target.onerror = null
     e.target.src = imgError
   }
-  uploadFile = () => {
-    if(this.props.currentChirp.uploadPermissionEnabled != 1){
-      message.warn('sorry this chirp does not open the upload permission')
-      return false
-    }
-    document.getElementById('upload').click()
-  }
-  doRealUpload = async () =>{
-    var uploadfile = document.getElementById('upload')
-    var file = uploadfile.files[0]
-    if(!file) return
-    let imgSrc = URL.createObjectURL(file)
+ uploadFile = async () => {
+   if(this.props.currentChirp.uploadPermissionEnabled != 1){
+     message.warn('sorry this chirp does not open the upload permission')
+     return false
+   }
+   let fileResult = await readDiskFile({ fileType: 'image' })
+   this.doRealUpload(fileResult)
+ }
+  doRealUpload = async (fileResult) =>{
+    if(!fileResult) return
+    const { file, imgUrl, width, height } = fileResult
     let params = {
       'from': cookies.get('uid'),
       'createTime': Math.ceil(Date.now() / 1000),
@@ -196,7 +195,7 @@ class AllPage extends Component{
       'chatType':'1',
       'msgType':'0',
       'content': '',
-      fileList: [imgSrc]
+      fileList: [{ imgUrl, width, height }]
     }
     let index = this.props.chirpMessage.length
     let chirpId = this.props.currentChirp.id
@@ -208,23 +207,24 @@ class AllPage extends Component{
     formData.append('chirpId',this.props.currentChirp.id)
     formData.append('userId',cookies.get('uid'))
     formData.append('fileName',file.name)
-    var md5Str =  await this.get_filemd5sum(file)
+    var md5Str =  await get_filemd5sum(file)
     formData.append('md5',md5Str)
     formData.append('file',file)
     var result
     await api.upload(formData)
       .then(res=>{
         result = res
-        URL.revokeObjectURL(imgSrc)
+        URL.revokeObjectURL(fileResult.imgUrl)
       })
       .catch(err=>{
         message.error('upload fail!')
         console.error(err)
       })
-    params.fileList = [result.data]
+    let imgObj = { imgUrl: result.data, width, height }
+    params.fileList = [imgObj]
     api.sendMessage(params).then((res)=>{
       if(res.code == 10000){
-        this.props.sendMsgSuccess({type:'img',index,chirpId,imgUrl:result.data})
+        this.props.sendMsgSuccess({type:'img',index,chirpId,imgObj})
       }else{
         throw new Error('send message fail')
       }
@@ -232,130 +232,97 @@ class AllPage extends Component{
       console.error(error)
     })
   }
-   get_filemd5sum = (ofile) => {
-     return new Promise((resolve,reject)=>{
-       var file = ofile
-       var tmp_md5
-       var blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice,
-         // file = this.files[0],
-         chunkSize = 8097152, // Read in chunks of 2MB
-         chunks = Math.ceil(file.size / chunkSize),
-         currentChunk = 0,
-         spark = new SparkMD5.ArrayBuffer(),
-         fileReader = new FileReader()
+  render(){
+    var chirpMessage = this.props.chirpMessage
+    return (
+      <AllContnet>
+        <ChirpContent ref ={this.content}>
+          { chirpMessage.map((message,index)=>{
+            if (message.isSelf){
+              return(
+                <SelfChatItem key={index}>
+                  <UserInfo>
+                    <Avatar className='avatar' size={36} icon="user"></Avatar>
+                    <div  className='info' style={{display:'inline-block', verticalAlign: 'middle',marginLeft: '6px'}}>
+                      <span className='username'>{message.fromName}</span>
+                      <span className='sendtime' id='font-size10'>{formatTime(message.createTime*1000)}</span>
+                    </div>
+                  </UserInfo>
+                  {message.sending ? <Loading customStyle ={{position: 'absolute',top:'32px',fontSize:'3px'}} /> : null}
+                  {message.fileList ?
+                    <PhotoBox style={{justifyContent: 'flex-end'}} gutter={10}>
+                      <Col className="gutter-row" span={4}>
+                        <img src={message.fileList[0].imgUrl}
+                          width={message.fileList[0].width}
+                          height={message.fileList[0].height}
+                          onError={this.handleImgError}
+                        />
+                      </Col>
+                    </PhotoBox>
+                    :<p>{message.content}</p>}
+                </SelfChatItem>
+              )
+            }else{
+              return(
 
-       fileReader.onload = function(e) {
-         // console.log('read chunk nr', currentChunk + 1, 'of', chunks);
-         spark.append(e.target.result) // Append array buffer
-         currentChunk++
-         var md5_progress = Math.floor((currentChunk / chunks) * 100)
+                <ChatItem key={index}>
+                  <UserInfo>
+                    <Avatar className='avatar' size={36} icon="user"></Avatar>
+                    <div className='info' style={{display:'inline-block', verticalAlign: 'middle',marginLeft: '6px'}}>
+                      <span className='username'>{message.fromName}</span>
+                      <span className='sendtime' id='font-size10'>{formatTime(message.createTime*1000)}</span>
+                    </div>
+                  </UserInfo>
+                  {message.fileList ?
+                    <PhotoBox gutter={10}>
+                      <Col className="gutter-row" span={4}>
+                        <img src={message.fileList[0].imgUrl}
+                          width={message.fileList[0].width}
+                          height={message.fileList[0].height}
+                          onError={this.handleImgError}
+                        />
+                      </Col>
+                    </PhotoBox>
+                    :<p>{message.content}</p>}
+                </ChatItem>
+              )
+            }
 
-         console.log(file.name + '  正在处理，请稍等,' + '已完成' + md5_progress + '%')
-         if (currentChunk < chunks) {
-           loadNext()
-         } else {
-           tmp_md5 = spark.end()
-           console.log(tmp_md5)
-           resolve(tmp_md5)
-         }
-       }
-
-       fileReader.onerror = function() {
-         reject('error')
-       }
-
-       function loadNext() {
-         var start = currentChunk * chunkSize,
-           end = ((start + chunkSize) >= file.size) ? file.size : start + chunkSize
-         fileReader.readAsArrayBuffer(blobSlice.call(file, start, end))
-       }
-       loadNext()
-     })
-   }
-   render(){
-     var chirpMessage = this.props.chirpMessage
-     return (
-       <AllContnet>
-         <ChirpContent ref ={this.content}>
-           { chirpMessage.map((message,index)=>{
-             if (message.isSelf){
-               return(
-
-                 <SelfChatItem key={index}>
-                   <UserInfo>
-                     <Avatar className='avatar' size={36} icon="user"></Avatar>
-                     <div  className='info' style={{display:'inline-block', verticalAlign: 'middle',marginLeft: '6px'}}>
-                       <span className='username'>{message.fromName}</span>
-                       <span className='sendtime' id='font-size10'>{formatTime(message.createTime*1000)}</span>
-                     </div>
-                   </UserInfo>
-                   {message.sending ? <Loading customStyle ={{position: 'absolute',top:'32px',fontSize:'3px'}} /> : null}
-                   {message.fileList ?
-                     <PhotoBox style={{justifyContent: 'flex-end'}} gutter={10}>
-                       <Col className="gutter-row" span={4}>
-                         <img src={message.fileList[0]} onError={this.handleImgError}></img>
-                       </Col>
-                     </PhotoBox>
-                     :<p>{message.content}</p>}
-                 </SelfChatItem>
-               )
-             }else{
-               return(
-
-                 <ChatItem key={index}>
-                   <UserInfo>
-                     <Avatar className='avatar' size={36} icon="user"></Avatar>
-                     <div className='info' style={{display:'inline-block', verticalAlign: 'middle',marginLeft: '6px'}}>
-                       <span className='username'>{message.fromName}</span>
-                       <span className='sendtime' id='font-size10'>{formatTime(message.createTime*1000)}</span>
-                     </div>
-                   </UserInfo>
-                   {message.fileList ?
-                     <PhotoBox gutter={10}>
-                       <Col className="gutter-row" span={4}>
-                         <img src={message.fileList[0]} onError={this.handleImgError}></img>
-                       </Col>
-                     </PhotoBox>
-                     :<p>{message.content}</p>}
-                 </ChatItem>
-               )
-             }
-
-             //    <PhotoBox gutter={10}>
-             //    <Col className="gutter-row" span={4}>
-             //      <img src={message.fileList[0]}></img>
-             //    </Col>
-             //    <Col style={{position:'relative'}} className='more' span={4}>
-             //      <div>
-             //             +16 more
-             //      </div>
-             //    </Col>
-             //  </PhotoBox>
-           })}
-           {
-             this.state.showImg ?
-               <PhotoBox gutter={10}>
-                 <Col className="gutter-row" span={4}>
-                   <img src={this.state.imgSrc}></img>
-                 </Col>
-               </PhotoBox>
-               :null
-           }
-         </ChirpContent>
-         <MessegeBox>
-           <Icon type="upload" style={{marginLeft:'8px'} } onClick={this.uploadFile}></Icon>
-           <input id="upload" type="file" accept="image/jpg,image/jpeg,image/png,image/PNG"  onChange={this.doRealUpload} style={{display: 'none'}} />
-           <Icon type="smile" onClick={this.handleEmoji} ></Icon>
-           <Input
-             placeholder='Press Enter to send messege'
-             value = {this.state.message}
-             onKeyDown={this.handleSendMessage}
-             onChange = {this.handleMessageChange}
-           ></Input>
-         </MessegeBox>
-       </AllContnet>
-     )
-   }
+            //    <PhotoBox gutter={10}>
+            //    <Col className="gutter-row" span={4}>
+            //      <img src={message.fileList[0]}></img>
+            //    </Col>
+            //    <Col style={{position:'relative'}} className='more' span={4}>
+            //      <div>
+            //             +16 more
+            //      </div>
+            //    </Col>
+            //  </PhotoBox>
+          })}
+          {
+            this.state.showImg ?
+              <PhotoBox gutter={10}>
+                <Col className="gutter-row" span={4}>
+                  <img src={this.state.imgSrc}></img>
+                </Col>
+              </PhotoBox>
+              :null
+          }
+        </ChirpContent>
+        <MessegeBox>
+          <Icon type="upload" style={{marginLeft:'8px'} } onClick={this.uploadFile}></Icon>
+          <input id="upload" type="file" accept="image/jpg,image/jpeg,image/png,image/PNG"  onChange={this.doRealUpload} style={{display: 'none'}} />
+          <Icon type="smile" onClick={this.handleEmoji} ></Icon>
+          <Input
+            placeholder='Press Enter to send messege'
+            value = {this.state.message}
+            onKeyDown={this.handleSendMessage}
+            onChange = {this.handleMessageChange}
+          ></Input>
+        </MessegeBox>
+      </AllContnet>
+    )
+  }
 }
 
 const mapStateToProps = state => ({

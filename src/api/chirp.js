@@ -12,22 +12,26 @@ import { sendRequest } from '@utils/websocket'
 export function createChirp(params){
   return sendRequest(params)
 }
-
+export function joinChirp(params) {
+  return sendRequest(params)
+}
+export function deleteChirp(params){
+  return sendRequest(params)
+}
 export function getChirpList(params) {
   return sendRequest(params)
 }
 
-export function sendMessage(params) {
-  return sendRequest(params)
+export function sendMessage(params,) {
+  return sendRequest(params,'sendMessage')
 }
-export function joinChirp(params) {
-  return sendRequest(params)
-}
+
 
 export const upload = params => requests.post('/upload', params)
 
 export default {
   createChirp,
+  deleteChirp,
   sendMessage,
   getChirpList,
   joinChirp,
