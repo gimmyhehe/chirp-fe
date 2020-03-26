@@ -1,11 +1,3 @@
-/*
- * @Author: your name
- * @Date: 2020-01-05 10:06:54
- * @LastEditTime: 2020-03-16 10:02:01
- * @LastEditors: Please set LastEditors
- * @Description: In User Settings Edit
- * @FilePath: \chrip-fe\src\reducers\chirps.js
- */
 import * as actionTypes from '@constants/actionTypes'
 import { chirps } from '@utils/storage'
 

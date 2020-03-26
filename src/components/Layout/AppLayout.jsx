@@ -79,7 +79,7 @@ const userLinks = [
 ]
 
 const  linkList = {
-  home : { key: 'home' , to: '/chirpall'},
+  home : { key: 'home' , to: '/'},
   signin : { key: 'signin' , to: '/signin'},
   signup : { key: 'signup' , to: '/signup'},
 }
@@ -89,11 +89,12 @@ class AppLayout extends Component{
       cookies.remove('userName')
       cookies.remove('password')
       cookies.remove('uid')
+      cookies.remove('chirp-token')
       NProgress.start()
       api.logout().then(() => {
         NProgress.done()
-        this.props.history.push('/signin')
       }).catch((error)=>{ console.error(`logout error ${error}`) })
+      this.props.history.replace('/signin')
     }
   }
 
@@ -102,9 +103,8 @@ class AppLayout extends Component{
     this.props.history.replace(path)
   }
   render(){
-    const userInfo = this.props.user.data
-    const isLogin = cookies.get('uid') ? true : false
-    const userName = isLogin && userInfo.firstName  && userInfo.firstName + userInfo.lastName
+    const userInfo = this.props.user
+    const userName = userInfo.userName
     const DropdwonMenu = (
       <Menu style={{ minWidth: 150 }}>
         {userLinks.map(({ to, text }) => (
@@ -121,7 +121,7 @@ class AppLayout extends Component{
           <Logo to={linkList.home.to} onClick={this.handleJump}>Chirp</Logo>
           <Title>Chirps</Title>
           {
-            isLogin ?
+            userName ?
               <Dropdown overlay={DropdwonMenu}>
                 <User>
                   <Avatar size={24} src={defaultAvatar} />

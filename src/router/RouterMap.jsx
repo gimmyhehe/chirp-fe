@@ -1,28 +1,25 @@
 import React from 'react'
-import { Switch, Route , BrowserRouter as Router } from 'react-router-dom'
+import { Switch, BrowserRouter as Router } from 'react-router-dom'
+import { connect } from 'react-redux'
 import {AppLayout} from '@components'
-import {
-  ChirpJoin,
-  SignupForm,
-  ChirpAll,
-  UserSettings,
-  ChirpSetting
-} from '@pages'
-import SigninPage from '@containers/SigninPage'
-export default porps =>{
+import renderRoutes from './renderRoutes'
+import routes from './router.js'
+
+const mapStateToProps = state => ({
+  user: state.user
+})
+
+export default connect(mapStateToProps,null)((props) =>{
+  let authed = props.user.uid ? true : false
+  console.log(props.user)
   return(
     <Router>
       <Switch>
         <AppLayout>
-          <Route path="/" exact component={SigninPage} />
-          <Route path="/signup" exact component={SignupForm} />
-          <Route path="/signin" exact component={SigninPage} />
-          <Route path="/chirpjoin" exact component={ChirpJoin} />
-          <Route path="/chirpall" exact component={ChirpAll} />
-          <Route path="/user/settings" exact component={UserSettings} />
-          <Route path="/chirpsetting" exact component={ChirpSetting} />
+          {renderRoutes(routes, authed)}
         </AppLayout>
       </Switch>
     </Router>
   )
 }
+)

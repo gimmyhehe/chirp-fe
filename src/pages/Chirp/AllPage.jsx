@@ -193,7 +193,7 @@ class AllPage extends Component{
       'cmd':11,
       'group_id': this.props.currentChirp.id,
       'chatType':'1',
-      'msgType':'0',
+      'msgType':'1',
       'content': '',
       fileList: [{ imgUrl, width, height }]
     }

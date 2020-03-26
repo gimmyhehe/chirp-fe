@@ -1,11 +1,10 @@
 import React,{ Component } from 'react'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
-import { Input,Form,message } from 'antd'
-import api from '../../api'
+import { Input,Form } from 'antd'
 import cookies from '../../utils/cookies'
 import { Button } from '@components'
-
+import { store } from '@store'
 import NProgress from 'nprogress'
 
 const Title = styled.h1`
@@ -85,36 +84,17 @@ class SigninForm extends Component{
           deviceID: '123'
         }
         try {
-          api.login(values).then(async ({response,appSocket})=>{
-            if (response.code == 10007) {
-              NProgress.set(0.5)
+          this.props.doLogin(values).then(()=>{
+            let { user } = store.getState()
+            if(user.isLogin){
               cookies.set('userName', values.email)
               cookies.set('password', values.password)
-              cookies.set('uid', response.uid)
-              window.appSocket = appSocket
-              await this.props.getUserInfo()
-              await this.props.getChirpList()
-              NProgress.done()
-
-              const pathname =
-                this.props.location.state && this.props.location.state.from
-              const history = pathname
-                ? { pathname }
-                : {
-                  pathname: 'chirpall',
-                  state: { userName: values.email, businessId: 0 }
-                }
-              this.props.history.push(history)
-            } else if(response.code == 10007 && !response.uid){
-              NProgress.done()
-              message.error('email or password error')
-            }else {
-              NProgress.done()
-              message.error(response.msg)
+              let prevLocation =
+              this.props.location.state && this.props.location.state.from
+              let to = prevLocation ? prevLocation : { pathname: 'chirpall' }
+              this.props.history.push(to)
             }
-            NProgress.done()
-          },e=>{ console.log(e) })
-
+          })
         } catch (err) {
           NProgress.done()
           console.log(err)
@@ -125,6 +105,11 @@ class SigninForm extends Component{
         }
       }
     })
+  }
+  componentDidMount(){
+    if(this.props.user.uid){
+      this.props.history.replace('/chirpall')
+    }
   }
 
   render(){

@@ -8,7 +8,10 @@
  */
 import { store } from '../store'
 import { setChirpList,sendMsgSuccess } from '@actions/chirps'
+import { doLogout } from '@actions/user'
 import { serialize } from '@utils/tool'
+import NProgress from 'nprogress'
+import { message } from 'antd'
 import cookies from '@utils/cookies'
 function SocketBase(obj){
   this.params = obj.params
@@ -39,6 +42,11 @@ function SocketBase(obj){
     let response = res.data
     if(typeof response == 'string'){
       response = JSON.parse(response)
+    }
+    if(response.code!=10007){
+      NProgress.done()
+      message.error(response.msg)
+      return
     }
     this.connectSuccess(response)
     //登录成功后重写onmessage方法
@@ -148,6 +156,7 @@ SocketBase.prototype.disconnect = function () {
       resolve(msg)
     }
     this.disconnectFail = (error)=>{
+      message.error('server connect fail, please refresh!')
       reject(error)
     }
   })
@@ -193,13 +202,14 @@ export function sendRequest(params,event = 'default') {
 
 export function socketLogin(params) {
   if(window.appSocket){
-    let response = {code:10007,msg:'msg'} , appSocket = window.appSocket
-    return Promise.resolve({response,appSocket})
+    let response = {code:10007,uid: cookies.get('uid'), token: cookies.get('chirp-token')}
+    return Promise.resolve(response)
   }
   var appSocket = new SocketBase({params})
   return new Promise((resolve,reject)=>{
     appSocket.connectSuccess = (response) =>{
-      resolve({response,appSocket})
+      window.appSocket = appSocket
+      resolve(response)
     }
     appSocket.connectFail = (error) =>{
       reject(error)
@@ -211,5 +221,6 @@ export function socketLogout() {
   cookies.remove('uid')
   cookies.remove('userName')
   cookies.remove('password')
+  store.dispatch(doLogout())
   return window.appSocket.disconnect()
 }

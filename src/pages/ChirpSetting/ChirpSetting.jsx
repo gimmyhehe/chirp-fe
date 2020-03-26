@@ -50,15 +50,6 @@ class ChirpSetting extends Component{
     this.setState({ expirationDay })
   };
 
-  compareToFirstPassword = (rule, value, callback) => {
-    const form = this.props.form
-    if (value && value !== form.getFieldValue('password')) {
-      callback('The confirm password does not match the new password.')
-    } else {
-      callback()
-    }
-  }
-
   handleSubmit = (e) =>{
     e.preventDefault()
     let searchParams = getParams(this.props.location.search)

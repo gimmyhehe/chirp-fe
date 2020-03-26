@@ -25,7 +25,6 @@ export function getChirpList() {
         cmd: 25,
         memberId: cookies.get('uid')
       }
-      console.log(cookies.get('uid'))
       const {data} = await api.getChirpList(params)
       dispatch({ type: CHIRPS_INFO_FULFILLED, data })
     } catch (error) {
