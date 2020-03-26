@@ -10,20 +10,23 @@ import requests from '@utils/requests'
 import { sendRequest } from '@utils/websocket'
 
 export function createChirp(params){
-  return sendRequest(params)
+  return sendRequest(params,'createChirp')
 }
 export function joinChirp(params) {
-  return sendRequest(params)
+  return sendRequest(params,'joinChirp')
 }
 export function deleteChirp(params){
-  return sendRequest(params)
+  return sendRequest(params,'deleteChirp')
 }
 export function getChirpList(params) {
-  return sendRequest(params)
+  return sendRequest(params,'getChirpList')
 }
 
-export function sendMessage(params,) {
+export function sendMessage(params) {
   return sendRequest(params,'sendMessage')
+}
+export function getHistoryMessage(params) {
+  return sendRequest(params,'getHistoryMessage')
 }
 
 
@@ -35,5 +38,6 @@ export default {
   sendMessage,
   getChirpList,
   joinChirp,
-  upload
+  upload,
+  getHistoryMessage
 }

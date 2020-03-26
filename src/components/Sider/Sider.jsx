@@ -47,9 +47,6 @@ const CustomSider = styled(Sider)`
 `
 
 class AppSider extends Component{
-  state={
-    chirpList : [],
-  }
   handleJump = (e) =>{
     e.preventDefault()
     this.props.history.push('/chirpjoin')
@@ -58,7 +55,6 @@ class AppSider extends Component{
     this.props.getCurrentChirp(chirp)
   }
   render(){
-    const chirpList = this.props.chirps.chirpList ? this.props.chirps.chirpList : []
     var NoChirp = ()=>(
       <Menu.Item key="1">
         <span className="nav-text">no chirp</span>
@@ -79,7 +75,7 @@ class AppSider extends Component{
         {/* defaultSelectedKeys={['1']} */}
         <Menu theme="dark" mode="inline" >
           {
-            chirpList ? chirpList.map((chirp,index)=>{
+            this.props.chirps.chirpList ? this.props.chirps.chirpList.map((chirp,index)=>{
               return(
                 <Menu.Item key={index+1} onClick={(e)=>{this.handleClick(e,chirp)}}>
                   <span className="nav-text">{chirp.name}</span>
@@ -87,7 +83,7 @@ class AppSider extends Component{
               )
             }) : <NoChirp/>
           }
-          <Menu.Item key={chirpList.length+1}>
+          <Menu.Item key='createorjoin'>
             <span className="nav-text" onClick={this.handleJump} style={{color:'#00f'}} >create/join</span>
           </Menu.Item>
         </Menu>

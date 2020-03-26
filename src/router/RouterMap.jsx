@@ -11,7 +11,6 @@ const mapStateToProps = state => ({
 
 export default connect(mapStateToProps,null)((props) =>{
   let authed = props.user.uid ? true : false
-  console.log(props.user)
   return(
     <Router>
       <Switch>

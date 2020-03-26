@@ -36,6 +36,14 @@ const PhotoItem = styled.div`
   display: inline-block;
   margin: 10px 0 0 10px;
   position: relative;
+  overflow: hidden;
+  background-color: rgba(0,0,0,0.1);
+  img{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
 `
 
 const Check = styled.div`

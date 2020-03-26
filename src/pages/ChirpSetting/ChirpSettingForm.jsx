@@ -154,7 +154,6 @@ class ChirpSettingForm extends Component{
           password: password
         }
         try {
-          console.log(values)
           const response = await api.createChirp(param)
           console.log(response)
           if (response.code === 10022) {

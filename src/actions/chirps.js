@@ -13,9 +13,12 @@ import {
   SEND_MSG_PENDING, SEND_MSG_FULFILLED, SEND_MSG_REJECTED,
   SEND_MSG_SUCCESS_PENDING, SEND_MSG_SUCCESS_FULFILLED, SEND_MSG_SUCCESS_REJECTED,
   DELETE_CHIRP_PENDING,  DELETE_CHIRP_FULFILLED,  DELETE_CHIRP_REJECTED,
+  HISTORY_MESSAGE_PENDING,  HISTORY_MESSAGE_FULFILLED,  HISTORY_MESSAGE_REJECTED,
+
 } from '@constants/actionTypes'
 import cookies from '@utils/cookies'
 import api from '@api'
+import { message } from 'antd'
 
 export function getChirpList() {
   return async (dispatch) => {
@@ -27,6 +30,9 @@ export function getChirpList() {
       }
       const {data} = await api.getChirpList(params)
       dispatch({ type: CHIRPS_INFO_FULFILLED, data })
+      data.forEach(item => {
+        dispatch(getHistoryMessage(item.id))
+      })
     } catch (error) {
 
       dispatch({ type: CHIRPS_INFO_REJECTED, error })
@@ -79,14 +85,34 @@ export function sendMsgSuccess(data){
   }
 }
 
+export function deleteChirp({ chirpId, msg }){
+  message.warn(chirpId+msg)
+  return {
+    type: DELETE_CHIRP_FULFILLED,
+    data: { chirpId, msg }
+  }
+}
 
-export function deleteChirp(chirp){
-  return async (dispatch) =>{
-    dispatch({ type: DELETE_CHIRP_PENDING, data: 'loading' })
-    try{
-      dispatch({ type: DELETE_CHIRP_FULFILLED, chirp })
-    }catch(error){
-      dispatch({ type: DELETE_CHIRP_REJECTED, error })
-    }
+export function getHistoryMessage(chirpId){
+  return async (dispatch)=>{
+    dispatch({ type: HISTORY_MESSAGE_PENDING })
+    api.getHistoryMessage({ cmd: 31, chirpId  }).then(res=>{
+      if(res.code == 10039){
+        res.data.forEach(item=>{
+          if(item.fileList){
+            if( typeof item.fileList == 'object' ) return
+            if(item.fileList[item.fileList.length-1] == ',') item.fileList = item.fileList.substr(0,item.fileList.length-1)
+            item.fileList = JSON.parse(item.fileList)
+            if(!(item.fileList instanceof Array)) item.fileList = [item.fileList]
+          }
+        })
+        dispatch({ type: HISTORY_MESSAGE_FULFILLED, chirpId: res.chirpId, data: res.data  })
+      }else{
+        dispatch({ type: HISTORY_MESSAGE_REJECTED })
+      }
+    }).catch(error=>{
+      console.log(error)
+    })
+
   }
 }

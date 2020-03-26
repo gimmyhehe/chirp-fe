@@ -138,24 +138,6 @@ class ChirpAll extends Component{
     this.setState({
       visible: false,
     })
-  };
-  componentDidMount(){
-    if(cookies.get('uid')){
-      this.setState({isLogin:true})
-    }else{
-      this.setState({isLogin:false})
-      Modal.info({
-        title: 'No permission',
-        content: (
-          <div>
-            <p>you should login first!</p>
-          </div>
-        ),
-        onOk: ()=> {
-          this.props.history.replace('/signin')
-        },
-      })
-    }
   }
   render(){
     const chirps = this.props.chirps
@@ -220,7 +202,7 @@ class ChirpAll extends Component{
     return(
       <div>
         <CustomLayout>
-          {!this.state.isLogin ? <div></div> : <AppSider></AppSider> }
+          <AppSider></AppSider>
           {
             !cookies.get('uid') || currentChirp == null ? null :
               <CustomTab tabBarExtraContent={<TabBarExtraContent/>} onChange={(activeKey)=>{this.setState({activeKey})}}>

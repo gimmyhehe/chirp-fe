@@ -7,7 +7,7 @@
  * @FilePath: \chrip-fe\src\utils\websocket.js
  */
 import { store } from '../store'
-import { setChirpList,sendMsgSuccess } from '@actions/chirps'
+import { setChirpList,sendMsgSuccess, deleteChirp } from '@actions/chirps'
 import { doLogout } from '@actions/user'
 import { serialize } from '@utils/tool'
 import NProgress from 'nprogress'
@@ -19,11 +19,16 @@ function SocketBase(obj){
   this.connectFail
   this.handleResponse = () =>{}
 
-  this.receiveMessage = (data) =>{
-    store.dispatch(setChirpList(data.data))
-    if(data.data.fileList){
-      store.dispatch(sendMsgSuccess({type:'img',index:null,chirpId:data.data.group_id,imgUrl:data.data.fileList[0]}))
+  this.receiveMessage = (res) =>{
+    let item =res.data
+    if(item.fileList){
+      if( typeof item.fileList == 'object' ) return
+      if(item.fileList[item.fileList.length-1] == ',') item.fileList = item.fileList.substr(0,item.fileList.length-1)
+      item.fileList = JSON.parse(item.fileList)
+      if(!(item.fileList instanceof Array)) item.fileList = [item.fileList]
+      store.dispatch(sendMsgSuccess({type:'img',index:null,chirpId:item.group_id,imgObj:item.fileList[0]}))
     }
+    store.dispatch(setChirpList(item))
   }
   //socket对象,用于保存原生websocket的属性、方法
   this.socket = null
@@ -43,6 +48,8 @@ function SocketBase(obj){
     if(typeof response == 'string'){
       response = JSON.parse(response)
     }
+    //不是登录请求的响应直接跳过
+    if(response.command!=6) return
     if(response.code!=10007){
       NProgress.done()
       message.error(response.msg)
@@ -51,19 +58,33 @@ function SocketBase(obj){
     this.connectSuccess(response)
     //登录成功后重写onmessage方法
     this.onmessage = (res) =>{
-      console.log('onmessage 方法被调用了!!!')
-      console.log(res)
+      console.log('onmessage返回结果')
       let data = JSON.parse(res.data)
+      console.log(data)
       //this.handleResponse(res)
-      if(data.command =='11'){
+      if(data.command == 11 ){
         //判断如果是自己的消息则不做处理
         if(cookies.get('uid') == data.data.from){
           return
         }else{
           this.receiveMessage(data)
         }
-      }else if(data.command =='12'){
+      }else if(data.command == 12 ){
         this.emit('sendMessage',res)
+      }else if(data.command == 18 ){
+        this.emit('getUserInfo',res)
+      }else if(data.command == 22 ){
+        this.emit('createChirp',res)
+      }else if(data.command == 24 ){
+        this.emit('joinChirp',res)
+      }else if(data.command == 30 ){
+        this.emit('deleteChirp',res)
+      }else if(data.command == 26 ){
+        this.emit('getChirpList',res)
+      }else if(data.command == 31 ){
+        this.emit('getHistoryMessage',res)
+      }else if(data.command == 33 ){
+        store.dispatch(deleteChirp({ chirpId: data.data, msg: data.msg }))
       }else{
         console.log(this._callbacks)
         this.emit('default',res)
@@ -86,14 +107,16 @@ function SocketBase(obj){
   this.connect()
 }
 
-SocketBase.prototype.sendRequest =
+SocketBase.prototype.send =
 SocketBase.prototype.addEventListener = function(event, data,callback){
   if(!this.isHeartflag){
-    console.log('no connect')
+    message.error('server disconnect!')
     return false
   }
   this._callbacks = this._callbacks || {};
   (this._callbacks['$' + event] = this._callbacks['$' + event] || []).unshift(callback)
+  console.log('websocket 请求发送中 参数如下')
+  console.log(data)
   this.socket.send(data)
   return this
 }
@@ -141,8 +164,6 @@ SocketBase.prototype.connect = function () {
     this.socket = null // 清理
   }
   this.socket.onmessage = (res)=>{
-    console.log(`原生websocket返回结果：
-                  ${res}`)
     this.onmessage(res)
   }
 }
@@ -185,13 +206,10 @@ var SocketSingleTon = (function(){
 
 
 export function sendRequest(params,event = 'default') {
-  console.log('websocket 请求发送中 参数如下')
-  console.log(params)
   return new Promise((reslove,reject)=>{
     try{
-      window.appSocket.sendRequest(event,JSON.stringify(params),function(res){
+      window.appSocket.send(event,JSON.stringify(params),function(res){
         let data = JSON.parse(res.data)
-        console.log(data)
         reslove(data)
       })
     }catch(error){
@@ -202,7 +220,7 @@ export function sendRequest(params,event = 'default') {
 
 export function socketLogin(params) {
   if(window.appSocket){
-    let response = {code:10007,uid: cookies.get('uid'), token: cookies.get('chirp-token')}
+    let response = {code:10007,command: 6,uid: cookies.get('uid'), token: cookies.get('chirp-token')}
     return Promise.resolve(response)
   }
   var appSocket = new SocketBase({params})

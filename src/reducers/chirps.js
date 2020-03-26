@@ -3,7 +3,7 @@ import { chirps } from '@utils/storage'
 
 export default (state = {
   chirpList: chirps.get('chirpList', []),
-  currentChirp: chirps.get('currentChirp',null),
+  currentChirp: null,
   allChirpsMessage: {},
   chirpsPhoto: {},
 }, action) => {
@@ -138,6 +138,49 @@ export default (state = {
         ...state,
         error: action.error,
         loading: false
+      }
+    }
+    case actionTypes.HISTORY_MESSAGE_PENDING:{
+      return {
+        ...state,
+        loading: true
+      }
+    }
+    case actionTypes.HISTORY_MESSAGE_FULFILLED:{
+      let allChirpsMessage = state.allChirpsMessage
+      let chirpsPhoto = state.chirpsPhoto
+      allChirpsMessage[action.chirpId] = action.data.concat(allChirpsMessage[action.chirpId])
+      action.data.forEach(item=>{
+        if(item.msgType == 1){
+          chirpsPhoto[action.chirpId].push({imgObj:item.fileList[0],selected: false})
+        }
+      })
+
+      return {
+        ...state,
+        ...chirpsPhoto,
+        loading: false
+      }
+    }
+    case actionTypes.DELETE_CHIRP_FULFILLED:{
+      let data = action.data
+      let chirpList = state.chirpList
+      let currentChirp = state.currentChirp
+      let allChirpsMessage = state.allChirpsMessage
+      let chirpsPhoto = state.chirpsPhoto
+      if(currentChirp.id == data.chirpId) currentChirp =null
+      chirpList = chirpList.filter(item=>{
+        return item.id != data.chirpId
+      })
+      console.log(chirpList)
+      delete allChirpsMessage[data.chirpId]
+      delete chirpsPhoto[data.chirpId]
+      return {
+        ...state,
+        chirpList,
+        ...allChirpsMessage,
+        ...chirpsPhoto,
+        currentChirp
       }
     }
     default:
