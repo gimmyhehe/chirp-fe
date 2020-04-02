@@ -14,7 +14,6 @@ const CustomSider = styled(Sider)`
     box-shadow: 0 1px 2px 0 rgba(0,0,0,0.14);
     height: min-content;
     max-height: 85%;
-    z-index: 99;
     .ant-layout-sider-children{
       height: 100%;
       overflow-y: auto;

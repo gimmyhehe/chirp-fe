@@ -113,6 +113,22 @@ export default (state = {
         loading: false
       }
     }
+    case actionTypes.SEND_IMG_PENDING:{
+      let allChirpsMessage = state.allChirpsMessage
+      allChirpsMessage[action.data.chirpId][action.data.index] = action.data.msgItem
+      return {
+        ...state,
+        allChirpsMessage
+      }
+    }
+    case actionTypes.SEND_IMG_FULFILLED:{
+      let allChirpsMessage = state.allChirpsMessage
+      allChirpsMessage[action.data.chirpId][action.data.index] = action.data.msgItem
+      return{
+        ...state,
+        allChirpsMessage
+      }
+    }
     case actionTypes.SEND_MSG_SUCCESS_PENDING:{
       return {
         ...state,

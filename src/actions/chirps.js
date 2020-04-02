@@ -12,11 +12,13 @@ import {
   SET_CHIRP_PENDING, SET_CHIRP_FULFILLED, SET_CHIRP_REJECTED,
   SEND_MSG_PENDING, SEND_MSG_FULFILLED, SEND_MSG_REJECTED,
   SEND_MSG_SUCCESS_PENDING, SEND_MSG_SUCCESS_FULFILLED, SEND_MSG_SUCCESS_REJECTED,
-  DELETE_CHIRP_PENDING,  DELETE_CHIRP_FULFILLED,  DELETE_CHIRP_REJECTED,
+  DELETE_CHIRP_FULFILLED,
   HISTORY_MESSAGE_PENDING,  HISTORY_MESSAGE_FULFILLED,  HISTORY_MESSAGE_REJECTED,
+  SEND_IMG_PENDING, SEND_IMG_FULFILLED, SEND_IMG_REJECTED
 
 } from '@constants/actionTypes'
 import cookies from '@utils/cookies'
+import { get_filemd5sum, getImgWH} from '@utils/fileHandle'
 import api from '@api'
 import { message } from 'antd'
 
@@ -71,6 +73,65 @@ export function sendMsg(msg){
     }catch(error){
       dispatch({ type: SEND_MSG_REJECTED, error })
     }
+  }
+}
+
+export function sendImg(fileObj){
+  return async (dispatch, getState)=>{
+
+    // this.props.sendImg({ file, index, chirpId })
+    const { file, imgUrl } = fileObj
+    const {  width, height } = await getImgWH(imgUrl)
+    const { chirps, user } = getState()
+    const chirpId = chirps.currentChirp.id
+    let index = chirps.allChirpsMessage[chirpId].length
+    let msgItem = {
+      'from': cookies.get('uid'),
+      'fromName': user.userNmae,
+      'createTime': Date.now(),
+      'cmd':11,
+      'group_id': chirpId,
+      'chatType':'1',
+      'msgType':'1',
+      'content': '',
+      fileList: [{ imgUrl, width, height, status: 'sending' }]
+    }
+
+    dispatch({ type: SEND_IMG_PENDING, data: { chirpId, index, msgItem } })
+    var formData = new FormData()
+    formData.append('chirpId', chirpId)
+    formData.append('userId', cookies.get('uid'))
+    formData.append('fileName', file.name)
+    var md5Str =  await get_filemd5sum(file)
+    formData.append('md5',md5Str)
+    formData.append('file',file)
+    await api.upload(formData)
+      .then(res=>{
+        if(res.code ===0){
+          URL.revokeObjectURL(fileObj.imgUrl)
+          let imgObj = { imgUrl: res.data, width, height }
+          msgItem.fileList = [imgObj]
+          dispatch({ type: SEND_IMG_FULFILLED, data: { chirpId, index, msgItem } })
+          api.sendMessage(msgItem).then((res)=>{
+            if(res.code == 10000){
+              // this.props.sendMsgSuccess({type:'img',index,chirpId,imgObj})
+            }else{
+              throw new Error('send message fail')
+            }
+          }).catch((error)=>{
+            console.error(error)
+          })
+        }else{
+          msgItem.fileList[0].status = 'fail'
+          dispatch({ type: SEND_IMG_FULFILLED, data: { chirpId, index, msgItem } })
+          message.error(`${file.name} upload fail! ${res.message}`)
+        }
+      })
+      .catch(err=>{
+        message.error('upload fail! upload server has error!')
+        console.error(err)
+      })
+
   }
 }
 

@@ -140,6 +140,7 @@ function bytesToSize(bytes) {
 }
 
 export const thumbnail = function(imgW,imgH,defaultW = 180 , defaultH = 180){
+  if(!imgW || !imgH) return { width: 0, height: 0 }
   let max = Math.max(imgW / defaultW , imgH / defaultH)
   return { width : imgW/max , height: imgH/max }
 }
