@@ -21,7 +21,7 @@ module.exports = {
     assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    websocketUrl: '"ws://54.144.207.148:8888"',
+    websocketUrl: '"//54.144.207.148:8888"',
     productionSourceMap: false,
     // Gzip off by default as many popular static hosts such as
     // Surge or Netlify already gzip all static assets for you.
