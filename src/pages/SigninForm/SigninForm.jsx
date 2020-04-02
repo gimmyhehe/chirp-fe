@@ -8,36 +8,12 @@ import { store } from '@store'
 import NProgress from 'nprogress'
 
 const Title = styled.h1`
-  font-size: 36px;
+  font-size: 1.8rem;
   letter-spacing: -0.86px;
   text-align: center;
   font-weight: 600;
-  margin-top: 108px;
+  margin-top: 5rem;
 `
-const FormBox = styled(Form)`
-  &&{
-    width: 375px;
-    box-shadow: 0 1px 2px 0 rgba(0,0,0,0.14);
-    position: relative;
-    overflow: hidden;
-    background-color: #fff;
-    margin: 0 auto;
-    padding: 0 24px 24px;
-    .ant-form-item{
-      margin-bottom:0;
-    }
-    .ant-form-item-label{
-      font-size: 14px;
-      line-height: unset;
-      margin: 20px 0 0 0;
-      font-weight: 600;
-    }
-    .ant-form-item-required::before{
-      display: none;
-    }
-  }
-`
-
 const SignupLink = styled(Link)`
   margin: 18px 0 0;
   text-decoration: underline;
@@ -49,7 +25,7 @@ const SignupLink = styled(Link)`
 `
 const ForgotPwd = styled(SignupLink)`
   text-decoration: underline;
-  margin: 8px 0 0 24px;
+  margin: 8px 0 0 0;
   display: inline-block;
 `
 const CustomInput = styled(Input)`
@@ -117,7 +93,7 @@ class SigninForm extends Component{
     return(
       <div>
         <Title>Sign In</Title>
-        <FormBox onSubmit={this.handleSubmit}>
+        <Form className='g-form-box' onSubmit={this.handleSubmit}>
           <Form.Item label='Email'>
             {getFieldDecorator('email', {
               rules: [
@@ -153,7 +129,7 @@ class SigninForm extends Component{
           <ForgotPwd to='/signup'>Forgot Password?</ForgotPwd>
           <SigninButton type='primary' htmlType="submit">Sign In</SigninButton>
           <SignupLink to='/signup'>No Account? Create One</SignupLink>
-        </FormBox>
+        </Form>
       </div>
     )
   }

@@ -4,7 +4,9 @@ import { fadeInUp } from 'react-animations'
 import api from '../../api'
 import { Link } from 'react-router-dom'
 import { shouldContainLetters, shouldContainNumber, shouldNotHaveSpecialChar } from '../../utils/validation'
-import { Form, Input, Alert,message } from 'antd'
+import { doLogin } from '@actions/user'
+import { connect } from 'react-redux'
+import { Form, Input, Alert } from 'antd'
 import { Button } from '@components'
 import NProgress from 'nprogress'
 
@@ -26,33 +28,10 @@ const CustomInput = styled(Input)`
 `
 
 const Title = styled.h1`
-  font-size: 36px;
+  font-size: 1.8rem;
   letter-spacing: -0.86px;
   text-align: center;
   font-weight: 600;
-`
-const FormBox = styled(Form)`
-  &&{
-    width: 375px;
-    box-shadow: 0 1px 2px 0 rgba(0,0,0,0.14);
-    position: relative;
-    overflow: hidden;
-    background-color: #fff;
-    margin: 0 auto;
-    padding: 0 24px 24px;
-    .ant-form-item{
-      margin-bottom:0;
-    }
-    .ant-form-item-label{
-      font-size: 14px;
-      line-height: unset;
-      margin: 20px 0 0 0;
-      font-weight: 600;
-    }
-    .ant-form-item-required::before{
-      display: none;
-    }
-  }
 `
 
 const SignupLink = styled(Link)`
@@ -120,13 +99,18 @@ class SignupForm extends Component{
         try {
           const response = await api.signUp(values)
           if (response.code === 0) {
-            values = response.data
             NProgress.done()
             this.setState({
               error: false
             })
-            message.success('sign up success! you can signin now!')
-            this.props.history.push('/signin')
+            let param = {
+              email: values.email,
+              password: values.password,
+              deviceID: '123'
+            }
+            await this.props.doLogin(param).then(()=>{
+              this.props.history.replace('/')
+            })
           } else if(response.code === 1001) {
             NProgress.done()
             this.setState({
@@ -176,7 +160,7 @@ class SignupForm extends Component{
           ) : null
         }
         <Title>Sign Up</Title>
-        <FormBox onSubmit={this.handleSubmit}>
+        <Form className='g-form-box' onSubmit={this.handleSubmit}>
           <Form.Item label='First Name'>
             {
               getFieldDecorator('firstName', {
@@ -247,10 +231,10 @@ class SignupForm extends Component{
           <SignupProtocol>By clicking sign up, you agree to our <span onClick={() => window.open('https://www.onepro.io/terms')} style={{color: '#4a90e2', textDecoration: 'underline', cursor: 'pointer'}}>Terms</span> and <span onClick={() => window.open('https://www.onepro.io/privacy')} style={{color: '#4a90e2', textDecoration: 'underline', cursor: 'pointer'}}>Privacy Policy</span>.</SignupProtocol>
           <SigninButton type='primary' htmlType="submit">Sign Up</SigninButton>
           <SignupLink to='/signin'>Has Account? Sign In</SignupLink>
-        </FormBox>
+        </Form>
       </CenterBox>
     )
   }
 }
 
-export default Form.create()(SignupForm)
+export default connect(null, { doLogin })(Form.create()(SignupForm))

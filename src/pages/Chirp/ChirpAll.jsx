@@ -2,7 +2,7 @@ import React,{ Component } from 'react'
 import styled from 'styled-components'
 import {AppSider} from '@components'
 import { connect } from 'react-redux'
-import { Layout, Tabs,Input,Popover,Modal,message } from 'antd'
+import { Layout, Tabs,Input,Popover, message } from 'antd'
 import {  Button } from '@components'
 import cookies from '@utils/cookies'
 import AllContnet from './AllPage'
@@ -19,14 +19,31 @@ const CustomLayout = styled(Layout)`
     padding: 24px 24px 0 24px;
     background: unset;
     position: relative;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    @media (max-width: 700px){
+      padding: 0;
+
+    }
     .ant-tabs{
-      width: 1168px;
-      min-width: 800px;
+      width: 100%;
+      max-width: 1168px;
       position: relative;
       margin-left: 24px;
       background: unset;
       position: relative;
       height: 84vh;
+      @media (max-width: 700px){
+        position: absolute;
+        margin-left: 0;
+        height: 100%;
+        .ant-tabs-content{
+          padding: 0!important;
+        }
+      }
       .ant-layout-header{
         position: absolute;
         background: unset;
@@ -48,11 +65,41 @@ const CustomLayout = styled(Layout)`
       }
       .ant-tabs-top-bar{
         border-bottom: none;
+        @media (max-width: 700px){
+          position: absolute;
+          width: 100%;
+          top: 0;
+          height: 70px;
+          margin: 0;
+          background: #fff;
+          .ant-tabs-nav-container{
+            position: absolute;
+            width: 100%;
+            bottom: 0;
+          }
+          .chirp-bar{
+            top: 0;
+            right: 10px;
+          }
+          .ant-tabs-nav{
+            width: 100%;
+            display: flex;
+          }
+          .ant-tabs-nav > div{
+            width: 100%;
+            display: flex;
+          }
+          .ant-tabs-nav .ant-tabs-tab{
+            margin: 0;
+            padding: 0 0 6px 0;
+            width: 100%;
+            text-align: center;
+          }
+        }
       }
       .ant-tabs-content{
         position: absolute;
         padding: 0 1px 4px;
-        min-width: 800px;
         top:70px;
         bottom:0;
       }
@@ -97,6 +144,8 @@ background-image: url(${SettingsIcon});
 const ShareBox = styled.div`
   padding: 20px 32px;
   overflow: hidden;
+  max-width: 100vw;
+  width: 424px;
   .chirp-link{
     font-size: 16px;
     display: block;
@@ -145,7 +194,7 @@ class ChirpAll extends Component{
     var chirpSetting={},chirpMessage=[]
     if(currentChirp){
       chirpSetting ={
-        expirationDay: (currentChirp.expiredDate - currentChirp.createTime) / 24*60*60,
+        expirationDay: (currentChirp.expiredDate - currentChirp.createTime) / (24*60*60*1000),
         pwdChecked: !!currentChirp.passwordEnabled,
         uploadPermission: !!currentChirp.uploadPermissionEnabled,
         password: ''
@@ -169,7 +218,7 @@ class ChirpAll extends Component{
           <Button style={{width:'160px',height:'44px'}} type='primary'>Copy Link</Button>
           <h3 className='email-share'>Invite People By Email</h3>
           <Input
-            style={{width: '360px',height:'44px'}}
+            style={{width: '100%',height:'44px'}}
             placeholder="type email here…"
           ></Input>
           <Button className='invite-btn' style={{width:'160px',height:'44px'}} type='normal'>Send Invite</Button>
@@ -179,7 +228,7 @@ class ChirpAll extends Component{
     }
     var TabBarExtraContent = () =>{
       return(
-        <Rightbox>
+        <Rightbox className='chirp-bar'>
           <span>{currentChirp.name}</span>
           <Popover
             placement="bottomRight"
@@ -200,41 +249,40 @@ class ChirpAll extends Component{
       )
     }
     return(
-      <div>
-        <CustomLayout>
-          <AppSider></AppSider>
-          {
-            !cookies.get('uid') || currentChirp == null ? null :
-              <CustomTab tabBarExtraContent={<TabBarExtraContent/>} onChange={(activeKey)=>{this.setState({activeKey})}}>
-                <TabPane tab="All" key="1">
-                  <AllContnet
-                    chirpMessage ={chirpMessage}
-                    currentChirp = {currentChirp}
-                    tabInfo = {{key : 2 ,activeKey : this.state.activeKey}}
-                  />
-                </TabPane>
-                <TabPane tab="Photo" key="2">
-                  <PhotoContent
-                    photoList ={chirpsPhoto[currentChirp.id]}
-                    currentChirp = {currentChirp}
-                    tabInfo = {{key : 2 ,activeKey : this.state.activeKey}} />
-                </TabPane>
-                {/* <TabPane tab="Video" key="3">
+      <CustomLayout>
+        <AppSider></AppSider>
+        {
+          !cookies.get('uid') || currentChirp == null ? null :
+            <CustomTab tabBarExtraContent={<TabBarExtraContent/>} onChange={(activeKey)=>{this.setState({activeKey})}}>
+              <TabPane tab="All" key="1">
+                <AllContnet
+                  chirpMessage ={chirpMessage}
+                  currentChirp = {currentChirp}
+                  tabInfo = {{key : 2 ,activeKey : this.state.activeKey}}
+                />
+              </TabPane>
+              <TabPane tab="Photo" key="2">
+                <PhotoContent
+                  photoList ={chirpsPhoto[currentChirp.id]}
+                  currentChirp = {currentChirp}
+                  tabInfo = {{key : 2 ,activeKey : this.state.activeKey}} />
+              </TabPane>
+              {/* <TabPane tab="Video" key="3">
                   <VideoContent />
                 </TabPane>
                 <TabPane tab="File" key="4">
                   <FileContent />
                 </TabPane> */}
-              </CustomTab>
-          }
-        </CustomLayout>
-      </div>
+            </CustomTab>
+        }
+      </CustomLayout>
     )
   }
 }
 
 const mapStateToProps = state => ({
-  chirps: state.chirps
+  chirps: state.chirps,
+  currentChirp : state.chirps.currentChirp
 })
 
 export default connect(mapStateToProps, null)(ChirpAll)

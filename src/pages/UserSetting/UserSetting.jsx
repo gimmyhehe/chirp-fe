@@ -9,14 +9,6 @@ import { Form, Input, Alert, Avatar } from 'antd'
 import { Button } from '@components'
 import NProgress from 'nprogress'
 
-const CenterBox = styled.div`
-  display: inline-block;
-  top: 50%;
-  position: absolute;
-  left: 50%;
-  transform: translate(-50%, -50%);
-
-`
 
 const CustomInput = styled(Input)`
 &&{
@@ -27,7 +19,7 @@ const CustomInput = styled(Input)`
 `
 
 const Title = styled.h1`
-  font-size: 36px;
+  font-size: 1.8rem;
   letter-spacing: -0.86px;
   text-align: center;
   font-weight: 600;
@@ -157,7 +149,7 @@ class UserSettings extends Component{
   render(){
     const { getFieldDecorator } = this.props.form
     return(
-      <CenterBox>
+      <div className='center-box'>
         {
           this.state.error ? (
             <AlertWrapper>
@@ -243,7 +235,7 @@ class UserSettings extends Component{
             <Button style={{width:'152px',height:'48px',marginRight:'0'}} type='primary'>Save</Button>
           </ButtonBox>
         </FormBox>
-      </CenterBox>
+      </div>
     )
   }
 }

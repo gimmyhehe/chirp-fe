@@ -58,9 +58,12 @@ function SocketBase(obj){
     this.connectSuccess(response)
     //登录成功后重写onmessage方法
     this.onmessage = (res) =>{
-      console.log('onmessage返回结果')
       let data = JSON.parse(res.data)
-      console.log(data)
+      // eslint-disable-next-line no-undef
+      if(process.env.NODE_ENV == 'development'){
+        console.log('onmessage返回结果')
+        console.log(data)
+      }
       //this.handleResponse(res)
       if(data.command == 11 ){
         //判断如果是自己的消息则不做处理
@@ -84,9 +87,8 @@ function SocketBase(obj){
       }else if(data.command == 31 ){
         this.emit('getHistoryMessage',res)
       }else if(data.command == 33 ){
-        store.dispatch(deleteChirp({ chirpId: data.data, msg: data.msg }))
+        store.dispatch(deleteChirp({ chirpId: data.data, msg: data.msg, code: data.code }))
       }else{
-        console.log(this._callbacks)
         this.emit('default',res)
       }
     }
@@ -115,8 +117,11 @@ SocketBase.prototype.addEventListener = function(event, data,callback){
   }
   this._callbacks = this._callbacks || {};
   (this._callbacks['$' + event] = this._callbacks['$' + event] || []).unshift(callback)
-  console.log('websocket 请求发送中 参数如下')
-  console.log(data)
+  // eslint-disable-next-line no-undef
+  if(process.env.NODE_ENV == 'development'){
+    console.log('websocket 请求发送中 参数如下')
+    console.log(data)
+  }
   this.socket.send(data)
   return this
 }
@@ -194,15 +199,15 @@ SocketBase.prototype.reConnect = function () {
   }, 2000)
 }
 
-var SocketSingleTon = (function(){
-  let instance = null
-  return function(paramsObj){
-    if(instance == null){
-      instance = new SocketBase(paramsObj)
-    }
-    return instance
-  }
-})()
+// var SocketSingleTon = (function(){
+//   let instance = null
+//   return function(paramsObj){
+//     if(instance == null){
+//       instance = new SocketBase(paramsObj)
+//     }
+//     return instance
+//   }
+// })()
 
 
 export function sendRequest(params,event = 'default') {

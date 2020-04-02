@@ -10,9 +10,23 @@ const CustomSider = styled(Sider)`
 
   &.ant-layout-sider{
     background-color: #fff;
-    padding: 32px 24px 64px;
+    padding: 32px 0 64px 24px;
     box-shadow: 0 1px 2px 0 rgba(0,0,0,0.14);
     height: min-content;
+    max-height: 85%;
+    z-index: 99;
+    .ant-layout-sider-children{
+      height: 100%;
+      overflow-y: auto;
+    }
+    @media (max-width: 700px){
+      position: absolute;
+      z-index: 10;
+      max-height: 100%;
+      height: 100%;
+      top: 0;
+      bottom: 0;
+    }
     .ant-layout-sider-zero-width-trigger{
       right: -16px;
       background: #489d0b;
@@ -55,15 +69,11 @@ class AppSider extends Component{
     this.props.getCurrentChirp(chirp)
   }
   render(){
-    var NoChirp = ()=>(
-      <Menu.Item key="1">
-        <span className="nav-text">no chirp</span>
-      </Menu.Item>
-    )
     return(
       <CustomSider
-        breakpoint="lg"
+        breakpoint="md"
         collapsedWidth="0"
+        width={200}
         onBreakpoint={broken => {
           console.log(broken)
         }}
@@ -72,16 +82,18 @@ class AppSider extends Component{
         }}
       >
         <div className="title">Chirps</div>
-        {/* defaultSelectedKeys={['1']} */}
-        <Menu theme="dark" mode="inline" >
+
+        <Menu theme="dark" mode="inline"
+          defaultSelectedKeys= {[this.props.currentChirpId]}
+        >
           {
-            this.props.chirps.chirpList ? this.props.chirps.chirpList.map((chirp,index)=>{
+            this.props.chirpList.map((chirp)=>{
               return(
-                <Menu.Item key={index+1} onClick={(e)=>{this.handleClick(e,chirp)}}>
+                <Menu.Item key={chirp.id} onClick={(e)=>{this.handleClick(e,chirp)}}>
                   <span className="nav-text">{chirp.name}</span>
                 </Menu.Item>
               )
-            }) : <NoChirp/>
+            })
           }
           <Menu.Item key='createorjoin'>
             <span className="nav-text" onClick={this.handleJump} style={{color:'#00f'}} >create/join</span>
@@ -93,7 +105,8 @@ class AppSider extends Component{
 }
 
 const mapStateToProps = state => ({
-  chirps: state.chirps
+  chirpList: state.chirps.chirpList ? state.chirps.chirpList : [],
+  currentChirpId: state.chirps.currentChirp ? state.chirps.currentChirp.id : null
 })
 
 export default connect(mapStateToProps, {getCurrentChirp})(withRouter(AppSider))

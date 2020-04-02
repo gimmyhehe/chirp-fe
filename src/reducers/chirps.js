@@ -1,9 +1,9 @@
 import * as actionTypes from '@constants/actionTypes'
 import { chirps } from '@utils/storage'
-
+import { message } from 'antd'
 export default (state = {
-  chirpList: chirps.get('chirpList', []),
-  currentChirp: null,
+  chirpList: [],
+  currentChirp: chirps.get('currentChirp', null),
   allChirpsMessage: {},
   chirpsPhoto: {},
 }, action) => {
@@ -14,13 +14,16 @@ export default (state = {
         loading: true
       }
     case actionTypes.CHIRPS_INFO_FULFILLED:{
-
-      chirps.set('chirpList', action.data)
-      let allChirpsMessage =state.allChirpsMessage
+      let allChirpsMessage = state.allChirpsMessage
       let chirpsPhoto = state.chirpsPhoto
+      let tempChirp = state.currentChirp
+      let currentChirp = action.data[0]
       action.data.forEach(element => {
         allChirpsMessage[element.id] = []
         chirpsPhoto[element.id] = []
+        if(tempChirp && tempChirp.id == element.id){
+          currentChirp = element
+        }
       })
       // chirps.set('allChirpsMessage',allChirpsMessage)
       return {
@@ -28,6 +31,7 @@ export default (state = {
         chirpList: action.data,
         allChirpsMessage,
         chirpsPhoto,
+        currentChirp,
         loading: false
       }
     }
@@ -164,17 +168,23 @@ export default (state = {
     }
     case actionTypes.DELETE_CHIRP_FULFILLED:{
       let data = action.data
+      var deleteChirpName
       let chirpList = state.chirpList
       let currentChirp = state.currentChirp
       let allChirpsMessage = state.allChirpsMessage
       let chirpsPhoto = state.chirpsPhoto
       if(currentChirp.id == data.chirpId) currentChirp =null
       chirpList = chirpList.filter(item=>{
+        if(item.id == data.chirpId) deleteChirpName = item.name
         return item.id != data.chirpId
       })
-      console.log(chirpList)
       delete allChirpsMessage[data.chirpId]
       delete chirpsPhoto[data.chirpId]
+      if(data.code == 10136  ){
+        message.warn(deleteChirpName + ' was deleted')
+      }else{
+        message.warn(deleteChirpName + ' is expired' )
+      }
       return {
         ...state,
         chirpList,

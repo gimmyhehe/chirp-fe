@@ -9,32 +9,56 @@ import checkIcon from '@assets/icon/check.svg'
 import selectCheckIcon from '@assets/icon/select-check.svg'
 import imgError from '@assets/img/imgerror.jpg'
 import { message } from 'antd'
+import { thumbnail} from '../../utils/fileHandle'
 const ButtonBox = styled.div`
   position: absolute;
   padding: 16px;
   width: 100%;
-  height: 80px;
+  height: 4rem;
   z-index: 9;
+  @media (max-width: 700px){
+    display: flex;
+    justify-content: space-around;
+    .ant-btn{
+      margin-right: 0;
+    }
+  }
   .ant-btn{
     float: right;
-    width: 180px;
-    height: 48px;
+    width: 9rem;
+    height: 2.4rem;
   }
 `
 const PhotoBox = styled.div`
   position: absolute;
-  top: 80px;
+  top: 4rem;
   bottom: 4px;
   overflow-y: auto;
   width: 100%;
-
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: flex-start;
+  padding-right: 0.5rem;
 `
 const PhotoItem = styled.div`
   vertical-align: top;
   width: 180px;
   height: 180px;
+  @media (max-width: 620px){
+    width: 140px;
+    height: 140px;
+  }
+  @media (max-width: 450px){
+    width: 110px;
+    height: 110px;
+  }
+  @media (max-width: 350px){
+    width: 90px;
+    height: 90px;
+  }
   display: inline-block;
-  margin: 10px 0 0 10px;
+  margin: 0.5rem 0 0 0.5rem;
   position: relative;
   overflow: hidden;
   background-color: rgba(0,0,0,0.1);
@@ -44,6 +68,9 @@ const PhotoItem = styled.div`
     left: 50%;
     transform: translate(-50%, -50%);
   }
+`
+const EmptyItem = styled(PhotoItem)`
+  height: 0!important;
 `
 
 const Check = styled.div`
@@ -58,6 +85,9 @@ const Check = styled.div`
 const SelectCheck = styled(Check)`
   background-image: url(${selectCheckIcon});
 `
+
+const downloadKey = 'download-key'
+
 class PhotoPage extends Component{
   constructor(props){
     super(props)
@@ -66,23 +96,6 @@ class PhotoPage extends Component{
       photoList: this.props.photoList,
       selfChange: false
     }
-  }
-  static getDerivedStateFromProps(nextProps,prevState) {
-    // 当父组件的 props 改变时，重新请求数据
-    // let { chirpMessage } = nextProps
-    console.log(prevState)
-    console.log(nextProps)
-    return nextProps
-    // if(prevState.selfChange){
-    //   return
-    // }
-    // let photoList = nextProps.photoList.map((item)=>{
-    //   return {
-    //     url: item,
-    //     selected: false
-    //   }
-    // })
-    // return {photoList}
   }
   getBase64 = (img) =>{
     if (!img) return
@@ -120,6 +133,7 @@ class PhotoPage extends Component{
       message.info('no image to download!')
       return
     }
+    const hide = message.loading('Download Loading...',0)
     let promises = _photoList.map( (item)=>{
       return this.getBase64(item.imgObj.imgUrl)
     })
@@ -131,6 +145,7 @@ class PhotoPage extends Component{
       .then(function(content) {
         // see FileSaver.js
         saveAs(content, 'download.zip')
+        hide()
       })
   }
   handleImgError = (e)=>{
@@ -145,6 +160,11 @@ class PhotoPage extends Component{
     })
     )
 
+  }
+  static getDerivedStateFromProps(nextProps,prevState) {
+    // 当父组件的 props 改变时，重新请求数据
+    // let { chirpMessage } = nextProps
+    return nextProps
   }
   render(){
     return (
@@ -161,13 +181,19 @@ class PhotoPage extends Component{
                   key={index}
                   onClick = {this.changeSelect.bind(this,index)}
                 >
-                  <img src={item.imgObj.imgUrl} width={item.imgObj.width}  height={item.imgObj.height} onError={this.handleImgError} />
+                  <img src={item.imgObj.imgUrl}
+                    width={ thumbnail(item.imgObj.width,item.imgObj.height).width }
+                    height={ thumbnail(item.imgObj.width,item.imgObj.height).height }
+                    onError={this.handleImgError} />
                   { item.selected ? <SelectCheck /> : <Check /> }
                 </PhotoItem>
               )
             })
           }
-
+          <EmptyItem />
+          <EmptyItem />
+          <EmptyItem />
+          <EmptyItem />
         </PhotoBox>
       </div>
     )

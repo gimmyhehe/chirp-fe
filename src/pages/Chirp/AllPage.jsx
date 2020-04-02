@@ -1,14 +1,20 @@
 import React,{ Component } from 'react'
 import styled from 'styled-components'
 import api from '@api'
-import { get_filemd5sum, readDiskFile, thumbnail} from '../../utils/fileHandle'
+import { get_filemd5sum, readDiskFile, getImgWH, thumbnail} from '../../utils/fileHandle'
 import cookies from '@utils/cookies'
 import {formatTime} from '@utils/tool'
-import {Avatar,Col,Icon,Input,Row, message } from 'antd'
+import {Avatar,Col,Icon,Input,Row, message, Dropdown } from 'antd'
 import { connect } from 'react-redux'
 import { sendMsg, sendMsgSuccess } from '@actions/chirps'
 import {Loading} from '@components'
 import imgError from '@assets/img/imgerror.jpg'
+import 'emoji-mart/css/emoji-mart.css'
+import { Picker } from 'emoji-mart'
+import emojify  from 'emojify.js'
+import 'emojify.js/dist/css/sprites/emojify.css'
+import xss from '@utils/xss'
+emojify.setConfig({tag_type : 'span', mode: 'sprite' })
 const AllContnet = styled.div`
   width: 100%;
   height: 100%;
@@ -19,6 +25,11 @@ const MessegeBox = styled.div`
   bottom: 4px;
   right: 1px;
   left: 1px;
+  @media (max-width: 700px){
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
   display: flex;
   align-items: center;
   background-color: #f9f9f9;
@@ -35,15 +46,23 @@ const MessegeBox = styled.div`
 `
 const ChirpContent = styled.div`
   overflow-y: auto;
-  height: 92%;
+  position: absolute;
+  right: 0;
+  left: 0;
+  top: 0;
+  bottom: 56px;
 `
 
 const ChatItem = styled.div`
   padding:16px;
   position: relative;
   border-bottom: 2px solid #ebedf0;
+  .info{
+    position: relative;
+  }
   p{
     font-size:17px;
+    margin-bottom: 0;
   }
 `
 const SelfChatItem = styled(ChatItem)`
@@ -53,6 +72,11 @@ const SelfChatItem = styled(ChatItem)`
   }
   .info{
     float: right;
+    text-align: right;
+    margin-right: 8px;
+    .sendtime{
+      transform-origin: right;
+    }
     &:after{
       content: "";
       display: block;
@@ -86,8 +110,9 @@ const UserInfo = styled.div`
   .sendtime{
     display:block;
     font-size: ${fontSize}px;
-    transform: scale(${10/fontSize}) translate(${-(1-10/fontSize)/2*100}%,${-(1-10/fontSize)/2*100}%);
+    transform: scale(${10/fontSize});
     color: rgba(0,0,0,0.5);
+    transform-origin: 0 0;
   }
 `
 
@@ -98,6 +123,13 @@ const PhotoBox = styled(Row)`
     overflow: hidden;
     width: 190px;
     height: 180px;
+    position: relative;
+  }
+  img{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
   }
   .more{
     div{
@@ -126,10 +158,36 @@ class AllPage extends Component{
       chirpPassword: null,
     }
     this.content = React.createRef()
+    this.input = React.createRef()
   }
+  insertAtCursor = (value)=> {
+    const { input, props} = this.input.current
+    if (input.selectionStart || input.selectionStart === 0) {
+      const startPos = input.selectionStart
+      const endPos = input.selectionEnd
+      const restoreTop = input.scrollTop
 
+      let newMessage = props.value.substring(0, startPos)
+            + value
+            + props.value.substring(endPos, props.value.length)
+      this.setState({message: newMessage})
+      if (restoreTop > 0) {
+        input.scrollTop = restoreTop
+      }
+      input.focus()
+      input.selectionStart = startPos + value.length
+      input.selectionEnd = startPos + value.length
+    } else {
+      let newMessage = props.value + value
+      this.setState({message: newMessage})
+      input.focus()
+    }
+  }
   handleMessageChange = (e) =>{
     this.setState({message:e.target.value})
+  }
+  addEmoji(a,b){
+    console.log(a,b)
   }
   componentDidUpdate() {
     if(this.content.current.scrollHeight > this.content.current.clientHeight) {
@@ -144,19 +202,19 @@ class AllPage extends Component{
     }else if(e.key === 'Enter' && this.state.message!=null){
       let params = {
         'from': cookies.get('uid'),
-        'createTime': Math.ceil(Date.now() / 1000),
+        'createTime': Date.now(),
         'cmd':11,
         'group_id': this.props.currentChirp.id,
         'chatType':'1',
         'msgType':'0',
-        'content': this.state.message
+        'content': xss(this.state.message)
       }
       let index = this.props.chirpMessage.length
       let chirpId = this.props.currentChirp.id
       this.setState({message:null})
       params.sending = true
-      let { firstName,lastName } = this.props.user.data
-      params.fromName = firstName+lastName
+      let userName = this.props.user.userName
+      params.fromName = userName
       this.props.sendMsg({type:'msg',index,chirpId,data:params})
       await api.sendMessage(params).then((res)=>{
         if(res.code == 10000){
@@ -170,7 +228,7 @@ class AllPage extends Component{
     }
   }
   handleEmoji =()=>{
-
+    this.insertAtCursor(':+1:')
   }
   handleImgError = (e)=>{
     e.target.onerror = null
@@ -182,14 +240,19 @@ class AllPage extends Component{
      return false
    }
    let fileResult = await readDiskFile({ fileType: 'image' })
-   this.doRealUpload(fileResult)
+   if (!fileResult || fileResult.length==0) return
+   fileResult.forEach(file => {
+     this.doRealUpload(file)
+   })
+
  }
   doRealUpload = async (fileResult) =>{
     if(!fileResult) return
-    const { file, imgUrl, width, height } = fileResult
+    const { file, imgUrl } = fileResult
+    const {  width, height } = await getImgWH(imgUrl)
     let params = {
       'from': cookies.get('uid'),
-      'createTime': Math.ceil(Date.now() / 1000),
+      'createTime': Date.now(),
       'cmd':11,
       'group_id': this.props.currentChirp.id,
       'chatType':'1',
@@ -233,6 +296,7 @@ class AllPage extends Component{
     })
   }
   render(){
+    console.log(emojify.replace('iam :+1:'))
     var chirpMessage = this.props.chirpMessage
     return (
       <AllContnet>
@@ -245,7 +309,7 @@ class AllPage extends Component{
                     <Avatar className='avatar' size={36} icon="user"></Avatar>
                     <div  className='info' style={{display:'inline-block', verticalAlign: 'middle',marginLeft: '6px'}}>
                       <span className='username'>{message.fromName}</span>
-                      <span className='sendtime' id='font-size10'>{formatTime(message.createTime*1000)}</span>
+                      <span className='sendtime' id='font-size10'>{formatTime(message.createTime)}</span>
                     </div>
                   </UserInfo>
                   {message.sending ? <Loading customStyle ={{position: 'absolute',top:'32px',fontSize:'3px'}} /> : null}
@@ -253,13 +317,13 @@ class AllPage extends Component{
                     <PhotoBox style={{justifyContent: 'flex-end'}} gutter={10}>
                       <Col className="gutter-row" span={4}>
                         <img src={message.fileList[0].imgUrl}
-                          width={message.fileList[0].width}
-                          height={message.fileList[0].height}
+                          width={ thumbnail(message.fileList[0].width,message.fileList[0].height).width }
+                          height={ thumbnail(message.fileList[0].width,message.fileList[0].height).height }
                           onError={this.handleImgError}
                         />
                       </Col>
                     </PhotoBox>
-                    :<p>{message.content}</p>}
+                    :<p dangerouslySetInnerHTML={{__html:emojify.replace(message.content)}}></p>}
                 </SelfChatItem>
               )
             }else{
@@ -270,20 +334,20 @@ class AllPage extends Component{
                     <Avatar className='avatar' size={36} icon="user"></Avatar>
                     <div className='info' style={{display:'inline-block', verticalAlign: 'middle',marginLeft: '6px'}}>
                       <span className='username'>{message.fromName}</span>
-                      <span className='sendtime' id='font-size10'>{formatTime(message.createTime*1000)}</span>
+                      <span className='sendtime' id='font-size10'>{formatTime(message.createTime)}</span>
                     </div>
                   </UserInfo>
                   {message.fileList ?
                     <PhotoBox gutter={10}>
                       <Col className="gutter-row" span={4}>
                         <img src={message.fileList[0].imgUrl}
-                          width={message.fileList[0].width}
-                          height={message.fileList[0].height}
+                          width={ thumbnail(message.fileList[0].width,message.fileList[0].height).width }
+                          height={ thumbnail(message.fileList[0].width,message.fileList[0].height).height }
                           onError={this.handleImgError}
                         />
                       </Col>
                     </PhotoBox>
-                    :<p>{message.content}</p>}
+                    :<p dangerouslySetInnerHTML={{__html:emojify.replace(message.content)}}></p>}
                 </ChatItem>
               )
             }
@@ -311,9 +375,12 @@ class AllPage extends Component{
         </ChirpContent>
         <MessegeBox>
           <Icon type="upload" style={{marginLeft:'8px'} } onClick={this.uploadFile}></Icon>
-          <input id="upload" type="file" accept="image/jpg,image/jpeg,image/png,image/PNG"  onChange={this.doRealUpload} style={{display: 'none'}} />
-          <Icon type="smile" onClick={this.handleEmoji} ></Icon>
+          <Dropdown overlay={<Picker onSelect={this.addEmoji} />} placement="topRight">
+            <Icon type="smile" onClick={this.handleEmoji} ></Icon>
+          </Dropdown>
+
           <Input
+            ref={this.input}
             placeholder='Press Enter to send messege'
             value = {this.state.message}
             onKeyDown={this.handleSendMessage}

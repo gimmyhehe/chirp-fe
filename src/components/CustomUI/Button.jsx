@@ -10,7 +10,7 @@ const PrimaryButton = styled(Button)`
       box-shadow: 1px 4px 12px 0 rgba(75,157,11,0.3);
       margin-right: 24px;
       span{
-        font-size: 18px;
+        font-size: 0.9rem;
       }
   }
 `

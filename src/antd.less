@@ -4,21 +4,30 @@
 @primary-color: rgb(75,157,11);
 
 //custom-style
-@headerHeight: 80px;
 .ant-layout-header{
   background-color: #ffffff;
-  height: @headerHeight;
+  height: 4rem;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.14) ;
-  padding: 0 30px;
+  padding: 0 1.5rem;
   position: fixed;
   width: 100%;
-  min-width: 1000px;
   z-index: 999;
+  display: flex;
+  justify-content: space-between;
+  line-height: 1.4;
+}
+.ant-message{
+  top: 20%;
 }
 .ant-layout-content{
   background-color: rgb(250, 249, 255);
-  margin-top: @headerHeight;
-  min-width: 1000px;
+  @media (max-width: 700px){
+    background-color: #fefefe;
+    form.ant-form{
+      box-shadow: unset;
+    }
+  }
+  margin-top: 4rem;
   overflow: auto;
   position: relative;
 }
@@ -31,6 +40,18 @@
       border: 2px #65ab27 solid!important;
       box-shadow: 0 6px 25px 0 rgba(75, 157, 11, 0.2);
     }
+    &:focus{
+      border-right-width: 2px !important;
+      box-shadow: unset;
+    }
+}
+.has-error{
+  .ant-input:focus{
+    border-color: #f5222d;
+    border-width: 2px;
+    box-shadow: unset;
+    border-right-width: 2px !important;
+  }
 }
 .ant-popover{
   z-index: 100;
@@ -46,4 +67,12 @@
   .ant-popover-inner-content{
     padding: 0;
   }
+}
+.ant-dropdown-trigger{
+  cursor: pointer;
+}
+.ant-layout-sider-children{
+  display: block;
+  position: relative;
+  height: auto
 }

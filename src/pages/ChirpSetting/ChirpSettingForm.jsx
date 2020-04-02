@@ -42,6 +42,7 @@ const CustomSwitch = styled(Switch)`
 const FormBox = styled(Form)`
   &&{
     width: 424px;
+    max-width: 100vw;
     box-shadow: 0 1px 2px 0 rgba(0,0,0,0.14);
     position: relative;
     overflow: hidden;
@@ -63,7 +64,7 @@ const FormBox = styled(Form)`
   }
 `
 const Item = styled(Form.Item)`
-  padding:24px 8px 14px;
+  padding: 1.2rem 0.4rem 0.7rem;
   border-bottom: rgb(216,219,226) 1px solid;
   .ant-switch{
     float: right;
@@ -91,6 +92,8 @@ const CustomButton = styled(Button)`
 const SettingButton = styled(CustomButton)`
 &&{
   width : 160px;
+  max-width: 10rem;
+  max-height: 3rem;
 }
 `
 
@@ -203,11 +206,11 @@ class ChirpSettingForm extends Component{
   handleDeleteChirp = ()=>{
     // to do deletechirp
     let param = { 'cmd':29,'chirpId':this.props.currentChirp.id}
-    api.deleteChirp(param).then(res=>{
-      console.log(res)
-      message.success('delete chirp success')
+    api.deleteChirp(param).then(()=>{
+
     })
       .catch(err=>{
+        message.error('delete chirp fail')
         console.log(err)
       })
     this.setState({ modalVisible: false})

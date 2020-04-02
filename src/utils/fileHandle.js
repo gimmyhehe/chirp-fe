@@ -53,7 +53,7 @@ export  async function readDiskFile( config = { fileType : 'all'} ) {
       'all' : '*/*',
       'image' : {
         accept : 'image/gif, image/jpeg, image/png',
-        limit : 1024*1024*2 // 图片限制大小
+        limit : 1024*1024*3 // 图片限制大小
       }
     }
     let accept =  config.accept ? config.accept : fileAccept[config.fileType].accept
@@ -61,6 +61,7 @@ export  async function readDiskFile( config = { fileType : 'all'} ) {
     $input.style.display = 'none'
     $input.setAttribute('type', 'file')
     $input.setAttribute('accept', accept)
+    $input.setAttribute('multiple', 'multiple')
     // 判断用户是否点击取消, 原生没有提供专门事件, 用hack的方法实现
     $input.onclick = () => {
       $input.value = null
@@ -76,32 +77,36 @@ export  async function readDiskFile( config = { fileType : 'all'} ) {
     }
     $input.onchange = (e) => {
       // @ts-ignore
-      const file = e.target.files[0]
-      if (!file) {
+      const files = e.target.files
+      // resolve(files)
+
+
+      if (!files) {
         return
       }
-      if( config.fileType === 'image'){
-        if( ['image/gif', 'image/jpeg', 'image/png'].indexOf(file.type) == -1){
-          message.error('The image type is not support!')
-          resolve(null)
-        }else if(file.size > fileAccept[config.fileType].limit){
-          message.error(`The image is too large! limit ${bytesToSize(fileAccept[config.fileType].limit)}`)
-          resolve(null)
+      console.log(files)
+      let fileResult = []
+      let fileCallback = file => {
+        if( config.fileType === 'image'){
+          if( ['image/gif', 'image/jpeg', 'image/png'].indexOf(file.type) == -1){
+            message.error('The image type is not support!')
+            fileResult.push(null)
+          }
+          else if(file.size > fileAccept[config.fileType].limit){
+            message.error(`The image is too large! limit ${bytesToSize(fileAccept[config.fileType].limit)}`)
+            fileResult.push(null)
+          }
+          else{
+            let imgUrl = URL.createObjectURL(file)
+            fileResult.push({ file, imgUrl})
+          }
+
+
         }
-        let img = new Image()
-        let imgUrl = URL.createObjectURL(file)
-        img.onload = function(){
-          let { width , height } = thumbnail(img.width,img.height)
-          resolve({
-            file,
-            imgUrl,
-            width,
-            height
-          })
-        }
-        img.src = imgUrl
 
       }
+      Array.prototype.forEach.call(files,fileCallback)
+      resolve(fileResult)
     }
     $input.click()
   })
@@ -110,6 +115,20 @@ export  async function readDiskFile( config = { fileType : 'all'} ) {
   return result
 }
 
+
+export function getImgWH(imageUrl){
+  return new Promise((resolve, reject)=>{
+    let img = new Image()
+    img.onload = function(){
+      let result ={}
+      result.width = img.width
+      result.height = img.height
+      resolve(result)
+    }
+    img.src = imageUrl
+  })
+
+}
 
 function bytesToSize(bytes) {
   if (bytes === 0) return '0 B'

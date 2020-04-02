@@ -18,7 +18,7 @@ export default (state = initState, action) => {
       return {
         ...state,
         data: action.data,
-        userName : action.data.firstName + action.data.lastName,
+        userName : action.data.firstName + ' ' + action.data.lastName,
         loading: false
       }
     case actionTypes.USER_INFO_REJECTED:

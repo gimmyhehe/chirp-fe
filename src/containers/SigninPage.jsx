@@ -1,6 +1,5 @@
 import { connect } from 'react-redux'
 import { doLogin } from '@actions/user'
-import { getChirpList } from '@actions/chirps'
 import { SigninForm } from '@pages'
 
 const mapStateToProps = state => ({
@@ -8,4 +7,4 @@ const mapStateToProps = state => ({
   chirps: state.chirps
 })
 
-export default connect(mapStateToProps, {doLogin,getChirpList})(SigninForm)
+export default connect(mapStateToProps, { doLogin })(SigninForm)

@@ -1,16 +1,111 @@
 #nprogress .bar {
-  background: #ee6c4d;
+  background: #4b9d0b;
   height: 5px
 }
 
 #nprogress .peg {
-  -webkit-box-shadow: 0 0 10px #ee6c4d, 0 0 5px #ee6c4d;
-        box-shadow: 0 0 10px #ee6c4d, 0 0 5px #ee6c4d;
+  -webkit-box-shadow: 0 0 10px #4b9d0b, 0 0 5px #4b9d0b;
+        box-shadow: 0 0 10px #4b9d0b, 0 0 5px #4b9d0b;
 }
 #nprogress .spinner-icon {
   margin-top: 10px;
-  border-top-color: #ee6c4d;
-  border-left-color: #ee6c4d;
+  border-top-color: #4b9d0b;
+  border-left-color: #4b9d0b;
+}
+// ::-webkit-scrollbar {
+//   display: none;
+// }
+::-webkit-scrollbar {
+  display: block;
+  width: 6px;
+  height: 6px;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+.center-box{
+  display: inline-block;
+  top: 50%;
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+//提升优先级，覆盖样式
+.g-form-box.g-form-box{
+  width: 375px;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.14);
+  position: relative;
+  overflow: hidden;
+  background-color: #fff;
+  margin: 0 auto;
+  padding: 0 24px 24px;
+  @media (max-width: 374px){
+    width: 320px;
+    padding: 0 14px 14px;
+    .ant-form-item{
+      input{
+        width: 100%;
+      }
+    }
+    .ant-btn{
+      width: 100%;
+      span{
+        font-size: 18px;
+      }
+    }
+  }
+  .ant-form-item{
+    margin-bottom:0;
+  }
+  .ant-form-item-label{
+    font-size: 14px;
+    line-height: unset;
+    margin: 20px 0 0 0;
+    font-weight: 600;
+  }
+  .ant-form-item-required::before{
+    display: none;
+  }
+}
+@media only screen and (max-width: 700px) {
+  html{
+    font-size: 12px;
+  }
+  .ant-layout{
+    .ant-layout-content .ant-layout-sider{
+      .ant-layout-sider-zero-width-trigger{
+        right: 8px;
+        top: 8px;
+        background: url('./assets/icon/down.png') 0/cover no-repeat ;
+        color: transparent;
+        transition: all 0s;
+        width: 26px;
+        height: 26px;
+        transform: rotate(90deg);
+      }
+      &.ant-layout-sider-collapsed .ant-layout-sider-zero-width-trigger{
+        top: 8px;
+        right: -30px;
+        background: url('./assets/icon/menu.png') 0/cover no-repeat ;
+
+      }
+    }
+  }
+}
+@media only screen and (min-width: 700px) {
+  html{
+    font-size: 15px;
+  }
+}
+@media only screen and (min-width: 1000px) {
+  html{
+    font-size: 20px;
+  }
 }
 // #font-size10{
 //   font-size: 14px;

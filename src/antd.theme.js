@@ -3,9 +3,9 @@
 // 由于是在 webpack 编译时导入，所以注意不支持 ES6 的语法
 
 module.exports = {
-  'primary-color': 'rgb(75,157,11)',
-  'info-color': 'rgb(75,157,11)',
-  'processing-color' : 'rgb(75,157,11)',
+  'primary-color': '#4b9d0b',
+  'info-color': '#4b9d0b',
+  'processing-color' : '#4b9d0b',
   'text-color': '#000',
   'border-radius-base': '8px'
 }

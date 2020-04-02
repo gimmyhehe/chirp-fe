@@ -85,11 +85,10 @@ export function sendMsgSuccess(data){
   }
 }
 
-export function deleteChirp({ chirpId, msg }){
-  message.warn(chirpId+msg)
+export function deleteChirp({ chirpId, msg, code  }){
   return {
     type: DELETE_CHIRP_FULFILLED,
-    data: { chirpId, msg }
+    data: { chirpId, msg, code }
   }
 }
 
