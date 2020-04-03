@@ -25,13 +25,15 @@ const ButtonBox = styled.div`
   }
   .ant-btn{
     float: right;
-    width: 9rem;
-    height: 2.4rem;
+    width: 10rem;
+    max-width: 180px;
+    max-height: 48px;
+    height: 3rem;
   }
 `
 const PhotoBox = styled.div`
   position: absolute;
-  top: 4rem;
+  top: 80px;
   bottom: 4px;
   overflow-y: auto;
   width: 100%;

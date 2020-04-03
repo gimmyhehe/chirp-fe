@@ -24,33 +24,12 @@ const Title = styled.h1`
   text-align: center;
   font-weight: 600;
 `
-const FormBox = styled(Form)`
-  &&{
-    width: 375px;
-    box-shadow: 0 1px 2px 0 rgba(0,0,0,0.14);
-    position: relative;
-    overflow: hidden;
-    background-color: #fff;
-    margin: 0 auto;
-    padding: 0 24px 24px;
-    .ant-form-item{
-      margin-bottom:0;
-    }
-    .ant-form-item-label{
-      font-size: 14px;
-      line-height: unset;
-      margin: 20px 0 0 0;
-      font-weight: 600;
-    }
-    .ant-form-item-required::before{
-      display: none;
-    }
-  }
-`
+
 const ButtonBox = styled.div`
-  width: 326px;
-  margin: 48px auto 0;
+  width: 100%;
+  margin: 2.4rem auto 0;
   display: flex;
+  justify-content: space-between;
 `
 const UserImg = styled.div`
   margin: 24px 0 16px;
@@ -169,7 +148,7 @@ class UserSettings extends Component{
           ) : null
         }
         <Title>User Setting</Title>
-        <FormBox onSubmit={this.handleSubmit}>
+        <Form className='g-form-box' onSubmit={this.handleSubmit}>
           <UserImg><Avatar size={64} icon="user" /></UserImg>
 
           <UserName>user name</UserName>
@@ -231,10 +210,10 @@ class UserSettings extends Component{
             }
           </Form.Item>
           <ButtonBox>
-            <Button style={{width:'152px',height:'48px'}} type='normal'>Cancel</Button>
-            <Button style={{width:'152px',height:'48px',marginRight:'0'}} type='primary'>Save</Button>
+            <Button style={{width:'152px', maxWidth: '10rem', height:'48px'}} type='normal'>Cancel</Button>
+            <Button style={{width:'152px', maxWidth: '10rem', height:'48px',marginRight:'0'}} type='primary'>Save</Button>
           </ButtonBox>
-        </FormBox>
+        </Form>
       </div>
     )
   }

@@ -4,34 +4,58 @@ import api from '@api'
 import { connect } from 'react-redux'
 import { getChirpList } from '@actions/chirps'
 import NProgress from 'nprogress'
-import { Input,message } from 'antd'
+import { Input,message, Form } from 'antd'
 import {  Button } from '@components'
 import twitter from '@assets/icon/twitter.png'
 
-const TextBox = styled.div`
-  margin-top: 179px;
-  margin-left 146px;
+const CenterBox = styled.div`
+  margin: 100px auto 0;
+  max-width: 1200px;
+  width: 100%;
 `
+const ImgBox = styled.div`
+  position: relative;
+  height: 200px;
+`
+
+const TextBox = styled.div`
+  margin-top: 74px;
+  display: inline-block;
+  vertical-align: top;
+  width: 32rem;
+  width: 52%;
+  margin-right: 2rem;
+  @media (max-width: 900px){
+    display: none;
+  }
+`
+const SmallDesc = styled.p`
+  font-size: 18px;
+  @media (min-width: 900px){
+    display: none;
+  }
+`
+
 const Title = styled.span`
-  font-size: 44px;
+  font-size: 2.2rem;
   font-weight: 600;
 `
 const Desc = styled.p`
-  font-size: 34px;
-  width: 654px;
+  font-size: 1.7rem;
+  width: 100%;
   margin-top: 14px;
 `
 
-const ChirpForm = styled.div`
-  width: 375px;
+const ChirpForm = styled(Form)`
+&&{
+  display: inline-block;
+  margin: 0;
   padding-bottom: 48px;
-  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.14);
-  position: relative;
-  overflow: hidden;
-  background-color: #fff;
-  position: absolute;
-  top: 105px;
-  right: 10%;
+  @media (max-width: 900px){
+    display: block;
+    margin: 0 auto;
+  }
+}
 `
 const TwitterLeft = styled.div`
   width: 75px;
@@ -50,9 +74,15 @@ const TwitterRight = styled(TwitterLeft)`
   height: 48px;
 `
 const ButtonBox = styled.div`
-  width: 326px;
+  width: 100%;
   margin: 48px auto 0;
   display: flex;
+  justify-content: space-between;
+  .ant-btn{
+    width: 152px;
+    height: 48px;
+    max-width: 10rem;
+  }
 `
 class ChirpJoin extends Component{
   constructor(props){
@@ -100,17 +130,20 @@ class ChirpJoin extends Component{
   }
   render(){
     return (
-      <div>
+      <CenterBox>
         <TextBox>
           <Title>Share anything with anyone</Title>
           <Desc>Share your thoughts, photos, videos and documents with a meaningful name. Simple and fast.
           </Desc>
         </TextBox>
-        <ChirpForm>
-          <TwitterLeft></TwitterLeft>
-          <TwitterRight></TwitterRight>
+        <ChirpForm className='g-form-box'>
+          <ImgBox>
+            <TwitterLeft></TwitterLeft>
+            <TwitterRight></TwitterRight>
+          </ImgBox>
+          <SmallDesc>Share anything with anyone using a chirp name</SmallDesc>
           <Input
-            style={{marginTop: '203px',width: '326px',height:'56px'}}
+            style={{ height:'56px'}}
             placeholder="Enter chirp name here…"
             value={this.state.chirpName}
             onChange={this.handleChange}
@@ -126,11 +159,11 @@ class ChirpJoin extends Component{
           }
 
           <ButtonBox>
-            <Button style={{width:'152px',height:'48px'}} type='normal' onClick={this.createChirp}>Create</Button>
+            <Button style={{width:'152px', height:'48px'}} type='normal' onClick={this.createChirp}>Create</Button>
             <Button style={{width:'152px',height:'48px',marginRight:'0'}} type='normal' onClick={this.joinChirp}>Join</Button>
           </ButtonBox>
         </ChirpForm>
-      </div>
+      </CenterBox>
     )
   }
 }

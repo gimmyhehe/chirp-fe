@@ -9,18 +9,9 @@ import ChirpSettingFrom from './ChirpSettingForm'
 import { Form, Alert   } from 'antd'
 import NProgress from 'nprogress'
 
-const CenterBox = styled.div`
-  display: inline-block;
-  top: 50%;
-  position: absolute;
-  left: 50%;
-  transform: translate(-50%, -50%);
-
-`
-
 
 const Title = styled.h1`
-  font-size: 36px;
+  font-size: 1.8rem;
   letter-spacing: -0.86px;
   text-align: center;
   font-weight: 600;
@@ -98,7 +89,7 @@ class ChirpSetting extends Component{
   }
   render(){
     return(
-      <CenterBox>
+      <div className='center-box'>
         {
           this.state.error ? (
             <AlertWrapper>
@@ -119,7 +110,7 @@ class ChirpSetting extends Component{
         }
         <Title>Chirp Setting</Title>
         <ChirpSettingFrom operation ='create' history={this.props.history} chirpName={ getParams(this.props.location.search).chirpName } />
-      </CenterBox>
+      </div>
     )
   }
 }

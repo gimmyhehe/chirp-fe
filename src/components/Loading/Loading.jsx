@@ -8,7 +8,7 @@ const LoadingBox = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background: ${ props=> props.mask ? 'rgba(0,0,0,0.1)' : 'unset' };
+  background: ${ props=> props.mask === 'true' ? 'rgba(0,0,0,0.1)' : 'unset' };
 `
 const Loading = styled(Spin)`
 &&{
@@ -22,7 +22,7 @@ const Loading = styled(Spin)`
 export default class LoadingComponent extends Component{
   render(){
     return(
-      <LoadingBox mask={ !this.props.mask ? true : false } >
+      <LoadingBox mask={ !this.props.mask ? 'true' : 'false' } >
         <Loading {...this.props} indicator={<Icon type="loading" style={{ fontSize: 30 }} spin />} />
       </LoadingBox>
     )
