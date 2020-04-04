@@ -13,7 +13,6 @@
   "dependencies": {
     "antd": "^3.6.2",
     "axios": "^0.18.0",
-    "emoji-mart": "^3.0.0",
     "emojify.js": "^1.1.0",
     "es6-promise": "^4.1.1",
     "file-saver": "^2.0.2",
