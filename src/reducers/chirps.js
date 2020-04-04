@@ -70,8 +70,19 @@ export default (state = {
     case actionTypes.SET_CHIRP_FULFILLED:
     {
       let allChirpsMessage = state.allChirpsMessage
+      let chirpsPhoto = state.chirpsPhoto
       allChirpsMessage[action.data.group_id].push(action.data)
-      // chirps.set('allChirpsMessage',allChirpsMessage)
+
+      if(action.data.msgType == 1){
+        const  newChirpsPhoto = action.data.fileList.map(element=>{
+          return {
+            imgObj: element,
+            selected: false
+          }
+        })
+        chirpsPhoto[action.data.group_id] = chirpsPhoto[action.data.group_id].concat(newChirpsPhoto)
+      }
+
       return {
         ...state,
         allChirpsMessage: allChirpsMessage,
@@ -94,8 +105,6 @@ export default (state = {
     case actionTypes.SEND_MSG_FULFILLED:{
       let allChirpsMessage = state.allChirpsMessage
       if(action.msg.type ==='msg'){
-        allChirpsMessage[action.msg.chirpId][action.msg.index] = action.msg.data
-      }else if(action.msg.type ==='img'){
         allChirpsMessage[action.msg.chirpId][action.msg.index] = action.msg.data
       }
       // chirps.set('allChirpsMessage',allChirpsMessage)
@@ -123,7 +132,24 @@ export default (state = {
     }
     case actionTypes.SEND_IMG_FULFILLED:{
       let allChirpsMessage = state.allChirpsMessage
+      let chirpsPhoto = state.chirpsPhoto
       allChirpsMessage[action.data.chirpId][action.data.index] = action.data.msgItem
+      const  newChirpsPhoto = action.data.msgItem.fileList.map(item=>{
+        return {
+          imgObj: item,
+          selected: false
+        }
+      })
+      chirpsPhoto[action.data.chirpId] = chirpsPhoto[action.data.chirpId].concat(newChirpsPhoto)
+      return{
+        ...state,
+        allChirpsMessage,
+        chirpsPhoto
+      }
+    }
+    case actionTypes.SEND_IMG_REJECTED:{
+      let allChirpsMessage = state.allChirpsMessage
+      delete allChirpsMessage[action.data.chirpId][action.data.index]
       return{
         ...state,
         allChirpsMessage
@@ -140,9 +166,6 @@ export default (state = {
       let chirpsPhoto = state.chirpsPhoto
       if(action.data.type ==='msg'){
         allChirpsMessage[action.data.chirpId][action.data.index].sending = false
-      }else if(action.data.type ==='img'){
-        if(action.data.index!=null)  allChirpsMessage[action.data.chirpId][action.data.index].sending = false
-        chirpsPhoto[state.currentChirp.id].push({imgObj:action.data.imgObj,selected: false})
       }
       // chirps.set('allChirpsMessage',allChirpsMessage)
       return {
@@ -172,13 +195,19 @@ export default (state = {
       allChirpsMessage[action.chirpId] = action.data.concat(allChirpsMessage[action.chirpId])
       action.data.forEach(item=>{
         if(item.msgType == 1){
-          chirpsPhoto[action.chirpId].push({imgObj:item.fileList[0],selected: false})
+          const  newChirpsPhoto = item.fileList.map(element=>{
+            return {
+              imgObj: element,
+              selected: false
+            }
+          })
+          chirpsPhoto[action.chirpId] = chirpsPhoto[action.chirpId].concat(newChirpsPhoto)
         }
       })
 
       return {
         ...state,
-        ...chirpsPhoto,
+        chirpsPhoto,
         loading: false
       }
     }
@@ -204,8 +233,8 @@ export default (state = {
       return {
         ...state,
         chirpList,
-        ...allChirpsMessage,
-        ...chirpsPhoto,
+        allChirpsMessage,
+        chirpsPhoto,
         currentChirp
       }
     }

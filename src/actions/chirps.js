@@ -87,7 +87,7 @@ export function sendImg(fileObj){
     let index = chirps.allChirpsMessage[chirpId].length
     let msgItem = {
       'from': cookies.get('uid'),
-      'fromName': user.userNmae,
+      'fromName': user.userName,
       'createTime': Date.now(),
       'cmd':11,
       'group_id': chirpId,
@@ -123,7 +123,7 @@ export function sendImg(fileObj){
           })
         }else{
           msgItem.fileList[0].status = 'fail'
-          dispatch({ type: SEND_IMG_FULFILLED, data: { chirpId, index, msgItem } })
+          dispatch({ type: SEND_IMG_REJECTED, data: { chirpId, index, msgItem: null } })
           message.error(`${file.name} upload fail! ${res.message}`)
         }
       })

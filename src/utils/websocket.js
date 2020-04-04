@@ -17,6 +17,23 @@ function SocketBase(obj){
   this.params = obj.params
   this.connectSuccess
   this.connectFail
+  this.heartCheck = {
+    timeout: 15000,
+    timeoutObj: null,
+    serverTimeoutObj: null,
+    start: function (){
+      var self = this
+      this.timeoutObj && clearTimeout(this.timeoutObj)
+      this.serverTimeoutObj && clearTimeout(this.serverTimeoutObj)
+      this.timeoutObj = setTimeout(function(){
+        window.appSocket.send('heartCheck','test heart beat')
+        self.serverTimeoutObj = setTimeout(function(){
+          window.appSocket.isHeartflag = false
+          window.appSocket.reConnect()
+        },5000)
+      },this.timeout)
+    }
+  }
   this.handleResponse = () =>{}
 
   this.receiveMessage = (res) =>{
@@ -37,64 +54,65 @@ function SocketBase(obj){
   //重连状态  避免不间断的重连操作
   this.isReconnect = false
   //自定义Ws连接函数：服务器连接成功
-  this.onopen = ((msg) => {
-    this.isHeartflag = true
-    console.log(`websocket connect is success, the connect message is as follow:
-                 ${msg}`)
+  this.onopen = (() => {
+
   })
   //自定义Ws消息接收函数：服务器向前端推送消息时触发
-  this.onmessage = ((res) => {
-    let response = res.data
-    if(typeof response == 'string'){
-      response = JSON.parse(response)
+  this.onmessage = (res) => {
+    let data = res.data
+    if(typeof data == 'string'){
+      data = JSON.parse(data)
     }
+    // eslint-disable-next-line no-undef
+    if(process.env.NODE_ENV == 'development'){
+      console.log('onmessage返回结果')
+      console.log(data)
+    }
+    //心跳检测
+    this.heartCheck.start()
     //不是登录请求的响应直接跳过
-    if(response.command!=6) return
-    if(response.code!=10007){
-      NProgress.done()
-      message.error(response.msg)
-      return
-    }
-    this.connectSuccess(response)
-    //登录成功后重写onmessage方法
-    this.onmessage = (res) =>{
-      let data = JSON.parse(res.data)
-      // eslint-disable-next-line no-undef
-      if(process.env.NODE_ENV == 'development'){
-        console.log('onmessage返回结果')
-        console.log(data)
+    if(data.command==6) {
+
+      if(data.code!=10007){
+        NProgress.done()
+        message.error(data.msg)
+        return
       }
-      //this.handleResponse(res)
-      if(data.command == 11 ){
-        //判断如果是自己的消息则不做处理
-        if(cookies.get('uid') == data.data.from){
-          return
-        }else{
-          this.receiveMessage(data)
-        }
-      }else if(data.command == 12 ){
-        this.emit('sendMessage',res)
-      }else if(data.command == 18 ){
-        this.emit('getUserInfo',res)
-      }else if(data.command == 22 ){
-        this.emit('createChirp',res)
-      }else if(data.command == 24 ){
-        this.emit('joinChirp',res)
-      }else if(data.command == 30 ){
-        this.emit('deleteChirp',res)
-      }else if(data.command == 26 ){
-        this.emit('getChirpList',res)
-      }else if(data.command == 31 ){
-        this.emit('getHistoryMessage',res)
-      }else if(data.command == 33 ){
-        store.dispatch(deleteChirp({ chirpId: data.data, msg: data.msg, code: data.code }))
+      this.loginState = true
+      this.isHeartflag = true
+      this.connectSuccess(data)
+    }
+
+    if(data.command == 11 ){
+      //判断如果是自己的消息则不做处理
+      if(cookies.get('uid') == data.data.from){
+        return
       }else{
-        this.emit('default',res)
+        this.receiveMessage(data)
       }
+    }else if(data.command == 12 ){
+      this.emit('sendMessage',res)
+    }else if(data.command == 18 ){
+      this.emit('getUserInfo',res)
+    }else if(data.command == 22 ){
+      this.emit('createChirp',res)
+    }else if(data.command == 24 ){
+      this.emit('joinChirp',res)
+    }else if(data.command == 30 ){
+      this.emit('deleteChirp',res)
+    }else if(data.command == 26 ){
+      this.emit('getChirpList',res)
+    }else if(data.command == 31 ){
+      this.emit('getHistoryMessage',res)
+    }else if(data.command == 33 ){
+      store.dispatch(deleteChirp({ chirpId: data.data, msg: data.msg, code: data.code }))
+    }else{
+      this.emit('default',res)
     }
-  })
+  }
   //自定义Ws异常事件：Ws报错后触发
   this.onerror = ((e) => {
+    if(!this.loginState) return
     console.log(`websocket connect error${e}`)
     if(typeof this.disconnectFail == 'function'){
       this.disconnectFail
@@ -104,7 +122,10 @@ function SocketBase(obj){
   })
   //自定义Ws关闭事件：Ws连接关闭后触发
   this.onclose = ((msg) => {
+    if(!this.loginState) return
     console.log(`The websocket is close${msg}`)
+    this.isHeartflag = false
+    this.reConnect()
   })
   this.connect()
 }
@@ -127,6 +148,7 @@ SocketBase.prototype.addEventListener = function(event, data,callback){
 }
 
 SocketBase.prototype.emit = function(event){
+  if(!this.isHeartflag) return
   this._callbacks = this._callbacks || {}
 
   var args = new Array(arguments.length - 1)
@@ -172,9 +194,13 @@ SocketBase.prototype.connect = function () {
     this.onmessage(res)
   }
 }
+SocketBase.prototype.close = function(){
+  this.socket.close()
+}
 
 SocketBase.prototype.disconnect = function () {
-  this.socket.close()
+  this.loginState = false
+  this.close()
   return new Promise((resolve,reject)=>{
     this.socket.onclose=(msg)=>{
       this.socket = null

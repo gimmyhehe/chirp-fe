@@ -155,7 +155,6 @@ class AllPage extends Component{
   constructor(props){
     super(props)
     this.state = {
-      showImg: false,
       message: null,
       chirpName: null,
       hasPassword: false,
@@ -257,8 +256,69 @@ class AllPage extends Component{
   showBigImg = function (imgUrl) {
     this.setState({ visible: true, imgUrl })
   }
+
+  renderMessage = function (message, index) {
+    if (message.isSelf){
+      return(
+        <SelfChatItem key={index}>
+          <UserInfo>
+            <Avatar className='avatar' size={36} icon="user"></Avatar>
+            <div  className='info' style={{display:'inline-block', verticalAlign: 'middle',marginLeft: '6px'}}>
+              <span className='username'>{message.fromName}</span>
+              <span className='sendtime' id='font-size10'>{formatTime(message.createTime)}</span>
+            </div>
+          </UserInfo>
+          {message.sending ?
+            <Loading tip="sending..." /> : null }
+          {message.fileList ?
+            <PhotoBox
+              style={{justifyContent: 'flex-end'}}
+              gutter={10}
+              onClick={ this.showBigImg.bind(this,message.fileList[0].imgUrl) }
+            >
+              <Col className="gutter-row" span={4}>
+                <img src={message.fileList[0].imgUrl}
+                  width={ thumbnail(message.fileList[0].width,message.fileList[0].height).width }
+                  height={ thumbnail(message.fileList[0].width,message.fileList[0].height).height }
+                  onError={this.handleImgError}
+                />
+                { message.fileList[0].status == 'sending' ? <Loading  /> : null }
+              </Col>
+            </PhotoBox>
+            :<p dangerouslySetInnerHTML={{__html:emojify.replace(message.content)}}></p>}
+        </SelfChatItem>
+      )
+    }else{
+      return(
+
+        <ChatItem key={index}>
+          <UserInfo>
+            <Avatar className='avatar' size={36} icon="user"></Avatar>
+            <div className='info' style={{display:'inline-block', verticalAlign: 'middle',marginLeft: '6px'}}>
+              <span className='username'>{message.fromName}</span>
+              <span className='sendtime' id='font-size10'>{formatTime(message.createTime)}</span>
+            </div>
+          </UserInfo>
+          {message.fileList ?
+            <PhotoBox
+              gutter={10}
+              onClick={ this.showBigImg.bind(this,message.fileList[0].imgUrl) }
+            >
+              <Col className="gutter-row" span={4}>
+                <img src={message.fileList[0].imgUrl}
+                  width={ thumbnail(message.fileList[0].width,message.fileList[0].height).width }
+                  height={ thumbnail(message.fileList[0].width,message.fileList[0].height).height }
+                  onError={this.handleImgError}
+                />
+              </Col>
+            </PhotoBox>
+            :<p dangerouslySetInnerHTML={{__html:emojify.replace(message.content)}}></p>}
+        </ChatItem>
+      )
+    }
+  }
+
   render(){
-    console.log(emojify.replace('iam :+1:'))
     var chirpMessage = this.props.chirpMessage
     return (
       <AllContnet>
@@ -268,76 +328,11 @@ class AllPage extends Component{
             onClose={() => { this.setState({ visible: false }) } }
             images={[{src: this.state.imgUrl, alt: ''}]}
           />
-          { chirpMessage.map((message,index)=>{
-            if (message.isSelf){
-              return(
-                <SelfChatItem key={index}>
-                  <UserInfo>
-                    <Avatar className='avatar' size={36} icon="user"></Avatar>
-                    <div  className='info' style={{display:'inline-block', verticalAlign: 'middle',marginLeft: '6px'}}>
-                      <span className='username'>{message.fromName}</span>
-                      <span className='sendtime' id='font-size10'>{formatTime(message.createTime)}</span>
-                    </div>
-                  </UserInfo>
-                  {message.sending ?
-                    <Loading tip="sending..." /> : null }
-                  {message.fileList ?
-                    <PhotoBox
-                      style={{justifyContent: 'flex-end'}}
-                      gutter={10}
-                      onClick={ this.showBigImg.bind(this,message.fileList[0].imgUrl) }
-                    >
-                      <Col className="gutter-row" span={4}>
-                        <img src={message.fileList[0].imgUrl}
-                          width={ thumbnail(message.fileList[0].width,message.fileList[0].height).width }
-                          height={ thumbnail(message.fileList[0].width,message.fileList[0].height).height }
-                          onError={this.handleImgError}
-                        />
-                        { message.fileList[0].status == 'sending' ? <Loading  /> : null }
-                      </Col>
-                    </PhotoBox>
-                    :<p dangerouslySetInnerHTML={{__html:emojify.replace(message.content)}}></p>}
-                </SelfChatItem>
-              )
-            }else{
-              return(
+          { chirpMessage.map((message,index)=> this.renderMessage(message,index) )}
 
-                <ChatItem key={index}>
-                  <UserInfo>
-                    <Avatar className='avatar' size={36} icon="user"></Avatar>
-                    <div className='info' style={{display:'inline-block', verticalAlign: 'middle',marginLeft: '6px'}}>
-                      <span className='username'>{message.fromName}</span>
-                      <span className='sendtime' id='font-size10'>{formatTime(message.createTime)}</span>
-                    </div>
-                  </UserInfo>
-                  {message.fileList ?
-                    <PhotoBox
-                      gutter={10}
-                      onClick={ this.showBigImg.bind(this,message.fileList[0].imgUrl) }
-                    >
-                      <Col className="gutter-row" span={4}>
-                        <img src={message.fileList[0].imgUrl}
-                          width={ thumbnail(message.fileList[0].width,message.fileList[0].height).width }
-                          height={ thumbnail(message.fileList[0].width,message.fileList[0].height).height }
-                          onError={this.handleImgError}
-                        />
-                      </Col>
-                    </PhotoBox>
-                    :<p dangerouslySetInnerHTML={{__html:emojify.replace(message.content)}}></p>}
-                </ChatItem>
-              )
-            }
-          })}
-          {
-            this.state.showImg ?
-              <PhotoBox gutter={10}>
-                <Col className="gutter-row" span={4}>
-                  <img src={this.state.imgSrc}></img>
-                </Col>
-              </PhotoBox>
-              :null
-          }
         </ChirpContent>
+
+
         <MessegeBox>
           <Icon type="upload" style={{marginLeft:'8px'} } onClick={this.uploadFile}></Icon>
           <Icon type="smile"  ></Icon>

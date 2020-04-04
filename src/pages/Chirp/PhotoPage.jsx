@@ -88,7 +88,6 @@ const SelectCheck = styled(Check)`
   background-image: url(${selectCheckIcon});
 `
 
-const downloadKey = 'download-key'
 
 class PhotoPage extends Component{
   constructor(props){
@@ -114,12 +113,12 @@ class PhotoPage extends Component{
     var image = new Image()
     image.crossOrigin = 'Anonymous'
     image.src = img
-    return new Promise((resolve,reject)=>{
+    return new Promise((resolve)=>{
       image.onload =function (){
         resolve(getBase64Image(image))
       }
-      image.onerror = (error) =>{
-        reject(error)
+      image.onerror = () =>{
+        resolve(null)
       }
     })
   }
@@ -140,12 +139,18 @@ class PhotoPage extends Component{
       return this.getBase64(item.imgObj.imgUrl)
     })
     let results = await Promise.all(promises)
+    let failNum = 0
     results.forEach((item,index) => {
+      if(!item){
+        failNum ++
+        return
+      }
       zip.file(Date.now() + `${index}.jpg`,item,{base64: true})
     })
     zip.generateAsync({type:'blob'})
       .then(function(content) {
         // see FileSaver.js
+        if(failNum!=0) message.warn(`${failNum} photo download fail`)
         saveAs(content, 'download.zip')
         hide()
       })
@@ -192,6 +197,7 @@ class PhotoPage extends Component{
               )
             })
           }
+          <EmptyItem />
           <EmptyItem />
           <EmptyItem />
           <EmptyItem />
