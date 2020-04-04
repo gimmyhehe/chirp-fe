@@ -11,7 +11,7 @@ import { connect } from 'react-redux'
 import { sendMsg, sendMsgSuccess, sendImg } from '@actions/chirps'
 import imgError from '@assets/img/imgerror.jpg'
 import 'emoji-mart/css/emoji-mart.css'
-// import { Picker } from 'emoji-mart'
+import Picker from  './components/EmojiPicker'
 import emojify  from 'emojify.js'
 import 'emojify.js/dist/css/sprites/emojify.css'
 import xss from '@utils/xss'
@@ -65,6 +65,7 @@ const ChatItem = styled.div`
   p{
     font-size:17px;
     margin-bottom: 0;
+    overflow-wrap: break-word;
   }
 `
 const SelfChatItem = styled(ChatItem)`
@@ -171,10 +172,14 @@ class AllPage extends Component{
       const startPos = input.selectionStart
       const endPos = input.selectionEnd
       const restoreTop = input.scrollTop
-
-      let newMessage = props.value.substring(0, startPos)
-            + value
-            + props.value.substring(endPos, props.value.length)
+      let newMessage =''
+      if(!props.value){
+        newMessage = ' ' + value
+      }else{
+        newMessage = props.value.substring(0, startPos)
+              + value
+              + props.value.substring(endPos, props.value.length)
+      }
       this.setState({message: newMessage})
       if (restoreTop > 0) {
         input.scrollTop = restoreTop
@@ -191,8 +196,9 @@ class AllPage extends Component{
   handleMessageChange = (e) =>{
     this.setState({message:e.target.value})
   }
-  addEmoji(a,b){
-    console.log(a,b)
+  addEmoji = (emoji)=>{
+    console.log(emoji)
+    this.insertAtCursor(emoji)
   }
   componentDidUpdate() {
     if(this.content.current.scrollHeight > this.content.current.clientHeight) {
@@ -335,10 +341,10 @@ class AllPage extends Component{
 
         <MessegeBox>
           <Icon type="upload" style={{marginLeft:'8px'} } onClick={this.uploadFile}></Icon>
-          <Icon type="smile"  ></Icon>
-          {/* <Dropdown overlay={<Picker onSelect={this.addEmoji} />} placement="topRight">
+          <Dropdown overlay={<Picker onSelect={this.addEmoji} />} placement="topRight" trigger={['click']}>
+            <Icon type="smile"  ></Icon>
 
-          </Dropdown> */}
+          </Dropdown>
 
           <Input
             ref={this.input}
