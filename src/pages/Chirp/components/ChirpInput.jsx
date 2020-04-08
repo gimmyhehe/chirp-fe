@@ -8,7 +8,6 @@ import Picker from  './EmojiPicker'
 import xss from '@utils/xss'
 import api from '@api'
 import cookies from '@utils/cookies'
-import { get_filemd5sum, getImgWH} from '@utils/fileHandle'
 const MessegeBox = styled.div`
 padding:12px;
 position: absolute;
@@ -101,11 +100,6 @@ export default function ChirpInput(){
 
   }
 
-  async function uploadFile( fileObj, sendFileList) {
-
-
-
-  }
 
   function addEmoji(emoji) {
     insertAtCursor(emoji)

@@ -9,6 +9,7 @@ import imgError from '@assets/img/imgerror.jpg'
 import emojify  from 'emojify.js'
 import 'emojify.js/dist/css/sprites/emojify.css'
 import ChirpInput from './components/ChirpInput'
+import { tuple } from 'antd/lib/_util/type'
 emojify.setConfig({tag_type : 'span', mode: 'sprite' })
 const AllContnet = styled.div`
   width: 100%;
@@ -131,13 +132,37 @@ export default class AllPage extends Component{
       hasPassword: false,
       chirpPassword: null,
       visible: false,
-      imgUrl: ''
+      imgUrl: '',
+      autoScroll: true
     }
     this.content = React.createRef()
   }
 
+  throttle = function(cb,delay = 1000) {
+    let timer = null
+    return function() {
+      if(!timer){
+        timer = true
+        setTimeout( ()=>{
+          timer = false
+          cb.call(this,arguments)
+        }, delay )
+      }
+    }
+  }
+
+  handleScroll = ()=> {
+    const { scrollTop, scrollHeight, clientHeight } = this.content.current
+    //滚动条往上滚动300PX则新消息到达不会自动滚动到底部
+    if( scrollTop + clientHeight  > scrollHeight - 300 && !this.state.autoScroll ){
+      this.setState({ autoScroll: true })
+    }else if( scrollTop + clientHeight <= scrollHeight - 300  && this.state.autoScroll ){
+      this.setState({ autoScroll: false })
+    }
+
+  }
   componentDidUpdate() {
-    if(this.content.current.scrollHeight > this.content.current.clientHeight) {
+    if(this.content.current.scrollHeight > this.content.current.clientHeight && this.state.autoScroll) {
       //设置滚动条到最底部
       this.content.current.scrollTop = this.content.current.scrollHeight
     }
@@ -229,7 +254,7 @@ export default class AllPage extends Component{
     var chirpMessage = this.props.chirpMessage
     return (
       <AllContnet>
-        <ChirpContent ref ={this.content}>
+        <ChirpContent ref ={this.content} onScroll={ this.throttle.call(this,this.handleScroll) } >
           <Viewer
             visible={this.state.visible}
             onClose={() => { this.setState({ visible: false }) } }
