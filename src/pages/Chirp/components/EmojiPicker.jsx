@@ -25,7 +25,15 @@ export default function EmojiPicker(props){
 
   return(
     <Picker>
-      { emojiList.map(item => ( <span onClick={selectEmoji.bind(this,item)} dangerouslySetInnerHTML={{__html:emojify.replace(item)}}></span>) ) }
+      { emojiList.map(item => (
+        <span
+          key = { item }
+          onClick={selectEmoji.bind(this,item)}
+          dangerouslySetInnerHTML={ { __html: emojify.replace(item) } }>
+        </span>
+      )
+      )
+      }
     </Picker>
   )
 }

@@ -5,7 +5,7 @@ export default (state = {
   chirpList: [],
   currentChirp: chirps.get('currentChirp', null),
   allChirpsMessage: {},
-  chirpsPhoto: {},
+  chirpsPhoto: {}
 }, action) => {
   switch (action.type) {
     case actionTypes.CHIRPS_INFO_PENDING:
@@ -124,7 +124,7 @@ export default (state = {
     }
     case actionTypes.SEND_IMG_PENDING:{
       let allChirpsMessage = state.allChirpsMessage
-      allChirpsMessage[action.data.chirpId][action.data.index] = action.data.msgItem
+      allChirpsMessage[action.payload.chirpId].push(action.payload.msgItem)
       return {
         ...state,
         allChirpsMessage
@@ -151,6 +151,17 @@ export default (state = {
       let allChirpsMessage = state.allChirpsMessage
       delete allChirpsMessage[action.data.chirpId][action.data.index]
       return{
+        ...state,
+        allChirpsMessage
+      }
+    }
+    case actionTypes.APPEND_IMG_PENDING: case actionTypes.APPEND_IMG_FULFILLED: case actionTypes.APPEND_IMG_REJECTED:{
+      let allChirpsMessage = state.allChirpsMessage
+      const index = allChirpsMessage[action.payload.chirpId].findIndex( ( item )=>{
+        return item.id  == action.payload.id
+      } )
+      allChirpsMessage[action.payload.chirpId][index].fileList = action.payload.fileList
+      return {
         ...state,
         allChirpsMessage
       }

@@ -14,7 +14,8 @@ import {
   SEND_MSG_SUCCESS_PENDING, SEND_MSG_SUCCESS_FULFILLED, SEND_MSG_SUCCESS_REJECTED,
   DELETE_CHIRP_FULFILLED,
   HISTORY_MESSAGE_PENDING,  HISTORY_MESSAGE_FULFILLED,  HISTORY_MESSAGE_REJECTED,
-  SEND_IMG_PENDING, SEND_IMG_FULFILLED, SEND_IMG_REJECTED
+  SEND_IMG_PENDING, SEND_IMG_FULFILLED, SEND_IMG_REJECTED,
+  APPEND_IMG_PENDING, APPEND_IMG_FULFILLED, APPEND_IMG_REJECTED,
 
 } from '@constants/actionTypes'
 import cookies from '@utils/cookies'
@@ -76,28 +77,22 @@ export function sendMsg(msg){
   }
 }
 
-export function sendImg(fileObj){
-  return async (dispatch, getState)=>{
+export function sendImg(msgItem){
+  return async (dispatch)=>{
+    dispatch({ type: SEND_IMG_PENDING, payload: msgItem })
+  }
+}
 
-    // this.props.sendImg({ file, index, chirpId })
+export function appendImg(chirpFile){
+  return async (dispatch) =>{
+    const { chirpId, id, fileObj, sendFileList } = chirpFile
+    // dispatch( appendImg({ chirpId: currentChirp.id, id, fileObj: item }) )
     const { file, imgUrl } = fileObj
     const {  width, height } = await getImgWH(imgUrl)
-    const { chirps, user } = getState()
-    const chirpId = chirps.currentChirp.id
-    let index = chirps.allChirpsMessage[chirpId].length
-    let msgItem = {
-      'from': cookies.get('uid'),
-      'fromName': user.userName,
-      'createTime': Date.now(),
-      'cmd':11,
-      'group_id': chirpId,
-      'chatType':'1',
-      'msgType':'1',
-      'content': '',
-      fileList: [{ imgUrl, width, height, status: 'sending' }]
-    }
+    const index = sendFileList.length
+    sendFileList[index] =  { imgUrl, width, height, status: 'sending' }
+    dispatch({ type: APPEND_IMG_PENDING, payload: { chirpId, id, fileList: sendFileList } })
 
-    dispatch({ type: SEND_IMG_PENDING, data: { chirpId, index, msgItem } })
     var formData = new FormData()
     formData.append('chirpId', chirpId)
     formData.append('userId', cookies.get('uid'))
@@ -105,35 +100,35 @@ export function sendImg(fileObj){
     var md5Str =  await get_filemd5sum(file)
     formData.append('md5',md5Str)
     formData.append('file',file)
-    await api.upload(formData)
+
+    return await api.upload(formData)
       .then(res=>{
         if(res.code ===0){
           URL.revokeObjectURL(fileObj.imgUrl)
-          let imgObj = { imgUrl: res.data, width, height }
-          msgItem.fileList = [imgObj]
-          dispatch({ type: SEND_IMG_FULFILLED, data: { chirpId, index, msgItem } })
-          api.sendMessage(msgItem).then((res)=>{
-            if(res.code == 10000){
-              // this.props.sendMsgSuccess({type:'img',index,chirpId,imgObj})
-            }else{
-              throw new Error('send message fail')
-            }
-          }).catch((error)=>{
-            console.error(error)
-          })
+          sendFileList[index] = { imgUrl: res.data, width, height }
+          console.log(sendFileList ,index)
+          dispatch({ type: APPEND_IMG_FULFILLED, payload: { chirpId, id, fileList: sendFileList } })
+          return ( { imgUrl: res.data, width, height } )
         }else{
-          msgItem.fileList[0].status = 'fail'
-          dispatch({ type: SEND_IMG_REJECTED, data: { chirpId, index, msgItem: null } })
           message.error(`${file.name} upload fail! ${res.message}`)
+          throw new Error('upload fail')
         }
       })
       .catch(err=>{
-        message.error('upload fail! upload server has error!')
-        console.error(err)
+        URL.revokeObjectURL(fileObj.imgUrl)
+        delete sendFileList[index]
+        dispatch({ type: APPEND_IMG_REJECTED, payload: { chirpId, id, fileList: sendFileList } })
+        if(err == 'upload fail' ){
+          //空操作
+        }else{
+          message.error('upload fail! upload server has error!')
+          console.error(err)
+        }
+        return null
       })
-
   }
 }
+
 
 export function sendMsgSuccess(data){
   return async (dispatch) =>{

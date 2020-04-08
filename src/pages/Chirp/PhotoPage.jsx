@@ -182,7 +182,7 @@ class PhotoPage extends Component{
         </ButtonBox>
         <PhotoBox>
           {
-            this.state.photoList.map((item,index)=>{
+            this.state.photoList.filter(item =>{ return item.imgObj }).map((item,index)=>{
               return (
                 <PhotoItem
                   key={index}
