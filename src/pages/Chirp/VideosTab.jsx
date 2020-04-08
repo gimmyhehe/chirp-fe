@@ -4,7 +4,7 @@ import api from '@api'
 import { connect } from 'react-redux'
 import { getChirpList } from '@actions/chirps'
 
-class VideoPage extends Component{
+class VideosTab extends Component{
   constructor(props){
     super(props)
     this.state = {
@@ -24,4 +24,4 @@ class VideoPage extends Component{
 }
 
 
-export default connect(null, {getChirpList})(VideoPage)
+export default connect(null, {getChirpList})(VideosTab)

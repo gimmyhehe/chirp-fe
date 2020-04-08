@@ -2,7 +2,7 @@ import React,{ Component } from 'react'
 import styled from 'styled-components'
 import api from '../../api'
 import { connect } from 'react-redux'
-import { getChirpList } from '@actions/chirps'
+import { createChirp as createChirpAction } from '@actions/chirps'
 import { Form, Input,Slider,Switch,Modal, message   } from 'antd'
 import { Button } from '@components'
 import NProgress from 'nprogress'
@@ -145,7 +145,7 @@ class ChirpSettingForm extends Component{
 
   handleSubmit = (e) =>{
     e.preventDefault()
-    this.props.form.validateFields(async (err, values) => {
+    this.props.form.validateFields(async (err) => {
       if (!err) {
         NProgress.start()
         let { expirationDay,password,uploadPermission } = this.state
@@ -158,11 +158,10 @@ class ChirpSettingForm extends Component{
         }
         try {
           const response = await api.createChirp(param)
-          console.log(response)
           if (response.code === 10022) {
-            await this.props.getChirpList()
+            await this.props.createChirpAction(response.data)
             NProgress.done()
-            this.props.history.replace('/chirpall')
+            this.props.history.replace('/chirpindex')
           } else {
             NProgress.done()
             Modal.error({ content: response.msg })
@@ -182,7 +181,6 @@ class ChirpSettingForm extends Component{
     e.preventDefault()
     this.props.form.validateFields(async (err, values) => {
       if(!err){
-        console.log(this.props)
         let { expirationDay,password,uploadPermission,pwdChecked } = this.state
         values = {
           cmd : 27,
@@ -306,4 +304,4 @@ class ChirpSettingForm extends Component{
   }
 }
 
-export default connect(null, {getChirpList})(Form.create({name:'chirpSettingForm'})(ChirpSettingForm))
+export default connect(null, {createChirpAction})(Form.create({name:'chirpSettingForm'})(ChirpSettingForm))

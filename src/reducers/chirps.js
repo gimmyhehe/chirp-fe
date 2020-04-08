@@ -222,6 +222,20 @@ export default (state = {
         loading: false
       }
     }
+    case actionTypes.CREATE_CHIRP:{
+      let chirpList = state.chirpList
+      let currentChirp = state.currentChirp
+      let allChirpsMessage = state.allChirpsMessage
+      chirpList.push(action.payload)
+      currentChirp = action.payload
+      allChirpsMessage[currentChirp.id] = []
+      return{
+        ...state,
+        chirpList,
+        currentChirp,
+        allChirpsMessage
+      }
+    }
     case actionTypes.DELETE_CHIRP_FULFILLED:{
       let data = action.data
       var deleteChirpName
@@ -229,7 +243,7 @@ export default (state = {
       let currentChirp = state.currentChirp
       let allChirpsMessage = state.allChirpsMessage
       let chirpsPhoto = state.chirpsPhoto
-      if(currentChirp.id == data.chirpId) currentChirp =null
+      if(currentChirp.id == data.chirpId) currentChirp = chirpList[0]
       chirpList = chirpList.filter(item=>{
         if(item.id == data.chirpId) deleteChirpName = item.name
         return item.id != data.chirpId

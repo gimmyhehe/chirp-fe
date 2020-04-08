@@ -41,6 +41,9 @@ const CustomSider = styled(Sider)`
     .ant-menu-item{
       padding: 0!important;
       margin: 0!important;
+      .nav-text.select-chirp{
+        color: #4b9d0b;
+      }
       &.ant-menu-item-selected{
         background-color: unset;
         .nav-text{
@@ -83,13 +86,15 @@ class AppSider extends Component{
         <div className="title">Chirps</div>
 
         <Menu theme="dark" mode="inline"
-          defaultSelectedKeys= {[this.props.currentChirpId]}
+          defaultSelectedKeys= {[`${this.props.currentChirpId}`]}
         >
           {
-            this.props.chirpList.map((chirp)=>{
+            this.props.chirpList.map(( chirp )=>{
               return(
                 <Menu.Item key={chirp.id} onClick={(e)=>{this.handleClick(e,chirp)}}>
-                  <span className="nav-text">{chirp.name}</span>
+                  <span
+                    className={ this.props.currentChirpId == chirp.id ? 'select-chirp nav-text' : 'nav-text' }
+                  >{chirp.name}</span>
                 </Menu.Item>
               )
             })

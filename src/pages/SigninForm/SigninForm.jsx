@@ -67,7 +67,7 @@ class SigninForm extends Component{
               cookies.set('password', values.password)
               let prevLocation =
               this.props.location.state && this.props.location.state.from
-              let to = prevLocation ? prevLocation : { pathname: 'chirpall' }
+              let to = prevLocation ? prevLocation : { pathname: 'chirpindex' }
               this.props.history.push(to)
             }
           })
@@ -84,7 +84,7 @@ class SigninForm extends Component{
   }
   componentDidMount(){
     if(this.props.user.uid){
-      this.props.history.replace('/chirpall')
+      this.props.history.replace('/chirpindex')
     }
   }
 

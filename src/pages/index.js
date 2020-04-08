@@ -1,6 +1,6 @@
 export { default as ChirpJoin } from './ChirpJoin/ChirpJoin'
 export { default as SigninForm } from './SigninForm/SigninForm'
 export { default as SignupForm } from './SignupForm/SignupForm'
-export { default as ChirpAll } from './Chirp/ChirpAll'
+export { default as ChirpIndex } from './Chirp/ChirpIndex'
 export { default as UserSettings } from './UserSetting/UserSetting'
 export { default as ChirpSetting } from './ChirpSetting/ChirpSetting'

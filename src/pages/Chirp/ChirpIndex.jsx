@@ -5,8 +5,8 @@ import { connect } from 'react-redux'
 import { Layout, Tabs,Input,Popover, message } from 'antd'
 import {  Button } from '@components'
 import cookies from '@utils/cookies'
-import AllContnet from './AllPage'
-import PhotoContent from './PhotoPage'
+import AllMessageTab from './AllMessageTab'
+import PhotosTab from './PhotosTab'
 // import VideoContent from './VideoPage'
 // import FileContent from './FilePage'
 import ChirpSettingForm from '../ChirpSetting/ChirpSettingForm'
@@ -169,7 +169,7 @@ const ShareBox = styled.div`
 `
 
 
-class ChirpAll extends Component{
+class ChirpIndex extends Component{
   handleShare = () =>{
 
   }
@@ -255,14 +255,14 @@ class ChirpAll extends Component{
           !cookies.get('uid') || currentChirp == null ? null :
             <CustomTab tabBarExtraContent={<TabBarExtraContent/>} onChange={(activeKey)=>{this.setState({activeKey})}}>
               <TabPane tab="All" key="1">
-                <AllContnet
+                <AllMessageTab
                   chirpMessage ={chirpMessage}
                   currentChirp = {currentChirp}
                   tabInfo = {{key : 2 ,activeKey : this.state.activeKey}}
                 />
               </TabPane>
               <TabPane tab="Photo" key="2">
-                <PhotoContent
+                <PhotosTab
                   photoList ={chirpsPhoto[currentChirp.id]}
                   currentChirp = {currentChirp}
                   tabInfo = {{key : 2 ,activeKey : this.state.activeKey}} />
@@ -285,4 +285,4 @@ const mapStateToProps = state => ({
   currentChirp : state.chirps.currentChirp
 })
 
-export default connect(mapStateToProps, null)(ChirpAll)
+export default connect(mapStateToProps, null)(ChirpIndex)

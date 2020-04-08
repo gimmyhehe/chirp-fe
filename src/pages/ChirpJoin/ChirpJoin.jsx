@@ -118,7 +118,7 @@ class ChirpJoin extends Component{
       message.success('join the chirp success!')
       await this.props.getChirpList()
       NProgress.done()
-      this.props.history.replace('chirpall')
+      this.props.history.replace('chirpindex')
     }else if(res.code == 10030){
       this.setState({hasPassword:true})
       message.warning('This chirp need a password!')

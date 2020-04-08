@@ -1,7 +1,7 @@
 import {
   ChirpJoin,
   SignupForm,
-  ChirpAll,
+  ChirpIndex,
   UserSettings,
   ChirpSetting
 } from '@pages'
@@ -31,9 +31,9 @@ const routes = [
     requiresAuth: true,
   },
   {
-    path: '/chirpall',
+    path: '/chirpindex',
     exact: true,
-    component: ChirpAll,
+    component: ChirpIndex,
     requiresAuth: true,
   },
   {

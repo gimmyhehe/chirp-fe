@@ -117,7 +117,7 @@ export  async function readDiskFile( config = { fileType : 'all'} ) {
 
 
 export function getImgWH(imageUrl){
-  return new Promise((resolve, reject)=>{
+  return new Promise((resolve)=>{
     let img = new Image()
     img.onload = function(){
       let result ={}

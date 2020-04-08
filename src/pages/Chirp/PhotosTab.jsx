@@ -89,7 +89,7 @@ const SelectCheck = styled(Check)`
 `
 
 
-class PhotoPage extends Component{
+class PhotosTab extends Component{
   constructor(props){
     super(props)
 
@@ -168,7 +168,7 @@ class PhotoPage extends Component{
     )
 
   }
-  static getDerivedStateFromProps(nextProps,prevState) {
+  static getDerivedStateFromProps(nextProps) {
     // 当父组件的 props 改变时，重新请求数据
     // let { chirpMessage } = nextProps
     return nextProps
@@ -209,4 +209,4 @@ class PhotoPage extends Component{
 }
 
 
-export default connect(null, {getChirpList})(PhotoPage)
+export default connect(null, {getChirpList})(PhotosTab)
