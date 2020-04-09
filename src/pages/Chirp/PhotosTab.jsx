@@ -32,6 +32,7 @@ const ButtonBox = styled.div`
   }
 `
 const PhotoBox = styled.div`
+  padding-bottom: 0.8rem;
   position: absolute;
   top: 80px;
   bottom: 4px;
@@ -47,23 +48,23 @@ const PhotoItem = styled.div`
   vertical-align: top;
   width: 180px;
   height: 180px;
-  @media (max-width: 620px){
-    width: 140px;
-    height: 140px;
-  }
-  @media (max-width: 450px){
-    width: 110px;
-    height: 110px;
-  }
-  @media (max-width: 350px){
-    width: 90px;
-    height: 90px;
-  }
   display: inline-block;
   margin: 0.5rem 0 0 0.5rem;
   position: relative;
   overflow: hidden;
   background-color: rgba(0,0,0,0.1);
+  @media (max-width: 620px){
+    width: 140px;
+    height: 140px;
+  }
+  @media (max-width: 450px){
+    width: 100px;
+    height: 100px;
+  }
+  @media (max-width: 350px){
+    width: 90px;
+    height: 90px;
+  }
   img{
     position: absolute;
     top: 50%;

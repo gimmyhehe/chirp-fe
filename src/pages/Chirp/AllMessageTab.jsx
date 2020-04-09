@@ -76,6 +76,7 @@ export default class AllMessageTab extends Component{
         fromName = { message.fromName }
         createTime = { message.createTime }
         content = { message.content }
+        msgType = { message.msgType }
         showBigImg = { this.showBigImg }
       /> )
   }

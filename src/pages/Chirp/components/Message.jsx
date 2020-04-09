@@ -12,6 +12,7 @@ emojify.setConfig({tag_type : 'span', mode: 'sprite' })
 const ChatItem = styled.div`
   padding:16px;
   position: relative;
+  overflow:hidden;
   border-bottom: 2px solid #ebedf0;
   .info{
     position: relative;
@@ -21,8 +22,42 @@ const ChatItem = styled.div`
     margin-bottom: 0;
     overflow-wrap: break-word;
   }
+  &.self{
+    .avatar{
+      float: right;
+    }
+    .info{
+      float: right;
+      text-align: right;
+      margin-right: 8px;
+      .sendtime{
+        transform-origin: right;
+      }
+      &:after{
+        content: "";
+        display: block;
+        height: 0;
+        clear:both;
+        visibility: hidden;
+      }
+    }
+    .photo-box{
+      justify-content: flex-end;
+    }
+    p{
+      float: right;
+      margin-bottom: 0;
+      clear:both;
+    }
+    &:after{
+      content: "";
+      display: block;
+      height: 0;
+      clear:both;
+      visibility: hidden;
+    }
+  }
 `
-
 const fontSize =14
 const UserInfo = styled.div`
   overflow: hidden;
@@ -41,24 +76,10 @@ const UserInfo = styled.div`
   }
 `
 
-const PhotoBox = styled(Row)`
-  padding: 16px;
+const PhotoBox = styled.div`
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   flex-wrap: wrap;
-  .ant-col{
-    overflow: hidden;
-    width: 190px;
-    height: 180px;
-    position: relative;
-  }
-  img{
-    cursor: pointer;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-  }
   .more{
     div{
       width: 180px;
@@ -74,67 +95,57 @@ const PhotoBox = styled(Row)`
   }
 `
 
-const SelfChatItem = styled(ChatItem)`
-  overflow:hidden;
-  .avatar{
-    float: right;
+const PhotoItem = styled.div`
+  vertical-align: top;
+  width: 178px;
+  height: 178px;
+  max-width: 31%;
+  display: inline-block;
+  margin: 0.5rem 0 0 0.5rem;
+  position: relative;
+  overflow: hidden;
+  @media (max-width: 620px){
+    width: 140px;
+    height: 140px;
   }
-  .info{
-    float: right;
-    text-align: right;
-    margin-right: 8px;
-    .sendtime{
-      transform-origin: right;
-    }
-    &:after{
-      content: "";
-      display: block;
-      height: 0;
-      clear:both;
-      visibility: hidden;
-    }
+  @media (max-width: 450px){
+    width: 100px;
+    height: 100px;
   }
-  p{
-    float: right;
-    margin-bottom: 0;
-    clear:both;
+  @media (max-width: 350px){
+    width: 90px;
+    height: 90px;
   }
-  &:after{
-    content: "";
-    display: block;
-    height: 0;
-    clear:both;
-    visibility: hidden;
+  img{
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
 `
 
 export default function MessageComponent(props) {
-  const { isSelf, fileList, fromName, createTime, content, showBigImg } = props
+  const { isSelf, msgType, fileList, fromName, createTime, content, showBigImg } = props
 
   function handleImgError(e) {
     e.target.onerror = null
     e.target.src = imgError
   }
 
-
-  if( isSelf ){
-    return (
-      <SelfChatItem>
-        <UserInfo>
-          <Avatar className='avatar' size={36} icon="user"></Avatar>
-          <div  className='info' style={{display:'inline-block', verticalAlign: 'middle',marginLeft: '6px'}}>
-            <span className='username'>{fromName}</span>
-            <span className='sendtime' id='font-size10'>{formatTime(createTime)}</span>
-          </div>
-        </UserInfo>
-        {/* {message.sending ? <Loading tip="sending..." /> : null } */}
-        {fileList ?
-          <PhotoBox
-            gutter={10}
-          >
+  function renderContent() {
+    switch (msgType) {
+      case 0: {
+        return (
+          <p dangerouslySetInnerHTML={{__html:emojify.replace(content)}}></p>
+        )
+      }
+      case 1:{
+        return (
+          <PhotoBox className='photo-box' >
             { fileList.filter(item =>{ return item }).map( ( imgObj, index ) =>{
               return (
-                <Col className="gutter-row" span={4}
+                <PhotoItem span={4}
                   key={index}
                   onClick={ showBigImg.bind( this, imgObj.imgUrl ) }
                 >
@@ -144,46 +155,33 @@ export default function MessageComponent(props) {
                     onError={ handleImgError }
                   />
                   { imgObj.status == 'sending' ? <Loading  /> : null }
-                </Col>
+                </PhotoItem>
               )
             } )}
 
           </PhotoBox>
-          :<p dangerouslySetInnerHTML={{__html:emojify.replace(content)}}></p>}
-      </SelfChatItem>
-    )
-  }else{
-    return (
-      <ChatItem >
-        <UserInfo>
-          <Avatar className='avatar' size={36} icon="user"></Avatar>
-          <div className='info' style={{display:'inline-block', verticalAlign: 'middle',marginLeft: '6px'}}>
-            <span className='username'>{fromName}</span>
-            <span className='sendtime' id='font-size10'>{formatTime(createTime)}</span>
-          </div>
-        </UserInfo>
-        {fileList ?
-          <PhotoBox
-            gutter={10}
-          >
-            { fileList.filter(item =>{ return item }).map( ( imgObj, index ) =>{
-              return (
-                <Col className="gutter-row" span={4}
-                  key = { index }
-                  onClick={ showBigImg.bind( this, imgObj.imgUrl ) }
-                >
-                  <img src={ imgObj.imgUrl }
-                    width={ thumbnail( imgObj.width, imgObj.height ).width }
-                    height={ thumbnail( imgObj.width, imgObj.height ).height }
-                    onError={ handleImgError }
-                  />
-                </Col>
-              )
-            } )}
-
-          </PhotoBox>
-          :<p dangerouslySetInnerHTML={{__html:emojify.replace(content)}}></p>}
-      </ChatItem>
-    )
+        )
+      }
+      default:{
+        return (
+          <p>[不支持的消息类型]</p>
+        )
+      }
+    }
   }
+
+  return (
+    <ChatItem className={ isSelf ? 'self' : null} >
+      <UserInfo>
+        <Avatar className='avatar' size={36} icon="user"></Avatar>
+        <div  className='info' style={{display:'inline-block', verticalAlign: 'middle',marginLeft: '6px'}}>
+          <span className='username'>{fromName}</span>
+          <span className='sendtime' id='font-size10'>{formatTime(createTime)}</span>
+        </div>
+      </UserInfo>
+      {/* {message.sending ? <Loading tip="sending..." /> : null } */}
+      {renderContent()}
+    </ChatItem>
+  )
+
 }

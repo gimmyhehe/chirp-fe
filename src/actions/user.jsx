@@ -44,7 +44,6 @@ export function doLogin(param){
     NProgress.start()
     return api.login(param).then(async (response)=>{
       if (response.code == 10007) {
-        console.log(response)
         let { uid ,token } = response
         cookies.set('uid',uid)
         cookies.set('chirp-token',token)
