@@ -1,7 +1,14 @@
 import React,{ Component } from 'react'
+import styled from 'styled-components'
 import { connect } from 'react-redux'
 import { getChirpList } from '@actions/chirps'
 import FileItem from './components/FileMessageItem'
+
+const FileBox = styled.div`
+  padding: 16px;
+  overflow-y: scroll;
+  height: 100%;
+`
 
 class FilePage extends Component{
   constructor(props){
@@ -18,14 +25,14 @@ class FilePage extends Component{
   }
   render(){
     return (
-      <div style={{ padding: '16px'}}>
+      <FileBox>
         {
           this.props.fileList.filter(item =>{ return item }).map( ( fileObj, index ) =>{
             return (
               <FileItem key={index} { ...fileObj } />
             )
           } )}
-      </div>
+      </FileBox>
     )
   }
 }
