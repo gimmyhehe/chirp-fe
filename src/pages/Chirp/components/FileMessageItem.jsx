@@ -76,7 +76,7 @@ export default function FileMessageItem(props) {
     <FileItem  fileLogo={ fileLogo(ext) } onClick={ downLoadFile.bind(this, fileUrl, status) } >
       <div className='filelogo'></div>
       <div className='fileinfo'>
-        <span>{ name }</span>
+        <span title={name}>{ name }</span>
         <span className='file-size'>{ bytesToSize(size) }</span>
       </div>
       { status == 'sending' ? <Loading  /> : null }
