@@ -2,8 +2,9 @@ import React  from 'react'
 import styled from 'styled-components'
 import { thumbnail } from '@/utils/fileHandle'
 import {formatTime} from '@utils/tool'
-import {Avatar, Col, Row } from 'antd'
+import { Avatar } from 'antd'
 import { Loading } from '@components'
+import FileItem from './FileMessageItem'
 import emojify  from 'emojify.js'
 import 'emojify.js/dist/css/sprites/emojify.css'
 import imgError from '@assets/img/imgerror.jpg'
@@ -41,7 +42,7 @@ const ChatItem = styled.div`
         visibility: hidden;
       }
     }
-    .photo-box{
+    .message-box{
       justify-content: flex-end;
     }
     p{
@@ -58,6 +59,7 @@ const ChatItem = styled.div`
     }
   }
 `
+
 const fontSize =14
 const UserInfo = styled.div`
   overflow: hidden;
@@ -76,7 +78,9 @@ const UserInfo = styled.div`
   }
 `
 
-const PhotoBox = styled.div`
+const PhotoBox = styled.div.attrs( ()=> ({
+  className: 'message-box'
+}))`
   display: flex;
   justify-content: flex-start;
   flex-wrap: wrap;
@@ -134,7 +138,7 @@ export default function MessageComponent(props) {
   }
 
   function renderContent() {
-    switch (msgType) {
+    switch (+msgType) {
       case 0: {
         return (
           <p dangerouslySetInnerHTML={{__html:emojify.replace(content)}}></p>
@@ -142,7 +146,7 @@ export default function MessageComponent(props) {
       }
       case 1:{
         return (
-          <PhotoBox className='photo-box' >
+          <PhotoBox >
             { fileList.filter(item =>{ return item }).map( ( imgObj, index ) =>{
               return (
                 <PhotoItem span={4}
@@ -159,6 +163,18 @@ export default function MessageComponent(props) {
               )
             } )}
 
+          </PhotoBox>
+        )
+      }
+      case 2:{
+        return(
+          <PhotoBox>
+            {
+              fileList.filter(item =>{ return item }).map( ( fileObj, index ) =>{
+                return (
+                  <FileItem key={index} { ...fileObj } />
+                )
+              } )}
           </PhotoBox>
         )
       }

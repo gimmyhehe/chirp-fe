@@ -49,11 +49,32 @@ export const get_filemd5sum = (ofile) => {
  */
 export  async function readDiskFile( config = { fileType : 'all'} ) {
   const result = await new Promise((resolve) => {
+    const fileAcceptType = [
+      'application/pdf',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'text/plain',
+      'application/x-zip-compressed',
+      'application/vnd.ms-powerpoint',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      '.ppt',
+      '.pptx',
+      '.doc',
+      '.docx',
+      '.zip',
+      '.xls',
+      '.xlsx',
+      'pdf'
+    ]
     const fileAccept = {
       'all' : '*/*',
       'image' : {
         accept : 'image/gif, image/jpeg, image/png',
         limit : 1024*1024*3 // 图片限制大小
+      },
+      file: {
+        accept : fileAcceptType.join(','),
+        limit : 1024*1024*100 // 图片限制大小
       }
     }
     let accept =  config.accept ? config.accept : fileAccept[config.fileType].accept
@@ -84,7 +105,6 @@ export  async function readDiskFile( config = { fileType : 'all'} ) {
       if (!files) {
         return
       }
-      console.log(files)
       let fileResult = []
       let fileCallback = file => {
         if( config.fileType === 'image'){
@@ -100,8 +120,25 @@ export  async function readDiskFile( config = { fileType : 'all'} ) {
             let imgUrl = URL.createObjectURL(file)
             fileResult.push({ file, imgUrl})
           }
+        }
+        else if (config.fileType === 'file') {
+          const { name, size, type } = file
+          const ext = getFileExt( name )
 
+          if( !fileAcceptType.includes(file.type) && !fileAcceptType.includes('.'+ext) ){
+            message.error('The file type is not support!')
+            fileResult.push(null)
+            console.log(file)
+          }
+          else if(file.size > fileAccept[config.fileType].limit){
+            message.error(`The file is too large! limit ${bytesToSize(fileAccept[config.fileType].limit)}`)
+            fileResult.push(null)
+          }
+          else{
+            let fileUrl = null
 
+            fileResult.push({ file, fileUrl, name, size, type, ext })
+          }
         }
 
       }
@@ -130,7 +167,7 @@ export function getImgWH(imageUrl){
 
 }
 
-function bytesToSize(bytes) {
+export function bytesToSize(bytes) {
   if (bytes === 0) return '0 B'
   var k = 1024, // or 1024
     sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
@@ -143,4 +180,11 @@ export const thumbnail = function(imgW,imgH,defaultW = 180 , defaultH = 180){
   if(!imgW || !imgH) return { width: 0, height: 0 }
   let max = Math.max(imgW / defaultW , imgH / defaultH)
   return { width : imgW/max , height: imgH/max }
+}
+
+export function getFileExt(filename) {
+
+  var index= filename.lastIndexOf('.')
+  var ext = filename.substr(index+1)
+  return ext.toLowerCase()
 }

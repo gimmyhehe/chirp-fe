@@ -1,9 +1,9 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import styled from 'styled-components'
 import { Icon, Dropdown, message } from 'antd'
 import { readDiskFile } from '@/utils/fileHandle'
 import { useSelector, useDispatch  } from 'react-redux'
-import { sendMsg, sendMsgSuccess, sendImg, appendImg } from '@actions/chirps'
+import { sendMsg, sendMsgSuccess, sendImg, appendImg, appendFile } from '@actions/chirps'
 import Picker from  './EmojiPicker'
 import xss from '@utils/xss'
 import api from '@api'
@@ -33,25 +33,44 @@ background-color: #f9f9f9;
   border: 2px solid #000;
 }
 `
+const UploadBox = styled.div`
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  box-shadow: 0 0 4px #d9d9d9;
+  border-radius: 3px;
+  color: #666;
+  &>div{
+    text-align: center;
+    font-size: 15px;
+    padding: 12px 20px ;
+    margin: 0;
+    position: relative;
+    display: block;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+`
 
 export default function ChirpInput(){
   const dispatch = useDispatch()
   const $input = useRef(null)
+  const [uploadVisiable, setuploadVisiable] = useState(false)
   const userName = useSelector(state => state.user.userName)
   const currentChirp = useSelector(state => state.chirps.currentChirp)
   const chirpMessage = useSelector(state => state.chirps.allChirpsMessage[currentChirp.id])
 
-  async function selectFile() {
+  async function selectPhotos() {
     if(currentChirp.uploadPermissionEnabled != 1){
       message.warn('sorry this chirp does not open the upload permission')
       return false
     }
-    let filesList = await readDiskFile({ fileType: 'image' })
-    if ( !filesList ) return
-    filesList = filesList.filter((item)=>{
+    setuploadVisiable(false)
+    let photosList = await readDiskFile({ fileType: 'image' })
+    if ( !photosList ) return
+    photosList = photosList.filter((item)=>{
       return item
     })
-    if( filesList.length == 0 ) return
+    if( photosList.length == 0 ) return
     const id = Date.now()  + (Math.random()*1000).toFixed(0)
     const sendFileList = []
     let msgItem = {
@@ -62,12 +81,12 @@ export default function ChirpInput(){
       'cmd':11,
       'group_id': currentChirp.id,
       'chatType':'1',
-      'msgType':'1',
+      'msgType': 1,
       'content': '',
       fileList: sendFileList
     }
     dispatch(sendImg({ msgItem, chirpId: currentChirp.id }))
-    const promises = filesList.map( item =>{
+    const promises = photosList.map( item =>{
       return new Promise( ( resolve )=>{
         dispatch( appendImg({ chirpId: currentChirp.id, id, fileObj: item, sendFileList }) )
           .then( res=>{
@@ -100,6 +119,68 @@ export default function ChirpInput(){
 
   }
 
+  async function selectFile() {
+    if(currentChirp.uploadPermissionEnabled != 1){
+      message.warn('sorry this chirp does not open the upload permission')
+      return false
+    }
+    setuploadVisiable(false)
+    // fileUrl: null
+    // name: "test2.xls"
+    // size: 6656
+    // type: "application/vnd.ms-excel"
+    // ext: "xls"
+    let fileList = await readDiskFile({ fileType: 'file' })
+    if ( !fileList ) return
+    fileList = fileList.filter((item)=>{
+      return item
+    })
+    if( fileList.length == 0 ) return
+    const id = Date.now()  + (Math.random()*1000).toFixed(0)
+    const sendFileList = []
+    let msgItem = {
+      id,
+      'from': cookies.get('uid'),
+      'fromName': userName,
+      'createTime': Date.now(),
+      'cmd':11,
+      'group_id': currentChirp.id,
+      'chatType':'1',
+      'msgType': 2,
+      'content': '',
+      fileList: sendFileList
+    }
+    dispatch(sendImg({ msgItem, chirpId: currentChirp.id }))
+    const promises = fileList.map( item =>{
+      return new Promise( ( resolve )=>{
+        dispatch( appendFile({ chirpId: currentChirp.id, id, fileObj: item, sendFileList }) )
+          .then( res=>{
+            console.log(res)
+            resolve(res)
+          } )
+      })
+    } )
+
+    Promise.all( promises )
+      .then( res =>{
+        msgItem.fileList = res
+        api.sendMessage(msgItem).then((res)=>{
+          if(res.code == 10000){
+            // this.props.sendMsgSuccess({type:'img',index,chirpId,imgObj})
+          }else{
+            throw new Error('send file fail')
+          }
+        }).catch((error)=>{
+          console.error(error)
+        })
+      } )
+      .catch( error =>{
+        message.error( 'upload file has error!' )
+        console.error(error)
+      } )
+
+
+  }
 
   function addEmoji(emoji) {
     insertAtCursor(emoji)
@@ -169,9 +250,20 @@ export default function ChirpInput(){
     })
   }
 
+  function Upload() {
+    return (
+      <UploadBox>
+        <div onClick={ selectFile } >Upload File</div>
+        <div onClick={ selectPhotos } >Upload Image</div>
+      </UploadBox>
+    )
+  }
+
   return(
     <MessegeBox>
-      <Icon type="upload" style={{marginLeft:'8px'} } onClick={selectFile}></Icon>
+      <Dropdown overlay={<Upload  />} placement="topLeft" visible={ uploadVisiable } trigger={ ['click'] }>
+        <Icon type="upload" style={{marginLeft:'8px'} }  onClick={ ()=>{ setuploadVisiable(!uploadVisiable) } } ></Icon>
+      </Dropdown>
       <Dropdown overlay={<Picker onSelect={addEmoji} />} placement="topLeft" trigger={ ['click'] }>
         <Icon type="smile" ></Icon>
       </Dropdown>

@@ -1,30 +1,7 @@
 import React,{ Component } from 'react'
-import styled from 'styled-components'
 import { connect } from 'react-redux'
 import { getChirpList } from '@actions/chirps'
-import pdfIcon from '@assets/icon/pdf.png'
-
-const FileBox = styled.div`
-  border: 1px solid #D8DBE2;
-  margin-top: 10px;
-  width: 240px;
-  height: 64px;
-  padding:8px;
-  .filelogo{
-    display:inline-block;
-    background: url(${pdfIcon}) no-repeat;
-    width: 40px;
-    height: 48px;
-    background-size: cover;
-    vertical-align: middle;
-  }
-  span{
-    font-size: 16px;
-    letter-spacing: 0.28px;
-    font-weight: 600;
-    margin-left:16px;
-  }
-`
+import FileItem from './components/FileMessageItem'
 
 class FilePage extends Component{
   constructor(props){
@@ -35,15 +12,19 @@ class FilePage extends Component{
       chirpPassword: null
     }
   }
-
+  handleDownLoad = (fileUrl, status)=> {
+    if(status == 'sending') return
+    window.open(fileUrl, '_blank')
+  }
   render(){
     return (
-      <div>
-        {/* <FileBox>
-          <div className='filelogo'></div>
-          <span>abc.pdf</span>
-        </FileBox> */}
-            开发中...
+      <div style={{ padding: '16px'}}>
+        {
+          this.props.fileList.filter(item =>{ return item }).map( ( fileObj, index ) =>{
+            return (
+              <FileItem key={index} { ...fileObj } />
+            )
+          } )}
       </div>
     )
   }

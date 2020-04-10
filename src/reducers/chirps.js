@@ -157,13 +157,18 @@ export default (state = {
     }
     case actionTypes.APPEND_IMG_PENDING: case actionTypes.APPEND_IMG_FULFILLED: case actionTypes.APPEND_IMG_REJECTED:{
       let allChirpsMessage = state.allChirpsMessage
+      let chirpsPhoto = state.chirpsPhoto
       const index = allChirpsMessage[action.payload.chirpId].findIndex( ( item )=>{
         return item.id  == action.payload.id
       } )
       allChirpsMessage[action.payload.chirpId][index].fileList = action.payload.fileList
+      if(action.payload.photoItem){
+        chirpsPhoto[action.payload.chirpId].push({ imgObj: action.payload.photoItem, selected: false})
+      }
       return {
         ...state,
-        allChirpsMessage
+        allChirpsMessage,
+        chirpsPhoto
       }
     }
     case actionTypes.SEND_MSG_SUCCESS_PENDING:{

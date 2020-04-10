@@ -8,7 +8,7 @@ import cookies from '@utils/cookies'
 import AllMessageTab from './AllMessageTab'
 import PhotosTab from './PhotosTab'
 // import VideoContent from './VideoPage'
-// import FileContent from './FilePage'
+import FileTab from './FileTab'
 import ChirpSettingForm from '../ChirpSetting/ChirpSettingForm'
 import ShareIcon from '@assets/icon/share.png'
 import SettingsIcon from '@assets/icon/settings.png'
@@ -191,7 +191,7 @@ class ChirpIndex extends Component{
   render(){
     const chirps = this.props.chirps
     const {allChirpsMessage,currentChirp,chirpsPhoto} = chirps
-    var chirpSetting={},chirpMessage=[]
+    var chirpSetting={},chirpMessage=[], fileList = []
     if(currentChirp){
       chirpSetting ={
         expirationDay: (currentChirp.expiredDate - currentChirp.createTime) / (24*60*60*1000),
@@ -201,7 +201,11 @@ class ChirpIndex extends Component{
       }
       if(JSON.stringify(allChirpsMessage)!='{}'){
         chirpMessage = allChirpsMessage[currentChirp.id]
+
         chirpMessage.forEach(element => {
+          if( element.msgType == 2 ){
+            fileList = fileList.concat(element.fileList)
+          }
           if(element.from == cookies.get('uid')){
             element.isSelf = true
           }else{
@@ -267,6 +271,12 @@ class ChirpIndex extends Component{
                   currentChirp = {currentChirp}
                   tabInfo = {{key : 2 ,activeKey : this.state.activeKey}} />
               </TabPane>
+              <TabPane tab="File" key="3">
+                <FileTab
+                  fileList ={fileList}
+                  currentChirp = {currentChirp}
+                  tabInfo = {{key : 2 ,activeKey : this.state.activeKey}} />
+              </TabPane>
               {/* <TabPane tab="Video" key="3">
                   <VideoContent />
                 </TabPane>
@@ -282,7 +292,7 @@ class ChirpIndex extends Component{
 
 const mapStateToProps = state => ({
   chirps: state.chirps,
-  currentChirp : state.chirps.currentChirp
+  currentChirp : state.chirps.currentChirp,
 })
 
 export default connect(mapStateToProps, null)(ChirpIndex)
