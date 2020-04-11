@@ -4,6 +4,9 @@ stages:
   - deploy_dev
   - deploy_prod
 
+variables:
+  PROJECT_DIST: chirp
+
 cache:
   key: ${CI_BUILD_REF_NAME}
   paths:
@@ -33,12 +36,14 @@ deploy_dev:
   only:
     - dev
   script:
-    - /bin/cp -rf ./dist/* /data/docker/nginx/www/chirp
+    - /bin/cp -rf ./dist/* /data/docker/nginx/www/$PROJECT_DIST
 
 deploy_prod:
   stage: deploy_prod
   only:
     - master
+  before_script:
+    - rm -rf ./$PROJECT_DIST
   script:
-    - mv dist chirp
-    - scp -i /data/.ssh/onepro_prod.pem -r ./chirp ec2-user@34.197.131.40:/home/ec2-user/dists
+    - mv dist $PROJECT_DIST
+    - scp -i /data/.ssh/onepro_prod.pem -r ./$PROJECT_DIST ec2-user@34.197.131.40:/home/ec2-user/dists
