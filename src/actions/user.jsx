@@ -18,6 +18,7 @@ export function getUserInfo(userName, businessId) {
         uid: cookies.get('uid')
       }
       let res = await api.getUserInfo(params)
+      if(res.error) throw new Error('get userInfo fail')
       if(res.code == '10005'){
         dispatch({
           type: USER_INFO_FULFILLED,
@@ -25,16 +26,9 @@ export function getUserInfo(userName, businessId) {
             ...res.data
           }
         })
-      }else{
-        alert('getUserInfo fail!')
       }
     } catch (error) {
-      const invalidValue = !userName || !businessId
-      if (invalidValue) {
-        dispatch({ type: USER_INFO_REJECTED, error: new Error(0) })
-      } else {
-        dispatch({ type: USER_INFO_REJECTED, error })
-      }
+      dispatch({ type: USER_INFO_REJECTED, error })
     }
   }
 }

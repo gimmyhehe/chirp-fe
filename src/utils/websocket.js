@@ -1,11 +1,3 @@
-/*
- * @Author: your name
- * @Date: 2019-12-10 00:54:02
- * @LastEditTime: 2020-03-16 23:22:14
- * @LastEditors: Please set LastEditors
- * @Description: In User Settings Edit
- * @FilePath: \chrip-fe\src\utils\websocket.js
- */
 import { store } from '../store'
 import { setChirpList,sendMsgSuccess, deleteChirp } from '@actions/chirps'
 import { doLogout } from '@actions/user'
@@ -98,6 +90,8 @@ function SocketBase(obj){
       this.emit('createChirp',res)
     }else if(data.command == 24 ){
       this.emit('joinChirp',res)
+    }else if(data.command == 28 ){
+      this.emit('saveChirpSetting', res)
     }else if(data.command == 30 ){
       this.emit('deleteChirp',res)
     }else if(data.command == 26 ){
@@ -113,7 +107,8 @@ function SocketBase(obj){
   //自定义Ws异常事件：Ws报错后触发
   this.onerror = ((e) => {
     if(!this.loginState) return
-    console.log(`websocket connect error${e}`)
+    console.log('websocket connect error')
+    console.error(e)
     if(typeof this.disconnectFail == 'function'){
       this.disconnectFail
     }
@@ -122,9 +117,10 @@ function SocketBase(obj){
   })
   //自定义Ws关闭事件：Ws连接关闭后触发
   this.onclose = ((msg) => {
-    if(!this.loginState) return
-    console.log(`The websocket is close${msg}`)
     this.isHeartflag = false
+    if(!this.loginState) return
+    console.log('The websocket is close')
+    console.error(msg)
     this.reConnect()
   })
   this.connect()
@@ -133,7 +129,7 @@ function SocketBase(obj){
 SocketBase.prototype.send =
 SocketBase.prototype.addEventListener = function(event, data,callback){
   if(!this.isHeartflag){
-    message.error('server disconnect!')
+    message.error('server disconnect! please retry later')
     return false
   }
   this._callbacks = this._callbacks || {};
@@ -162,7 +158,6 @@ SocketBase.prototype.emit = function(event){
     callback.apply(this, args)
 
   }
-
   return this
 }
 
@@ -200,17 +195,15 @@ SocketBase.prototype.close = function(){
 
 SocketBase.prototype.disconnect = function () {
   this.loginState = false
-  this.close()
-  return new Promise((resolve,reject)=>{
-    this.socket.onclose=(msg)=>{
-      this.socket = null
-      window.appSocket = null
-      resolve(msg)
-    }
-    this.disconnectFail = (error)=>{
-      message.error('server connect fail, please refresh!')
-      reject(error)
-    }
+  if(this.isHeartflag){
+    this.close()
+  }
+  return new Promise((resolve)=>{
+    delete this.socket
+    clearTimeout(window.appSocket.heartCheck.timeoutObj)
+    clearTimeout(window.appSocket.heartCheck.serverTimeoutObj)
+    delete window.appSocket
+    resolve('')
   })
 }
 
@@ -237,14 +230,17 @@ SocketBase.prototype.reConnect = function () {
 
 
 export function sendRequest(params,event = 'default') {
-  return new Promise((reslove,reject)=>{
+  return new Promise((reslove)=>{
     try{
-      window.appSocket.send(event,JSON.stringify(params),function(res){
+      const isConnect =  window.appSocket.send(event, JSON.stringify(params), function(res){
         let data = JSON.parse(res.data)
         reslove(data)
       })
+      if(!isConnect){
+        throw new Error('server disconnect! please retry later')
+      }
     }catch(error){
-      reject(error)
+      reslove({ error: true })
     }
   })
 }

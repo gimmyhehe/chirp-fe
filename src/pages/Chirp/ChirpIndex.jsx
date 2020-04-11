@@ -181,12 +181,24 @@ class ChirpIndex extends Component{
   state = {
     settingPermission: false,
     messageList: [],
-    activeKey: 1
+    activeKey: 1,
+    shareVisiable: false,
+    settingVisiable: false
   }
   hide = () => {
     this.setState({
       visible: false,
     })
+  }
+  handleVisiableChange = ( popNmae , visible)=> {
+    if(popNmae=='setting'){
+      this.setState({ settingVisiable: visible })
+    }else if(popNmae=='share'){
+      this.setState({ shareVisiable: visible })
+    }
+  }
+  hideSetting = ()=> {
+    this.setState({ settingVisiable: false })
   }
   render(){
     const chirps = this.props.chirps
@@ -230,7 +242,14 @@ class ChirpIndex extends Component{
 
       )
     }
-    var TabBarExtraContent = () =>{
+    const SettingPover = ()=> {
+      return (
+        cookies.get('uid') ==  currentChirp.hostUid ?
+          <ChirpSettingForm hide = { this.hideSetting } {...this.props.chirps} chirpSetting = {chirpSetting} />
+          : null
+      )
+    }
+    var TabBarExtraContent = ()=>{
       return(
         <Rightbox className='chirp-bar'>
           <span>{currentChirp.name}</span>
@@ -238,13 +257,17 @@ class ChirpIndex extends Component{
             placement="bottomRight"
             content={<ShareContent />}
             trigger="click"
+            visible = { this.state.shareVisiable }
+            onVisibleChange={ this.handleVisiableChange.bind(this, 'share') }
           >
             <Share onClick={this.handleShare}></Share>
           </Popover>
           <Popover
             placement="bottomRight"
-            content={  cookies.get('uid') ==  currentChirp.hostUid ? <ChirpSettingForm {...this.props.chirps} chirpSetting = {chirpSetting} /> : null}
+            content={ <SettingPover /> }
             trigger="click"
+            visible = { this.state.settingVisiable }
+            onVisibleChange={ this.handleVisiableChange.bind(this, 'setting') }
           >
             <Settings onClick={this.handleSettings.bind(this,currentChirp)}></Settings>
           </Popover>

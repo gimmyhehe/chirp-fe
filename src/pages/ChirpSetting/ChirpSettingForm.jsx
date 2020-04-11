@@ -2,7 +2,7 @@ import React,{ Component } from 'react'
 import styled from 'styled-components'
 import api from '../../api'
 import { connect } from 'react-redux'
-import { createChirp as createChirpAction } from '@actions/chirps'
+import { createChirp as createChirpAction, updateChirp } from '@actions/chirps'
 import { Form, Input,Slider,Switch,Modal, message   } from 'antd'
 import { Button } from '@components'
 import NProgress from 'nprogress'
@@ -158,6 +158,10 @@ class ChirpSettingForm extends Component{
         }
         try {
           const response = await api.createChirp(param)
+          if(response.error){
+            NProgress.done()
+            return
+          }
           if (response.code === 10022) {
             await this.props.createChirpAction(response.data)
             NProgress.done()
@@ -190,8 +194,25 @@ class ChirpSettingForm extends Component{
           passwordEnabled: +pwdChecked,
           password: password
         }
-        const response = await api.createChirp(values)
+        const response = await api.saveChirpSetting(values)
         console.log(response)
+        if(response.error){
+          return
+        }
+        if( response.code == 10033 ){
+          message.success('save setting success')
+          this.props.updateChirp( {
+            id: this.props.currentChirp.id,
+            uploadPermissionEnabled: +uploadPermission,
+            expiredDate: this.props.currentChirp.createTime + expirationDay *24*60*60*1000  } )
+
+          this.props.hide()
+        }else{
+          this.setState({ modalVisible: false})
+          message.error(response.msg)
+        }
+      }else{
+        console.log(err)
       }
     })
   }
@@ -205,7 +226,7 @@ class ChirpSettingForm extends Component{
     // to do deletechirp
     let param = { 'cmd':29,'chirpId':this.props.currentChirp.id}
     api.deleteChirp(param).then(()=>{
-
+      this.props.hide()
     })
       .catch(err=>{
         message.error('delete chirp fail')
@@ -304,4 +325,4 @@ class ChirpSettingForm extends Component{
   }
 }
 
-export default connect(null, {createChirpAction})(Form.create({name:'chirpSettingForm'})(ChirpSettingForm))
+export default connect(null, { createChirpAction, updateChirp})(Form.create({name:'chirpSettingForm'})(ChirpSettingForm))

@@ -100,7 +100,7 @@ export default function ChirpInput(){
       .then( res =>{
         msgItem.fileList = res
         api.sendMessage(msgItem).then((res)=>{
-          if(res.code == 10000){
+          if( !res.error && res.code == 10000){
             // this.props.sendMsgSuccess({type:'img',index,chirpId,imgObj})
           }else{
             throw new Error('send message fail')
@@ -165,7 +165,7 @@ export default function ChirpInput(){
       .then( res =>{
         msgItem.fileList = res
         api.sendMessage(msgItem).then((res)=>{
-          if(res.code == 10000){
+          if( !res.error && res.code == 10000){
             // this.props.sendMsgSuccess({type:'img',index,chirpId,imgObj})
           }else{
             throw new Error('send file fail')
@@ -240,7 +240,7 @@ export default function ChirpInput(){
     params.fromName = userName
     dispatch( sendMsg( { type: 'msg', index, chirpId, data: params } ) )
     await api.sendMessage(params).then((res)=>{
-      if(res.code == 10000){
+      if( !res.error && res.code == 10000){
         dispatch( sendMsgSuccess( { type: 'msg', index, chirpId } ) )
       }else{
         throw new Error('send message fail')
@@ -249,7 +249,9 @@ export default function ChirpInput(){
       console.error(error)
     })
   }
-
+  function handleClickUpload(visible) {
+    setuploadVisiable(visible)
+  }
   function Upload() {
     return (
       <UploadBox>
@@ -261,7 +263,13 @@ export default function ChirpInput(){
 
   return(
     <MessegeBox>
-      <Dropdown overlay={<Upload  />} placement="topLeft" visible={ uploadVisiable } trigger={ ['click'] }>
+      <Dropdown
+        overlay={<Upload  />}
+        placement="topLeft"
+        visible={ uploadVisiable }
+        trigger={ ['click'] }
+        onVisibleChange={ handleClickUpload }
+      >
         <Icon type="upload" style={{marginLeft:'8px'} }  onClick={ ()=>{ setuploadVisiable(!uploadVisiable) } } ></Icon>
       </Dropdown>
       <Dropdown overlay={<Picker onSelect={addEmoji} />} placement="topLeft" trigger={ ['click'] }>

@@ -114,6 +114,10 @@ class ChirpJoin extends Component{
     if(this.state.hasPassword) params.password = this.state.chirpPassword
     NProgress.start()
     let res =await api.joinChirp(params)
+    if( res.error ){
+      NProgress.done()
+      return
+    }
     if(res.code == 10025){
       message.success('join the chirp success!')
       await this.props.getChirpList()

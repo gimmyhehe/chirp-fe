@@ -231,14 +231,34 @@ export default (state = {
       let chirpList = state.chirpList
       let currentChirp = state.currentChirp
       let allChirpsMessage = state.allChirpsMessage
+      let chirpsPhoto = state.chirpsPhoto
       chirpList.push(action.payload)
       currentChirp = action.payload
       allChirpsMessage[currentChirp.id] = []
+      chirpsPhoto[currentChirp.id] = []
       return{
         ...state,
         chirpList,
         currentChirp,
-        allChirpsMessage
+        allChirpsMessage,
+        chirpsPhoto
+      }
+    }
+    case actionTypes.UPDATE_CHIRP_SETTING:{
+      let chirpList = state.chirpList
+      let currentChirp = state.currentChirp
+      chirpList.forEach( (chirp, index) => {
+        if(chirp.id == action.payload.id){
+          chirpList[index] = { ...chirpList[index], ...action.payload }
+          if(currentChirp.id == chirp.id ){
+            currentChirp = chirpList[index]
+          }
+        }
+      })
+      return {
+        ...state,
+        chirpList,
+        currentChirp,
       }
     }
     case actionTypes.DELETE_CHIRP_FULFILLED:{
@@ -248,13 +268,13 @@ export default (state = {
       let currentChirp = state.currentChirp
       let allChirpsMessage = state.allChirpsMessage
       let chirpsPhoto = state.chirpsPhoto
-      if(currentChirp.id == data.chirpId) currentChirp = chirpList[0]
       chirpList = chirpList.filter(item=>{
         if(item.id == data.chirpId) deleteChirpName = item.name
-        return item.id != data.chirpId
+        return  item && item.id != data.chirpId
       })
       delete allChirpsMessage[data.chirpId]
       delete chirpsPhoto[data.chirpId]
+      if(currentChirp.id == data.chirpId) currentChirp = chirpList[0] ? chirpList[0] : null
       if(data.code == 10136  ){
         message.warn(deleteChirpName + ' was deleted')
       }else{

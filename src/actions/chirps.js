@@ -16,7 +16,7 @@ import {
   HISTORY_MESSAGE_PENDING,  HISTORY_MESSAGE_FULFILLED,  HISTORY_MESSAGE_REJECTED,
   SEND_IMG_PENDING,
   APPEND_IMG_PENDING, APPEND_IMG_FULFILLED, APPEND_IMG_REJECTED,
-  SEND_FILE_PENDING, SEND_FILE_FULFILLED, SEND_FILE_REJECTED,
+  UPDATE_CHIRP_SETTING
 
 } from '@constants/actionTypes'
 import cookies from '@utils/cookies'
@@ -32,7 +32,10 @@ export function getChirpList() {
         cmd: 25,
         memberId: cookies.get('uid')
       }
-      const {data} = await api.getChirpList(params)
+      const { data, error } = await api.getChirpList(params)
+      if(error){
+        throw new Error('getChirpList Fail')
+      }
       dispatch({ type: CHIRPS_INFO_FULFILLED, data })
       data.forEach(item => {
         dispatch(getHistoryMessage(item.id))
@@ -192,6 +195,12 @@ export function createChirp(newChirp) {
   }
 }
 
+export function updateChirp(chirp) {
+  return {
+    type: UPDATE_CHIRP_SETTING,
+    payload : chirp
+  }
+}
 export function deleteChirp({ chirpId, msg, code  }){
   return {
     type: DELETE_CHIRP_FULFILLED,
@@ -203,7 +212,7 @@ export function getHistoryMessage(chirpId){
   return async (dispatch)=>{
     dispatch({ type: HISTORY_MESSAGE_PENDING })
     api.getHistoryMessage({ cmd: 31, chirpId  }).then(res=>{
-      if(res.code == 10039){
+      if( !res.error && res.code == 10039){
         res.data.forEach(item=>{
           if(item.fileList){
             if( typeof item.fileList == 'object' ) return

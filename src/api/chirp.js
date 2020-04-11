@@ -12,6 +12,9 @@ import { sendRequest } from '@utils/websocket'
 export function createChirp(params){
   return sendRequest(params,'createChirp')
 }
+export function saveChirpSetting(params){
+  return sendRequest(params,'saveChirpSetting')
+}
 export function joinChirp(params) {
   return sendRequest(params,'joinChirp')
 }
@@ -39,5 +42,6 @@ export default {
   getChirpList,
   joinChirp,
   upload,
-  getHistoryMessage
+  getHistoryMessage,
+  saveChirpSetting
 }
