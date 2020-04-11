@@ -1,0 +1,36 @@
+stages:
+  - install
+  - build
+  - deploy_dev
+  - deploy_prod
+
+cache:
+  key: ${CI_BUILD_REF_NAME}
+  paths:
+    - node_modules/
+    - dist/
+
+# 安装依赖
+npm_install:
+  stage: install
+  only:
+    - dev
+    - master
+  script:
+    - npm install
+
+# 构建项目
+build:
+  stage: build
+  only:
+    - dev
+    - master
+  script:
+    - npm run build
+
+deploy_dev:
+  stage: deploy_dev
+  only:
+    - dev
+  script:
+    - /bin/cp -rf ./dist/* /data/docker/nginx/www/chirp
