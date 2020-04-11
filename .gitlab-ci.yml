@@ -40,4 +40,5 @@ deploy_prod:
   only:
     - master
   script:
-    - scp -i /data/.ssh/onepro_prod.pem ./dist/* ec2-user@34.197.131.40:/home/ec2-user/dists/chirp
+    - mv dist chirp
+    - scp -i /data/.ssh/onepro_prod.pem -r ./chirp ec2-user@34.197.131.40:/home/ec2-user/dists
