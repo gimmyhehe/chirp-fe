@@ -92,7 +92,7 @@ class SigninForm extends Component{
     const { getFieldDecorator } = this.props.form
     return(
       <div>
-        <Title>Sign In</Title>
+        <Title>Sign In Test</Title>
         <Form className='g-form-box' onSubmit={this.handleSubmit}>
           <Form.Item label='Email'>
             {getFieldDecorator('email', {
