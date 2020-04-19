@@ -7,7 +7,7 @@ import {  Button } from '@components'
 import cookies from '@utils/cookies'
 import AllMessageTab from './AllMessageTab'
 import PhotosTab from './PhotosTab'
-// import VideoContent from './VideoPage'
+import VideosTab from './VideosTab'
 import FileTab from './FileTab'
 import ChirpSettingForm from '../ChirpSetting/ChirpSettingForm'
 import ShareIcon from '@assets/icon/share.png'
@@ -201,31 +201,7 @@ class ChirpIndex extends Component{
     this.setState({ settingVisiable: false })
   }
   render(){
-    const chirps = this.props.chirps
-    const {allChirpsMessage,currentChirp,chirpsPhoto} = chirps
-    var chirpSetting={},chirpMessage=[], fileList = []
-    if(currentChirp){
-      chirpSetting ={
-        expirationDay: (currentChirp.expiredDate - currentChirp.createTime) / (24*60*60*1000),
-        pwdChecked: !!currentChirp.passwordEnabled,
-        uploadPermission: !!currentChirp.uploadPermissionEnabled,
-        password: ''
-      }
-      if(JSON.stringify(allChirpsMessage)!='{}'){
-        chirpMessage = allChirpsMessage[currentChirp.id]
-
-        chirpMessage.forEach(element => {
-          if( element.msgType == 2 ){
-            fileList = fileList.concat(element.fileList)
-          }
-          if(element.from == cookies.get('uid')){
-            element.isSelf = true
-          }else{
-            element.isSelf = false
-          }
-        })
-      }
-    }
+    const { chirpSetting, currentChirp, msgList, photosList, fileList, videoList } = this.props
     var ShareContent = () =>{
       return(
         <ShareBox>
@@ -283,14 +259,14 @@ class ChirpIndex extends Component{
             <CustomTab tabBarExtraContent={<TabBarExtraContent/>} onChange={(activeKey)=>{this.setState({activeKey})}}>
               <TabPane tab="All" key="1">
                 <AllMessageTab
-                  chirpMessage ={chirpMessage}
+                  chirpMessage ={ msgList }
                   currentChirp = {currentChirp}
                   tabInfo = {{key : 2 ,activeKey : this.state.activeKey}}
                 />
               </TabPane>
               <TabPane tab="Photo" key="2">
                 <PhotosTab
-                  photoList ={chirpsPhoto[currentChirp.id]}
+                  photosList = { photosList }
                   currentChirp = {currentChirp}
                   tabInfo = {{key : 2 ,activeKey : this.state.activeKey}} />
               </TabPane>
@@ -300,12 +276,12 @@ class ChirpIndex extends Component{
                   currentChirp = {currentChirp}
                   tabInfo = {{key : 2 ,activeKey : this.state.activeKey}} />
               </TabPane>
-              {/* <TabPane tab="Video" key="3">
-                  <VideoContent />
-                </TabPane>
-                <TabPane tab="File" key="4">
-                  <FileContent />
-                </TabPane> */}
+              <TabPane tab="Video" key="4">
+                <VideosTab
+                  videoList ={videoList}
+                  currentChirp = {currentChirp}
+                  tabInfo = {{key : 2 ,activeKey : this.state.activeKey}} />
+              </TabPane>
             </CustomTab>
         }
       </CustomLayout>

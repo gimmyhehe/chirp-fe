@@ -1,11 +1,11 @@
 import {
   ChirpJoin,
   SignupForm,
-  ChirpIndex,
-  UserSettings,
   ChirpSetting
 } from '@pages'
 import SigninPage from '@containers/SigninPage'
+import ChirpPage from '@containers/ChirpPage'
+import UserSettingPage from '@containers/UserSettingPage'
 const routes = [
   { path: '/',
     exact: true,
@@ -33,7 +33,7 @@ const routes = [
   {
     path: '/chirpindex',
     exact: true,
-    component: ChirpIndex,
+    component: ChirpPage,
     requiresAuth: true,
   },
   {
@@ -45,7 +45,7 @@ const routes = [
   {
     path: '/user/settings',
     exact: true,
-    component: UserSettings,
+    component: UserSettingPage,
     requiresAuth: true, //需要登陆后才能跳转的页面
   },
 ]

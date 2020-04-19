@@ -100,7 +100,7 @@ class AppSider extends Component{
             })
           }
           <Menu.Item key='createorjoin'>
-            <span className="nav-text" onClick={this.handleJump} style={{color:'#00f'}} >create/join</span>
+            <span className="nav-text" onClick={this.handleJump} style={{color:'#00f'}} >Start or join a chirp</span>
           </Menu.Item>
         </Menu>
       </CustomSider>

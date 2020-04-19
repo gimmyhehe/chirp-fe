@@ -24,7 +24,6 @@ export const get_filemd5sum = (ofile) => {
         loadNext()
       } else {
         tmp_md5 = spark.end()
-        console.log(tmp_md5)
         resolve(tmp_md5)
       }
     }
@@ -66,7 +65,21 @@ export  async function readDiskFile( config = { fileType : 'all'} ) {
       '.xlsx',
       'pdf'
     ]
-    const fileAccept = {
+    const videoAcceptType =[
+      'video/*',
+      '.ogm',
+      '.wmv',
+      '.mpg',
+      '.webm',
+      '.ogv',
+      '.mov',
+      '.asx',
+      '.mpeg',
+      '.mp4',
+      '.m4v',
+      '.avi',
+    ]
+    const acceptConfig = {
       'all' : '*/*',
       'image' : {
         accept : 'image/gif, image/jpeg, image/png',
@@ -74,10 +87,14 @@ export  async function readDiskFile( config = { fileType : 'all'} ) {
       },
       file: {
         accept : fileAcceptType.join(','),
-        limit : 1024*1024*100 // 图片限制大小
+        limit : 1024*1024*100 // 文件限制大小
+      },
+      video: {
+        accept : videoAcceptType.join(','),
+        limit : 1024*1024*100 // 视频限制大小
       }
     }
-    let accept =  config.accept ? config.accept : fileAccept[config.fileType].accept
+    let accept =  config.accept ? config.accept : acceptConfig[config.fileType].accept
     const $input = document.createElement('input')
     $input.style.display = 'none'
     $input.setAttribute('type', 'file')
@@ -107,31 +124,49 @@ export  async function readDiskFile( config = { fileType : 'all'} ) {
       }
       let fileResult = []
       let fileCallback = file => {
+        const { name, size, type } = file
+        const ext = getFileExt( name )
         if( config.fileType === 'image'){
           if( ['image/gif', 'image/jpeg', 'image/png'].indexOf(file.type) == -1){
             message.error('The image type is not support!')
             fileResult.push(null)
           }
-          else if(file.size > fileAccept[config.fileType].limit){
-            message.error(`The image is too large! limit ${bytesToSize(fileAccept[config.fileType].limit)}`)
+          else if(file.size > acceptConfig[config.fileType].limit){
+            message.error(`The image is too large! limit ${bytesToSize(acceptConfig[config.fileType].limit)}`)
             fileResult.push(null)
           }
           else{
             let imgUrl = URL.createObjectURL(file)
-            fileResult.push({ file, imgUrl})
+            fileResult.push({ file, imgUrl, name, size, type, ext})
           }
         }
-        else if (config.fileType === 'file') {
+        else if (config.fileType === 'video') {
+          const { name, size, type } = file
+          const ext = getFileExt( name )
+          if( !videoAcceptType.includes(file.type) && !videoAcceptType.includes('.'+ext) ){
+            message.error('The video type is not support!')
+            fileResult.push(null)
+          }
+          else if(file.size > acceptConfig[config.fileType].limit){
+            message.error(`The file is too large! limit ${bytesToSize(acceptConfig[config.fileType].limit)}`)
+            fileResult.push(null)
+          }
+          else{
+            let fileUrl = null
+            fileResult.push({ file, fileUrl, name, size, type, ext })
+          }
+        }
+        else{
           const { name, size, type } = file
           const ext = getFileExt( name )
 
           if( !fileAcceptType.includes(file.type) && !fileAcceptType.includes('.'+ext) ){
             message.error('The file type is not support!')
             fileResult.push(null)
-            console.log(file)
+
           }
-          else if(file.size > fileAccept[config.fileType].limit){
-            message.error(`The file is too large! limit ${bytesToSize(fileAccept[config.fileType].limit)}`)
+          else if(file.size > acceptConfig[config.fileType].limit){
+            message.error(`The file is too large! limit ${bytesToSize(acceptConfig[config.fileType].limit)}`)
             fileResult.push(null)
           }
           else{
@@ -153,20 +188,6 @@ export  async function readDiskFile( config = { fileType : 'all'} ) {
 }
 
 
-export function getImgWH(imageUrl){
-  return new Promise((resolve)=>{
-    let img = new Image()
-    img.onload = function(){
-      let result ={}
-      result.width = img.width
-      result.height = img.height
-      resolve(result)
-    }
-    img.src = imageUrl
-  })
-
-}
-
 export function bytesToSize(bytes) {
   if (bytes === 0) return '0 B'
   var k = 1024, // or 1024
@@ -187,4 +208,29 @@ export function getFileExt(filename) {
   var index= filename.lastIndexOf('.')
   var ext = filename.substr(index+1)
   return ext.toLowerCase()
+}
+
+export function getBlobFromUrl(url) {
+  return new Promise(resolve=> {
+
+    const xhr = new XMLHttpRequest()
+    xhr.open('GET', url, true)
+    xhr.responseType = 'blob'
+    xhr.onload = () => {
+      if (xhr.status === 200) {
+        resolve(xhr.response)
+      }else{
+        resolve(null)
+      }
+    }
+    xhr.onprogress = (event)=>{
+      // console.log(event.lengthComputable)
+      // console.log(event.loaded)
+      // console.log(event.total)
+    }
+    xhr.onerror = ()=> {
+      resolve(null)
+    }
+    xhr.send()
+  })
 }
