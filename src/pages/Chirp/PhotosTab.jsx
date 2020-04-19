@@ -134,7 +134,6 @@ class PhotosTab extends Component{
     return nextProps
   }
   render(){
-    console.log(this.state.photosList)
     return (
       <div>
         <ButtonBox>

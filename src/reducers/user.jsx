@@ -1,8 +1,8 @@
 import * as actionTypes from '@constants/userActionTypes'
-import { user } from '@utils/storage'
+// import { user } from '@utils/storage'
 import cookie from '@utils/cookies'
 const initState = {
-  data: user.get('data', {}),
+  data: {},
   userName : null,
   uid : cookie.get('uid')
 }
@@ -14,7 +14,7 @@ export default (state = initState, action) => {
         loading: true
       }
     case actionTypes.USER_INFO_FULFILLED:
-      user.set('data', action.data)
+
       return {
         ...state,
         data: action.data,
@@ -22,7 +22,6 @@ export default (state = initState, action) => {
         loading: false
       }
     case actionTypes.USER_INFO_REJECTED:
-      user.set('error', action.error)
       return {
         ...state,
         error: action.error,

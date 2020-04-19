@@ -39,8 +39,7 @@ const getList = (allChirpsMessage, chirpId) =>{
   return { msgList, photosList, fileList, videoList }
 }
 
-const mapStateToProps = (state, ownProps) => {
-  console.log(state , ownProps)
+const mapStateToProps = (state) => {
   const { chirps } = state
   const { currentChirp, allChirpsMessage } = chirps
   const currentChirpId = currentChirp ? currentChirp.id : null
