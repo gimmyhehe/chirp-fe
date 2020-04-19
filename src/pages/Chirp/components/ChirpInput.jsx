@@ -59,83 +59,27 @@ export default function ChirpInput(){
   const currentChirp = useSelector(state => state.chirps.currentChirp)
   const chirpMessage = useSelector(state => state.chirps.allChirpsMessage[currentChirp.id])
 
-  async function selectPhotos() {
-    if(currentChirp.uploadPermissionEnabled != 1){
-      message.warn('sorry this chirp does not open the upload permission')
-      return false
+  function getMsgType(fileType){
+    switch (fileType){
+      case 'image': return 1
+      case 'file': return 2
+      case 'video': return 3
+      default: return 2
     }
-    setuploadVisiable(false)
-    let photosList = await readDiskFile({ fileType: 'image' })
-    if ( !photosList ) return
-    photosList = photosList.filter((item)=>{
-      return item
-    })
-    if( photosList.length == 0 ) return
-    const id = Date.now()  + (Math.random()*1000).toFixed(0)
-    const sendFileList = []
-    let msgItem = {
-      id,
-      'from': cookies.get('uid'),
-      'fromName': userName,
-      'createTime': Date.now(),
-      'cmd':11,
-      'group_id': currentChirp.id,
-      'chatType':'1',
-      'msgType': 1,
-      'content': '',
-      fileList: sendFileList
-    }
-    dispatch(sendImg({ msgItem, chirpId: currentChirp.id }))
-    const promises = photosList.map( item =>{
-      return new Promise( ( resolve )=>{
-        dispatch( appendImg({ chirpId: currentChirp.id, id, fileObj: item, sendFileList }) )
-          .then( res=>{
-            console.log(res)
-            resolve(res)
-          } )
-      })
-    } )
-
-    Promise.all( promises )
-      .then( res =>{
-        msgItem.fileList = res
-        api.sendMessage(msgItem).then((res)=>{
-          if( !res.error && res.code == 10000){
-            // this.props.sendMsgSuccess({type:'img',index,chirpId,imgObj})
-          }else{
-            throw new Error('send message fail')
-          }
-        }).catch((error)=>{
-          console.error(error)
-        })
-      } )
-      .catch( error =>{
-        message.error( 'upload images has error!' )
-        console.error(error)
-      } )
-
-
-
-
   }
-
-  async function selectFile() {
-    if(currentChirp.uploadPermissionEnabled != 1){
+  async function selectFile(fileType) {
+    if(currentChirp.uploadPermissionEnabled != 1  && cookies.get('uid')!= currentChirp.hostUid ){
       message.warn('sorry this chirp does not open the upload permission')
       return false
     }
     setuploadVisiable(false)
-    // fileUrl: null
-    // name: "test2.xls"
-    // size: 6656
-    // type: "application/vnd.ms-excel"
-    // ext: "xls"
-    let fileList = await readDiskFile({ fileType: 'file' })
+    let fileList = await readDiskFile({ fileType })
     if ( !fileList ) return
     fileList = fileList.filter((item)=>{
       return item
     })
     if( fileList.length == 0 ) return
+
     const id = Date.now()  + (Math.random()*1000).toFixed(0)
     const sendFileList = []
     let msgItem = {
@@ -146,19 +90,34 @@ export default function ChirpInput(){
       'cmd':11,
       'group_id': currentChirp.id,
       'chatType':'1',
-      'msgType': 2,
+      'msgType': getMsgType(fileType),
       'content': '',
       fileList: sendFileList
     }
     dispatch(sendImg({ msgItem, chirpId: currentChirp.id }))
     const promises = fileList.map( item =>{
-      return new Promise( ( resolve )=>{
-        dispatch( appendFile({ chirpId: currentChirp.id, id, fileObj: item, sendFileList }) )
-          .then( res=>{
-            console.log(res)
-            resolve(res)
-          } )
-      })
+      if(fileType === 'video'){
+        return new Promise( ( resolve )=>{
+          dispatch( appendFile({ chirpId: currentChirp.id, id, fileObj: item, sendFileList }) )
+            .then( res=>{
+              resolve(res)
+            } )
+        })
+      }else if(fileType === 'image'){
+        return new Promise( ( resolve )=>{
+          dispatch( appendImg({ chirpId: currentChirp.id, id, fileObj: item, sendFileList }) )
+            .then( res=>{
+              resolve(res)
+            } )
+        })
+      }else{
+        return new Promise( ( resolve )=>{
+          dispatch( appendFile({ chirpId: currentChirp.id, id, fileObj: item, sendFileList }) )
+            .then( res=>{
+              resolve(res)
+            } )
+        })
+      }
     } )
 
     Promise.all( promises )
@@ -255,8 +214,9 @@ export default function ChirpInput(){
   function Upload() {
     return (
       <UploadBox>
-        <div onClick={ selectFile } >Upload File</div>
-        <div onClick={ selectPhotos } >Upload Image</div>
+        <div onClick={ selectFile.bind(this, 'file') } >Upload File</div>
+        <div onClick={ selectFile.bind(this, 'image') } >Upload Image</div>
+        <div onClick={ selectFile.bind(this, 'video') } >Upload Video</div>
       </UploadBox>
     )
   }

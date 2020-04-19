@@ -5,22 +5,19 @@ export default (state = {
   chirpList: [],
   currentChirp: chirps.get('currentChirp', null),
   allChirpsMessage: {},
-  chirpsPhoto: {}
 }, action) => {
   switch (action.type) {
-    case actionTypes.CHIRPS_INFO_PENDING:
+    case actionTypes.GET_CHIRPSLIST_PENDING:
       return {
         ...state,
         loading: true
       }
-    case actionTypes.CHIRPS_INFO_FULFILLED:{
+    case actionTypes.GET_CHIRPSLIST_FULFILLED:{
       let allChirpsMessage = state.allChirpsMessage
-      let chirpsPhoto = state.chirpsPhoto
       let tempChirp = state.currentChirp
       let currentChirp = action.data[0]
       action.data.forEach(element => {
         allChirpsMessage[element.id] = []
-        chirpsPhoto[element.id] = []
         if(tempChirp && tempChirp.id == element.id){
           currentChirp = element
         }
@@ -30,12 +27,11 @@ export default (state = {
         ...state,
         chirpList: action.data,
         allChirpsMessage,
-        chirpsPhoto,
         currentChirp,
         loading: false
       }
     }
-    case actionTypes.CHIRPS_INFO_REJECTED:
+    case actionTypes.GET_CHIRPSLIST_REJECTED:
       chirps.set('error', action.error)
       return {
         ...state,
@@ -70,18 +66,8 @@ export default (state = {
     case actionTypes.SET_CHIRP_FULFILLED:
     {
       let allChirpsMessage = state.allChirpsMessage
-      let chirpsPhoto = state.chirpsPhoto
       allChirpsMessage[action.data.group_id].push(action.data)
 
-      if(action.data.msgType == 1){
-        const  newChirpsPhoto = action.data.fileList.map(element=>{
-          return {
-            imgObj: element,
-            selected: false
-          }
-        })
-        chirpsPhoto[action.data.group_id] = chirpsPhoto[action.data.group_id].concat(newChirpsPhoto)
-      }
 
       return {
         ...state,
@@ -132,19 +118,10 @@ export default (state = {
     }
     case actionTypes.SEND_IMG_FULFILLED:{
       let allChirpsMessage = state.allChirpsMessage
-      let chirpsPhoto = state.chirpsPhoto
       allChirpsMessage[action.data.chirpId][action.data.index] = action.data.msgItem
-      const  newChirpsPhoto = action.data.msgItem.fileList.map(item=>{
-        return {
-          imgObj: item,
-          selected: false
-        }
-      })
-      chirpsPhoto[action.data.chirpId] = chirpsPhoto[action.data.chirpId].concat(newChirpsPhoto)
       return{
         ...state,
-        allChirpsMessage,
-        chirpsPhoto
+        allChirpsMessage
       }
     }
     case actionTypes.SEND_IMG_REJECTED:{
@@ -157,18 +134,13 @@ export default (state = {
     }
     case actionTypes.APPEND_IMG_PENDING: case actionTypes.APPEND_IMG_FULFILLED: case actionTypes.APPEND_IMG_REJECTED:{
       let allChirpsMessage = state.allChirpsMessage
-      let chirpsPhoto = state.chirpsPhoto
       const index = allChirpsMessage[action.payload.chirpId].findIndex( ( item )=>{
         return item.id  == action.payload.id
       } )
       allChirpsMessage[action.payload.chirpId][index].fileList = action.payload.fileList
-      if(action.payload.photoItem){
-        chirpsPhoto[action.payload.chirpId].push({ imgObj: action.payload.photoItem, selected: false})
-      }
       return {
         ...state,
-        allChirpsMessage,
-        chirpsPhoto
+        allChirpsMessage
       }
     }
     case actionTypes.SEND_MSG_SUCCESS_PENDING:{
@@ -179,15 +151,12 @@ export default (state = {
     }
     case actionTypes.SEND_MSG_SUCCESS_FULFILLED:{
       let allChirpsMessage = state.allChirpsMessage
-      let chirpsPhoto = state.chirpsPhoto
       if(action.data.type ==='msg'){
         allChirpsMessage[action.data.chirpId][action.data.index].sending = false
       }
-      // chirps.set('allChirpsMessage',allChirpsMessage)
       return {
         ...state,
         allChirpsMessage,
-        chirpsPhoto,
         loading: false
       }
     }
@@ -207,23 +176,10 @@ export default (state = {
     }
     case actionTypes.HISTORY_MESSAGE_FULFILLED:{
       let allChirpsMessage = state.allChirpsMessage
-      let chirpsPhoto = state.chirpsPhoto
       allChirpsMessage[action.chirpId] = action.data.concat(allChirpsMessage[action.chirpId])
-      action.data.forEach(item=>{
-        if(item.msgType == 1){
-          const  newChirpsPhoto = item.fileList.map(element=>{
-            return {
-              imgObj: element,
-              selected: false
-            }
-          })
-          chirpsPhoto[action.chirpId] = chirpsPhoto[action.chirpId].concat(newChirpsPhoto)
-        }
-      })
-
       return {
         ...state,
-        chirpsPhoto,
+        allChirpsMessage,
         loading: false
       }
     }
@@ -231,17 +187,14 @@ export default (state = {
       let chirpList = state.chirpList
       let currentChirp = state.currentChirp
       let allChirpsMessage = state.allChirpsMessage
-      let chirpsPhoto = state.chirpsPhoto
       chirpList.push(action.payload)
       currentChirp = action.payload
       allChirpsMessage[currentChirp.id] = []
-      chirpsPhoto[currentChirp.id] = []
       return{
         ...state,
         chirpList,
         currentChirp,
-        allChirpsMessage,
-        chirpsPhoto
+        allChirpsMessage
       }
     }
     case actionTypes.UPDATE_CHIRP_SETTING:{
@@ -267,13 +220,11 @@ export default (state = {
       let chirpList = state.chirpList
       let currentChirp = state.currentChirp
       let allChirpsMessage = state.allChirpsMessage
-      let chirpsPhoto = state.chirpsPhoto
       chirpList = chirpList.filter(item=>{
         if(item.id == data.chirpId) deleteChirpName = item.name
         return  item && item.id != data.chirpId
       })
       delete allChirpsMessage[data.chirpId]
-      delete chirpsPhoto[data.chirpId]
       if(currentChirp.id == data.chirpId) currentChirp = chirpList[0] ? chirpList[0] : null
       if(data.code == 10136  ){
         message.warn(deleteChirpName + ' was deleted')
@@ -284,7 +235,6 @@ export default (state = {
         ...state,
         chirpList,
         allChirpsMessage,
-        chirpsPhoto,
         currentChirp
       }
     }

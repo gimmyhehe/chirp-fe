@@ -5,6 +5,7 @@ import {formatTime} from '@utils/tool'
 import { Avatar } from 'antd'
 import { Loading } from '@components'
 import FileItem from './FileMessageItem'
+import VideoItem from './VideoMessageItem'
 import emojify  from 'emojify.js'
 import 'emojify.js/dist/css/sprites/emojify.css'
 import imgError from '@assets/img/imgerror.jpg'
@@ -78,7 +79,7 @@ const UserInfo = styled.div`
   }
 `
 
-const PhotoBox = styled.div.attrs( ()=> ({
+const MessageBox = styled.div.attrs( ()=> ({
   className: 'message-box'
 }))`
   display: flex;
@@ -146,7 +147,7 @@ export default function MessageComponent(props) {
       }
       case 1:{
         return (
-          <PhotoBox >
+          <MessageBox >
             { fileList.filter(item =>{ return item }).map( ( imgObj, index ) =>{
               return (
                 <PhotoItem span={4}
@@ -163,19 +164,31 @@ export default function MessageComponent(props) {
               )
             } )}
 
-          </PhotoBox>
+          </MessageBox>
         )
       }
       case 2:{
         return(
-          <PhotoBox>
+          <MessageBox>
             {
               fileList.filter(item =>{ return item }).map( ( fileObj, index ) =>{
                 return (
-                  <FileItem key={index} { ...fileObj } />
+                  <FileItem key={index} { ...fileObj } selected={ null } />
                 )
               } )}
-          </PhotoBox>
+          </MessageBox>
+        )
+      }
+      case 3:{
+        return(
+          <MessageBox>
+            {
+              fileList.filter(item =>{ return item }).map( ( fileObj, index ) =>{
+                return (
+                  <VideoItem controls='controls' key={index} { ...fileObj } selected={ null } />
+                )
+              } )}
+          </MessageBox>
         )
       }
       default:{

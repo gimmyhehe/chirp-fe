@@ -7,7 +7,7 @@
  * @FilePath: \chrip-fe\src\actions\chirps.js
  */
 import {
-  CHIRPS_INFO_PENDING, CHIRPS_INFO_FULFILLED, CHIRPS_INFO_REJECTED,
+  GET_CHIRPSLIST_PENDING, GET_CHIRPSLIST_FULFILLED, GET_CHIRPSLIST_REJECTED,
   CURRENT_CHIRP_PENDING, CURRENT_CHIRP_FULFILLED, CURRENT_CHIRP_REJECTED,
   SET_CHIRP_PENDING, SET_CHIRP_FULFILLED, SET_CHIRP_REJECTED,
   SEND_MSG_PENDING, SEND_MSG_FULFILLED, SEND_MSG_REJECTED,
@@ -20,13 +20,14 @@ import {
 
 } from '@constants/actionTypes'
 import cookies from '@utils/cookies'
-import { get_filemd5sum, getImgWH} from '@utils/fileHandle'
+import { get_filemd5sum } from '@utils/fileHandle'
+import { getImgWH } from '@utils/imageHandle'
 import api from '@api'
 import { message } from 'antd'
 
 export function getChirpList() {
   return async (dispatch) => {
-    dispatch({ type: CHIRPS_INFO_PENDING, data: 'loading' })
+    dispatch({ type: GET_CHIRPSLIST_PENDING, data: 'loading' })
     try {
       let params ={
         cmd: 25,
@@ -36,13 +37,13 @@ export function getChirpList() {
       if(error){
         throw new Error('getChirpList Fail')
       }
-      dispatch({ type: CHIRPS_INFO_FULFILLED, data })
+      dispatch({ type: GET_CHIRPSLIST_FULFILLED, data })
       data.forEach(item => {
         dispatch(getHistoryMessage(item.id))
       })
     } catch (error) {
 
-      dispatch({ type: CHIRPS_INFO_REJECTED, error })
+      dispatch({ type: GET_CHIRPSLIST_REJECTED, error })
 
     }
   }
@@ -94,7 +95,7 @@ export function appendImg(chirpFile){
     const { file, imgUrl } = fileObj
     const {  width, height } = await getImgWH(imgUrl)
     const index = sendFileList.length
-    sendFileList[index] =  { imgUrl, width, height, status: 'sending' }
+    sendFileList[index] =  { ...fileObj, width, height, status: 'sending' }
     dispatch({ type: APPEND_IMG_PENDING, payload: { chirpId, id, fileList: sendFileList } })
 
     var formData = new FormData()
@@ -109,7 +110,7 @@ export function appendImg(chirpFile){
       .then(res=>{
         if(res.code ===0){
           URL.revokeObjectURL(fileObj.imgUrl)
-          const photoItem = { imgUrl: res.data, width, height }
+          const photoItem = { ...fileObj, imgUrl: res.data, width, height }
           sendFileList[index] = photoItem
           dispatch({ type: APPEND_IMG_FULFILLED, payload: { chirpId, id, fileList: sendFileList, photoItem } })
           return ( photoItem )

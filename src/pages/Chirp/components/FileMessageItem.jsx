@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { Loading } from '@components'
 import { bytesToSize } from '@utils/fileHandle'
+import DownloadSelect from './DownloadSelect'
 import pdfIcon from '@assets/icon/pdf.png'
 import docxIcon from '@assets/icon/docx.png'
 import defaultIcon from '@assets/icon/file.png'
@@ -50,10 +51,10 @@ const FileItem = styled.div`
 `
 
 export default function FileMessageItem(props) {
-  const { fileUrl, status, name, ext, size } = props
+  const { fileUrl, status, name, ext, size, selected, changeSelected } = props
 
   function downLoadFile(fileUrl, status) {
-    if(status == 'sending') return
+    if(status == 'sending' || selected!=null) return
     window.open(fileUrl, '_blank')
   }
 
@@ -74,6 +75,7 @@ export default function FileMessageItem(props) {
   }
   return(
     <FileItem  fileLogo={ fileLogo(ext) } onClick={ downLoadFile.bind(this, fileUrl, status) } >
+      < DownloadSelect changeSelected={changeSelected} selected={ selected } />
       <div className='filelogo'></div>
       <div className='fileinfo'>
         <span title={name}>{ name }</span>

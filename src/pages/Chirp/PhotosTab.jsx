@@ -1,15 +1,13 @@
 import React,{ Component } from 'react'
 import styled from 'styled-components'
 import { connect } from 'react-redux'
-import { saveAs } from 'file-saver'
-import JsZip from 'jszip'
 import { getChirpList } from '@actions/chirps'
 import { Button } from '@components'
 import checkIcon from '@assets/icon/check.svg'
 import selectCheckIcon from '@assets/icon/select-check.svg'
 import imgError from '@assets/img/imgerror.jpg'
-import { message } from 'antd'
-import { thumbnail} from '../../utils/fileHandle'
+import { thumbnail } from '@/utils/imageHandle'
+import { downloadZip, downloadOneByOne } from '@utils/fileDownload'
 const ButtonBox = styled.div`
   position: absolute;
   padding: 16px;
@@ -95,76 +93,37 @@ class PhotosTab extends Component{
     super(props)
 
     this.state = {
-      photoList: this.props.photoList,
-      selfChange: false
+      photosList: this.props.photosList,
+      selfChange: false,
+      downloading: false
     }
   }
-  getBase64 = (img) =>{
-    if (!img) return
-    function getBase64Image(img,width,height) {
-      var canvas = document.createElement('canvas')
-      canvas.width = width ? width : img.width
-      canvas.height = height ? height : img.height
 
-      var ctx = canvas.getContext('2d')
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-      var dataURL = canvas.toDataURL()
-      return dataURL.split(',')[1]
-    }
-    var image = new Image()
-    image.crossOrigin = 'Anonymous'
-    image.src = img
-    return new Promise((resolve)=>{
-      image.onload =function (){
-        resolve(getBase64Image(image))
-      }
-      image.onerror = () =>{
-        resolve(null)
-      }
-    })
-  }
   downLoad = async (option)=>{
-    var zip = new JsZip()
-    let _photoList = this.state.photoList
-    if(option != 'all'){
-      _photoList = _photoList.filter((item)=>{
-        return item.selected == true
+    if(this.state.downloading) return
+    this.setState({ downloading: true })
+    if(option==='all'){
+      await downloadZip(this.state.photosList)
+    }else{
+      const selectList = this.state.photosList.filter((item)=>{
+        if(item.selected){
+          return item
+        }
       })
+      await downloadOneByOne(selectList)
     }
-    if(_photoList.length == 0){
-      message.info('no image to download!')
-      return
-    }
-    const hide = message.loading('Download Loading...',0)
-    let promises = _photoList.map( (item)=>{
-      return this.getBase64(item.imgObj.imgUrl)
-    })
-    let results = await Promise.all(promises)
-    let failNum = 0
-    results.forEach((item,index) => {
-      if(!item){
-        failNum ++
-        return
-      }
-      zip.file(Date.now() + `${index}.jpg`,item,{base64: true})
-    })
-    zip.generateAsync({type:'blob'})
-      .then(function(content) {
-        // see FileSaver.js
-        if(failNum!=0) message.warn(`${failNum} photo download fail`)
-        saveAs(content, 'download.zip')
-        hide()
-      })
+    this.setState({ downloading: false })
   }
+
   handleImgError = (e)=>{
     e.target.onerror = null
     e.target.src = imgError
   }
   changeSelect = (index) =>{
-    let _photoList = this.state.photoList
-    _photoList[index]['selected'] = !_photoList[index]['selected']
+    let _photosList = this.state.photosList
+    _photosList[index]['selected'] = !_photosList[index]['selected']
     this.setState((state) => ({
-      photoList : _photoList,selfChange:!state.selfChange
+      photosList : _photosList,selfChange:!state.selfChange
     })
     )
 
@@ -183,15 +142,15 @@ class PhotosTab extends Component{
         </ButtonBox>
         <PhotoBox>
           {
-            this.state.photoList.filter(item =>{ return item.imgObj }).map((item,index)=>{
+            this.state.photosList.filter(item =>{ return item.imgUrl }).map((item,index)=>{
               return (
                 <PhotoItem
                   key={index}
                   onClick = {this.changeSelect.bind(this,index)}
                 >
-                  <img src={item.imgObj.imgUrl}
-                    width={ thumbnail(item.imgObj.width,item.imgObj.height).width }
-                    height={ thumbnail(item.imgObj.width,item.imgObj.height).height }
+                  <img src={item.imgUrl}
+                    width={ thumbnail(item.width,item.height).width }
+                    height={ thumbnail(item.width,item.height).height }
                     onError={this.handleImgError} />
                   { item.selected ? <SelectCheck /> : <Check /> }
                 </PhotoItem>

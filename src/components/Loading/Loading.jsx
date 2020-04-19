@@ -8,7 +8,8 @@ const LoadingBox = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background: ${ props=> props.mask === 'true' ? 'rgba(0,0,0,0.1)' : 'unset' };
+  z-index: 9;
+  background: ${ props=> props.mask === 'true' ? 'rgba(0,0,0,0.2)' : 'unset' };
 `
 const Loading = styled(Spin)`
 &&{

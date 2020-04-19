@@ -2,7 +2,6 @@ import React,{ Component } from 'react'
 import styled,{ keyframes } from 'styled-components'
 import { fadeInUp } from 'react-animations'
 import api from '../../api'
-import { Link } from 'react-router-dom'
 import { shouldContainLetters, shouldContainNumber, shouldNotHaveSpecialChar } from '../../utils/validation'
 import cookies from '../../utils/cookies'
 import { Form, Input, Alert, Avatar } from 'antd'
@@ -126,6 +125,7 @@ class UserSettings extends Component{
   }
 
   render(){
+    const userData = this.props.user.data
     const { getFieldDecorator } = this.props.form
     return(
       <div className='center-box'>
@@ -151,11 +151,11 @@ class UserSettings extends Component{
         <Form className='g-form-box' onSubmit={this.handleSubmit}>
           <UserImg><Avatar size={64} icon="user" /></UserImg>
 
-          <UserName>user name</UserName>
+          <UserName>{`${userData.firstName} ${userData.lastName}`}</UserName>
           <Form.Item label='First Name'>
             {
               getFieldDecorator('firstName', {
-                initialValue: 'firstName',
+                initialValue: userData.firstName,
                 rules: [{ required: true, message: 'Please enter your first name.' }],
               })(
                 <CustomInput placeholder="Given name"></CustomInput>
@@ -165,7 +165,7 @@ class UserSettings extends Component{
           <Form.Item label='Last Name'>
             {
               getFieldDecorator('lastName', {
-                initialValue: 'lastName',
+                initialValue: userData.lastName,
                 rules: [{ required: true, message: 'Please enter your last name.' }],
               })(
                 <CustomInput placeholder="Family name"></CustomInput>
