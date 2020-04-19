@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { Loading } from '@components'
-import DownloadSelect from './DownLoadSelect'
+import DownloadSelect from './DownloadSelect'
 const VideoItem = styled.div`
   display: inline-block;
   position: relative;
