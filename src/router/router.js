@@ -1,7 +1,8 @@
 import {
   ChirpJoin,
   SignupForm,
-  ChirpSetting
+  ChirpSetting,
+  ForgotPassword
 } from '@pages'
 import SigninPage from '@containers/SigninPage'
 import ChirpPage from '@containers/ChirpPage'
@@ -9,7 +10,7 @@ import UserSettingPage from '@containers/UserSettingPage'
 const routes = [
   { path: '/',
     exact: true,
-    component: SigninPage,
+    component: ChirpJoin,
     requiresAuth: false,
   },
   {
@@ -25,22 +26,28 @@ const routes = [
     requiresAuth: false,
   },
   {
+    path: '/forgotpassword',
+    exact: true,
+    component: ForgotPassword,
+    requiresAuth: false,
+  },
+  {
     path: '/chirpjoin',
     exact: true,
     component: ChirpJoin,
-    requiresAuth: true,
+    requiresAuth: false,
   },
   {
     path: '/chirpindex',
     exact: true,
     component: ChirpPage,
-    requiresAuth: true,
+    requiresAuth: false,
   },
   {
     path: '/chirpsetting',
     exact: true,
     component: ChirpSetting,
-    requiresAuth: true,
+    requiresAuth: false,
   },
   {
     path: '/user/settings',

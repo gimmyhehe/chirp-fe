@@ -7,7 +7,7 @@ import RouterMap from './router/RouterMap'
 import history from './router/history'
 import { store } from './store'
 import cookies from '@utils/cookies'
-import { doLogin } from './actions/user'
+import { doLogin, anonymousLoginAct } from './actions/user'
 
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import 'nprogress/nprogress.css'
@@ -16,17 +16,18 @@ import './App.less'
 import './antd.less'
 
 Calendar.setLocalizer(Calendar.momentLocalizer(moment))
-
+console.log('66666666666666666666666666666666666')
 if(cookies.get('password')){
   let values = {
-    email: cookies.get('userName'),
+    email: cookies.get('userEmail'),
     password: cookies.get('password'),
     deviceID: '123'
   }
   store.dispatch(doLogin(values)).then(()=>{
   })
+}else{
+  store.dispatch(anonymousLoginAct())
 }
-
 
 render((
   <Provider store={store}>

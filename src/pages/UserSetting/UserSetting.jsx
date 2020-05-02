@@ -1,10 +1,9 @@
 import React,{ Component } from 'react'
 import styled,{ keyframes } from 'styled-components'
 import { fadeInUp } from 'react-animations'
-import api from '../../api'
-import { shouldContainLetters, shouldContainNumber, shouldNotHaveSpecialChar } from '../../utils/validation'
-import cookies from '../../utils/cookies'
-import { Form, Input, Alert, Avatar } from 'antd'
+import api from '@/api'
+import { shouldContainLetters, shouldContainNumber, shouldNotHaveSpecialChar } from '@/utils/validation'
+import { Form, Input, Alert, Avatar, message } from 'antd'
 import { Button } from '@components'
 import NProgress from 'nprogress'
 
@@ -72,24 +71,18 @@ class UserSettings extends Component{
     this.props.form.validateFields(async (err, values) => {
       if (!err) {
         NProgress.start()
-        values = {
+        let params = {
+          token: this.props.user.token,
           firstName: values.firstName,
           lastName: values.lastName,
-          password: values.password,
-          email: values.email,
+          password: values.password
         }
         try {
-          const response = await api.signUp(values)
+          const response = await api.modifyUser(params)
           console.log(response)
           if (response.code === 0) {
-            values = response.data
-            cookies.set('userName', values.email)
-            cookies.set('businessId', 0)
             NProgress.done()
-            this.setState({
-              error: false
-            })
-            alert('sign up success!')
+            message.success('modify userInfo success!')
             // const login = await Promise.resolve(
             //   api.login({
             //     emailAddress: values.emailAddress,
@@ -97,27 +90,16 @@ class UserSettings extends Component{
             //   })
             // )
             // if(login.code === 200) this.props.history.push('/home')
-          } else if(response.code === 400) {
+          }else {
             NProgress.done()
-            if(response.message === 'This email has been registered') {
-              this.setState({
-                error: true,
-                errorMsg: 'Email Address already being used'
-              })
-            }
-          } else {
-            NProgress.done()
-            this.setState({
-              error: true,
-              errorMsg: 'Currently sign up service not avaliable Please retry later'
-            })
+            message.error(response.message)
           }
         } catch (err) {
           NProgress.done()
           console.log(err)
           this.setState({
             error: true,
-            errorMsg: 'Currently sign up service not avaliable Please retry later'
+            errorMsg: 'Currently service not avaliable Please retry later'
           })
         }
       }
@@ -148,7 +130,7 @@ class UserSettings extends Component{
           ) : null
         }
         <Title>User Setting</Title>
-        <Form className='g-form-box' onSubmit={this.handleSubmit}>
+        <Form className='g-form-box'>
           <UserImg><Avatar size={64} icon="user" /></UserImg>
 
           <UserName>{`${userData.firstName} ${userData.lastName}`}</UserName>
@@ -211,7 +193,7 @@ class UserSettings extends Component{
           </Form.Item>
           <ButtonBox>
             <Button style={{width:'152px', maxWidth: '10rem', height:'48px'}} type='normal'>Cancel</Button>
-            <Button style={{width:'152px', maxWidth: '10rem', height:'48px',marginRight:'0'}} type='primary'>Save</Button>
+            <Button style={{width:'152px', maxWidth: '10rem', height:'48px',marginRight:'0'}} onClick={this.handleSubmit} type='primary'>Save</Button>
           </ButtonBox>
         </Form>
       </div>

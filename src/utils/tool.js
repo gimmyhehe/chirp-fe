@@ -1,11 +1,3 @@
-/*
- * @Author: your name
- * @Date: 2019-12-27 00:12:36
- * @LastEditTime: 2020-03-08 18:14:24
- * @LastEditors: Please set LastEditors
- * @Description: In User Settings Edit
- * @FilePath: \chrip-fe\src\utils\tool.js
- */
 import moment from 'moment'
 /**
  * @description: 生成uid

@@ -214,9 +214,9 @@ export default function ChirpInput(){
   function Upload() {
     return (
       <UploadBox>
-        <div onClick={ selectFile.bind(this, 'file') } >Upload File</div>
-        <div onClick={ selectFile.bind(this, 'image') } >Upload Image</div>
+        <div onClick={ selectFile.bind(this, 'image') } >Upload Photo</div>
         <div onClick={ selectFile.bind(this, 'video') } >Upload Video</div>
+        <div onClick={ selectFile.bind(this, 'file') } >Upload File</div>
       </UploadBox>
     )
   }

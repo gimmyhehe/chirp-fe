@@ -38,14 +38,20 @@ export default (state = initState, action) => {
       return {
         ...state,
         ...action.user,
-        isLogin: true,
-        loading: false
+        isLogin: true
       }
     case actionTypes.LOGIN_REJECTED:
       return {
         ...state,
         error: action.error,
         loading: false
+      }
+    case actionTypes.ANONYMOUS_LOGIN_FULFILLED:
+      return{
+        ...state,
+        ...action.user,
+        isLogin: false,
+        anonymous: true
       }
     case actionTypes.LOGOUT:
       return {

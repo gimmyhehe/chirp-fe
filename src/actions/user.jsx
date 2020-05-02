@@ -1,14 +1,16 @@
 import {
   USER_INFO_PENDING, USER_INFO_FULFILLED, USER_INFO_REJECTED,
   LOGIN_FULFILLED, LOGIN_REJECTED,
+  ANONYMOUS_LOGIN_FULFILLED, ANONYMOUS_LOGIN_REJECTED,
   LOGOUT,
 } from '@constants/userActionTypes'
 import api from '@api'
+import { getChirpUid } from '@utils/localStroage'
 import cookies from '@utils/cookies'
 import { getChirpList } from './chirps'
 import NProgress from 'nprogress'
-import { message } from 'antd'
-export function getUserInfo(userName, businessId) {
+
+export function getUserInfo() {
   return async dispatch => {
     dispatch({ type: USER_INFO_PENDING, data: 'loading' })
     try {
@@ -45,10 +47,42 @@ export function doLogin(param){
         await dispatch(getChirpList())
         NProgress.done()
         dispatch({ type: LOGIN_FULFILLED, user: { uid, token } })
+        return { error: null, res: '' }
       } else {
-        message.error(response.msg)
         dispatch({ type: LOGIN_REJECTED, data: 'login fail!' })
         NProgress.done()
+        return { error: 'login fail', res: '' }
+      }
+    })
+
+  }
+}
+
+export function anonymousLoginAct() {
+  return async dispatch => {
+    NProgress.start()
+    var chirpUid = getChirpUid()
+    chirpUid = 'asdforworsazcx12'
+    return api.anonymousLogin({ authToken: chirpUid, isAnonymous: 1 }).then(async (response)=>{
+      console.log(response)
+      if (response.code == 10007) {
+        let { uid  } = response
+        cookies.set('uid',uid)
+        await dispatch(getChirpList())
+        NProgress.done()
+        dispatch({
+          type: USER_INFO_FULFILLED,
+          data: {
+            firstName: 'Anonymous',
+            lastName: chirpUid.slice(0,8)
+          }
+        })
+        dispatch({ type: ANONYMOUS_LOGIN_FULFILLED, user: { uid } })
+        return { error: null, res: '' }
+      } else {
+        dispatch({ type: ANONYMOUS_LOGIN_REJECTED, data: 'login fail!' })
+        NProgress.done()
+        return { error: 'login fail', res: '' }
       }
     })
 

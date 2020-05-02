@@ -268,20 +268,21 @@ class ChirpIndex extends Component{
                 <PhotosTab
                   photosList = { photosList }
                   currentChirp = {currentChirp}
-                  tabInfo = {{key : 2 ,activeKey : this.state.activeKey}} />
+                />
               </TabPane>
-              <TabPane tab="File" key="3">
-                <FileTab
-                  fileList ={fileList}
-                  currentChirp = {currentChirp}
-                  tabInfo = {{key : 2 ,activeKey : this.state.activeKey}} />
-              </TabPane>
-              <TabPane tab="Video" key="4">
+              <TabPane tab="Video" key="3">
                 <VideosTab
                   videoList ={videoList}
                   currentChirp = {currentChirp}
-                  tabInfo = {{key : 2 ,activeKey : this.state.activeKey}} />
+                />
               </TabPane>
+              <TabPane tab="File" key="4">
+                <FileTab
+                  fileList ={fileList}
+                  currentChirp = {currentChirp}
+                />
+              </TabPane>
+
             </CustomTab>
         }
       </CustomLayout>

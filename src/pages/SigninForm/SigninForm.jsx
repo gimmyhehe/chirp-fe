@@ -60,11 +60,12 @@ class SigninForm extends Component{
           deviceID: '123'
         }
         try {
-          this.props.doLogin(values).then(()=>{
+          this.props.doLogin(values).then((res)=>{
+            console.log(res)
             let { user } = store.getState()
             if(user.isLogin){
-              cookies.set('userName', values.email)
-              cookies.set('password', values.password)
+              cookies.set('userEmail', values.email, { expires: '1d' })
+              cookies.set('password', values.password, { expires: '1d' })
               let prevLocation =
               this.props.location.state && this.props.location.state.from
               let to = prevLocation ? prevLocation : { pathname: 'chirpindex' }
@@ -82,13 +83,11 @@ class SigninForm extends Component{
       }
     })
   }
-  componentDidMount(){
-    if(this.props.user.uid){
-      this.props.history.replace('/chirpindex')
-    }
-  }
 
   render(){
+    if(this.props.user.isLogin){
+      this.props.history.replace('/')
+    }
     const { getFieldDecorator } = this.props.form
     return(
       <div>
@@ -126,7 +125,7 @@ class SigninForm extends Component{
               )
             }
           </Form.Item>
-          <ForgotPwd to='/signup'>Forgot Password?</ForgotPwd>
+          <ForgotPwd to='/forgotpassword'>Forgot Password?</ForgotPwd>
           <SigninButton type='primary' htmlType="submit">Sign In</SigninButton>
           <SignupLink to='/signup'>No Account? Create One</SignupLink>
         </Form>

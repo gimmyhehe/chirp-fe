@@ -107,7 +107,7 @@ const userLinks = [
 ]
 
 const  linkList = {
-  home : { key: 'home' , to: '/'},
+  home : { key: 'home' , to: '/chirpindex'},
   signin : { key: 'signin' , to: '/signin'},
   signup : { key: 'signup' , to: '/signup'},
 }
@@ -124,7 +124,7 @@ const anonymousDropdown = ()=>(
 class AppLayout extends Component{
   onUserLinkSelect = item => {
     if (item.key === 'Log Out') {
-      cookies.remove('userName')
+      cookies.remove('userEmail')
       cookies.remove('password')
       cookies.remove('uid')
       cookies.remove('chirp-token')
@@ -142,7 +142,7 @@ class AppLayout extends Component{
   }
   render(){
     const userInfo = this.props.user
-    const userName = userInfo.userName
+    const { userName, isLogin } = userInfo
     const DropdwonMenu = (
       <Menu >
         {userLinks.map(({ to, text }) => (
@@ -159,7 +159,7 @@ class AppLayout extends Component{
           <Logo to={linkList.home.to} onClick={this.handleJump}>Chirp</Logo>
           <Title>Chirps</Title>
           {
-            userName ?
+            userName && isLogin ?
               <HeaderRight>
                 <Dropdown overlay={DropdwonMenu} placement="bottomCenter" trigger={['click']}>
                   <User>

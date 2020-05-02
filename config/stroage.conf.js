@@ -1,0 +1,1 @@
+export const ANONYMOUS_UID = 'ANONYMOUS_UID'
