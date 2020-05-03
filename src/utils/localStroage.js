@@ -1,4 +1,4 @@
-import { ANONYMOUS_UID } from '../../config/stroage.conf'
+import { ANONYMOUS_UID } from '@/../config/stroage.conf'
 import { guid } from '@utils/tool'
 if( !window.localStorage){
   alert('Your browser is not support localStorage!')

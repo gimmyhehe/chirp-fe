@@ -4,6 +4,7 @@ import { doLogout } from '@actions/user'
 import { serialize } from '@utils/tool'
 import NProgress from 'nprogress'
 import { message } from 'antd'
+import { USER_TOKEN, USER_UID } from '@/../config/stroage.conf'
 import cookies from '@utils/cookies'
 function SocketBase(obj){
   this.params = obj.params
@@ -158,7 +159,7 @@ SocketBase.prototype.connect = function () {
 
 SocketBase.prototype.initServerListener = function() {
   this.addServerListener(11, (res)=> {
-    if(cookies.get('uid') == res.data.from){
+    if(cookies.get(USER_UID) == res.data.from){
       return
     }else{
       let item =res.data
@@ -253,7 +254,7 @@ export function socketLogin(params) {
 }
 
 export function socketLogout() {
-  cookies.remove('uid')
+  cookies.remove(USER_UID)
   cookies.remove('userEmail')
   cookies.remove('password')
   store.dispatch(doLogout())

@@ -1,6 +1,7 @@
 import { connect } from 'react-redux'
 import { ChirpIndex } from '@pages'
 import cookies from '@utils/cookies'
+import { USER_TOKEN, USER_UID } from '@/../config/stroage.conf'
 // chirpSetting={},chirpMessage=[], fileList = [], videoList = []
 
 const getChirpSetting = (currentChirp)=> {
@@ -21,7 +22,7 @@ const getList = (allChirpsMessage, chirpId) =>{
   msgList = allChirpsMessage[chirpId]
 
   msgList.forEach(element => {
-    if(element.from == cookies.get('uid')){
+    if(element.from == cookies.get(USER_UID)){
       element.isSelf = true
     }else{
       element.isSelf = false

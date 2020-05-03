@@ -19,6 +19,7 @@ import {
   UPDATE_CHIRP_SETTING
 
 } from '@constants/actionTypes'
+import { USER_TOKEN, USER_UID } from '@/../config/stroage.conf'
 import cookies from '@utils/cookies'
 import { get_filemd5sum } from '@utils/fileHandle'
 import { getImgWH } from '@utils/imageHandle'
@@ -31,7 +32,7 @@ export function getChirpList() {
     try {
       let params ={
         cmd: 25,
-        memberId: cookies.get('uid')
+        memberId: cookies.get(USER_UID)
       }
       const { data, error } = await api.getChirpList(params)
       if(error){
@@ -100,7 +101,7 @@ export function appendImg(chirpFile){
 
     var formData = new FormData()
     formData.append('chirpId', chirpId)
-    formData.append('userId', cookies.get('uid'))
+    formData.append('userId', cookies.get(USER_UID))
     formData.append('fileName', file.name)
     var md5Str =  await get_filemd5sum(file)
     formData.append('md5',md5Str)
@@ -145,7 +146,7 @@ export function appendFile(chirpFile){
 
     var formData = new FormData()
     formData.append('chirpId', chirpId)
-    formData.append('userId', cookies.get('uid'))
+    formData.append('userId', cookies.get(USER_UID))
     formData.append('fileName', file.name)
     var md5Str =  await get_filemd5sum(file)
     formData.append('md5',md5Str)

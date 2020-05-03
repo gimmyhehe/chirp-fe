@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import { Icon, Dropdown, message } from 'antd'
 import { readDiskFile } from '@/utils/fileHandle'
 import { useSelector, useDispatch  } from 'react-redux'
+import { USER_TOKEN, USER_UID } from '@/../config/stroage.conf'
 import { sendMsg, sendMsgSuccess, sendImg, appendImg, appendFile } from '@actions/chirps'
 import Picker from  './EmojiPicker'
 import xss from '@utils/xss'
@@ -68,7 +69,7 @@ export default function ChirpInput(){
     }
   }
   async function selectFile(fileType) {
-    if(currentChirp.uploadPermissionEnabled != 1  && cookies.get('uid')!= currentChirp.hostUid ){
+    if(currentChirp.uploadPermissionEnabled != 1  && cookies.get(USER_UID)!= currentChirp.hostUid ){
       message.warn('sorry this chirp does not open the upload permission')
       return false
     }
@@ -84,7 +85,7 @@ export default function ChirpInput(){
     const sendFileList = []
     let msgItem = {
       id,
-      'from': cookies.get('uid'),
+      'from': cookies.get(USER_UID),
       'fromName': userName,
       'createTime': Date.now(),
       'cmd':11,
@@ -184,7 +185,7 @@ export default function ChirpInput(){
     if ( input.value == '' ) return
 
     let params = {
-      'from': cookies.get('uid'),
+      'from': cookies.get(USER_UID),
       'createTime': Date.now(),
       'cmd':11,
       'group_id': currentChirp.id,

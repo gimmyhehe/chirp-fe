@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import {AppSider} from '@components'
 import { connect } from 'react-redux'
 import { Layout, Tabs,Input,Popover, message } from 'antd'
+import { USER_TOKEN, USER_UID } from '@/../config/stroage.conf'
 import {  Button } from '@components'
 import cookies from '@utils/cookies'
 import AllMessageTab from './AllMessageTab'
@@ -174,7 +175,7 @@ class ChirpIndex extends Component{
 
   }
   handleSettings = (chirp) =>{
-    if(cookies.get('uid') !=  chirp.hostUid){
+    if(cookies.get(USER_UID) !=  chirp.hostUid){
       message.warn('you are not the owner of this chirp')
     }
   }
@@ -220,7 +221,7 @@ class ChirpIndex extends Component{
     }
     const SettingPover = ()=> {
       return (
-        cookies.get('uid') ==  currentChirp.hostUid ?
+        cookies.get(USER_UID) ==  currentChirp.hostUid ?
           <ChirpSettingForm hide = { this.hideSetting } {...this.props.chirps} chirpSetting = {chirpSetting} />
           : null
       )
@@ -255,7 +256,7 @@ class ChirpIndex extends Component{
       <CustomLayout>
         <AppSider></AppSider>
         {
-          !cookies.get('uid') || currentChirp == null ? null :
+          !cookies.get(USER_UID) || currentChirp == null ? null :
             <CustomTab tabBarExtraContent={<TabBarExtraContent/>} onChange={(activeKey)=>{this.setState({activeKey})}}>
               <TabPane tab="All" key="1">
                 <AllMessageTab

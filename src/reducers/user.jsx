@@ -1,10 +1,10 @@
 import * as actionTypes from '@constants/userActionTypes'
-// import { user } from '@utils/storage'
+import { USER_TOKEN, USER_UID } from '@/../config/stroage.conf'
 import cookie from '@utils/cookies'
 const initState = {
   data: {},
   userName : null,
-  uid : cookie.get('uid')
+  uid : cookie.get(USER_UID)
 }
 export default (state = initState, action) => {
   switch (action.type) {
@@ -33,8 +33,8 @@ export default (state = initState, action) => {
         loading: true
       }
     case actionTypes.LOGIN_FULFILLED:
-      cookie.set('uid',action.user.uid)
-      cookie.set('chirp-token',action.user.token)
+      cookie.set(USER_UID,action.user.uid)
+      cookie.set(USER_TOKEN,action.user.token)
       return {
         ...state,
         ...action.user,

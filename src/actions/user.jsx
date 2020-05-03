@@ -5,6 +5,7 @@ import {
   LOGOUT,
 } from '@constants/userActionTypes'
 import api from '@api'
+import { USER_TOKEN, USER_UID } from '@/../config/stroage.conf'
 import { getChirpUid } from '@utils/localStroage'
 import cookies from '@utils/cookies'
 import { getChirpList } from './chirps'
@@ -17,7 +18,7 @@ export function getUserInfo() {
       let params ={
         cmd: 17,
         type: '0',
-        uid: cookies.get('uid')
+        uid: cookies.get(USER_UID)
       }
       let res = await api.getUserInfo(params)
       if(res.error) throw new Error('get userInfo fail')
@@ -41,8 +42,8 @@ export function doLogin(param){
     return api.login(param).then(async (response)=>{
       if (response.code == 10007) {
         let { uid ,token } = response
-        cookies.set('uid',uid)
-        cookies.set('chirp-token',token)
+        cookies.set(USER_UID,uid)
+        cookies.set(USER_TOKEN,token)
         await dispatch(getUserInfo())
         await dispatch(getChirpList())
         NProgress.done()
@@ -67,7 +68,7 @@ export function anonymousLoginAct() {
       console.log(response)
       if (response.code == 10007) {
         let { uid  } = response
-        cookies.set('uid',uid)
+        cookies.set(USER_UID,uid)
         await dispatch(getChirpList())
         NProgress.done()
         dispatch({

@@ -6,6 +6,7 @@ import { connect } from 'react-redux'
 import cookies from '@utils/cookies'
 import { withRouter } from 'react-router-dom'
 import api from '@api'
+import { USER_TOKEN, USER_UID } from '@/../config/stroage.conf'
 // import yueyiTTF from '@assets/yueyi.ttf'
 import {Link} from 'react-router-dom'
 import defaultAvatar from '@assets/icon/user.png'
@@ -126,8 +127,8 @@ class AppLayout extends Component{
     if (item.key === 'Log Out') {
       cookies.remove('userEmail')
       cookies.remove('password')
-      cookies.remove('uid')
-      cookies.remove('chirp-token')
+      cookies.remove(USER_UID)
+      cookies.remove(USER_TOKEN)
       NProgress.start()
       api.logout().then(() => {
         NProgress.done()
