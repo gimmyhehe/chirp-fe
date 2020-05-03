@@ -1,7 +1,7 @@
 import { connect } from 'react-redux'
 import { ChirpIndex } from '@pages'
 import cookies from '@utils/cookies'
-import { USER_TOKEN, USER_UID } from '@/../config/stroage.conf'
+import { USER_UID } from '@/../config/stroage.conf'
 // chirpSetting={},chirpMessage=[], fileList = [], videoList = []
 
 const getChirpSetting = (currentChirp)=> {

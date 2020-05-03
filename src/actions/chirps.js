@@ -19,7 +19,7 @@ import {
   UPDATE_CHIRP_SETTING
 
 } from '@constants/actionTypes'
-import { USER_TOKEN, USER_UID } from '@/../config/stroage.conf'
+import { USER_UID } from '@/../config/stroage.conf'
 import cookies from '@utils/cookies'
 import { get_filemd5sum } from '@utils/fileHandle'
 import { getImgWH } from '@utils/imageHandle'

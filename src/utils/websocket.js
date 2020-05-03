@@ -4,7 +4,7 @@ import { doLogout } from '@actions/user'
 import { serialize } from '@utils/tool'
 import NProgress from 'nprogress'
 import { message } from 'antd'
-import { USER_TOKEN, USER_UID } from '@/../config/stroage.conf'
+import { USER_UID } from '@/../config/stroage.conf'
 import cookies from '@utils/cookies'
 function SocketBase(obj){
   this.params = obj.params
