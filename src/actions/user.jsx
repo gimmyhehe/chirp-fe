@@ -3,6 +3,7 @@ import {
   LOGIN_FULFILLED, LOGIN_REJECTED,
   ANONYMOUS_LOGIN_FULFILLED, ANONYMOUS_LOGIN_REJECTED,
   LOGOUT,
+  UPDATE_USER
 } from '@constants/userActionTypes'
 import api from '@api'
 import { USER_TOKEN, USER_UID } from '@/../config/stroage.conf'
@@ -36,6 +37,14 @@ export function getUserInfo() {
   }
 }
 
+export function updateUser(user) {
+  cookies.set(USER_TOKEN, user.authToken)
+  return {
+    type: UPDATE_USER,
+    playload: user
+  }
+}
+
 export function doLogin(param){
   return async dispatch => {
     NProgress.start()
@@ -63,21 +72,14 @@ export function anonymousLoginAct() {
   return async dispatch => {
     NProgress.start()
     var chirpUid = getChirpUid()
-    chirpUid = 'asdforworsazcx12'
     return api.anonymousLogin({ authToken: chirpUid, isAnonymous: 1 }).then(async (response)=>{
       console.log(response)
       if (response.code == 10007) {
         let { uid  } = response
         cookies.set(USER_UID,uid)
+        await dispatch(getUserInfo())
         await dispatch(getChirpList())
         NProgress.done()
-        dispatch({
-          type: USER_INFO_FULFILLED,
-          data: {
-            firstName: 'Anonymous',
-            lastName: chirpUid.slice(0,8)
-          }
-        })
         dispatch({ type: ANONYMOUS_LOGIN_FULFILLED, user: { uid } })
         return { error: null, res: '' }
       } else {

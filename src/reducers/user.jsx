@@ -1,5 +1,5 @@
 import * as actionTypes from '@constants/userActionTypes'
-import { USER_TOKEN, USER_UID } from '@/../config/stroage.conf'
+import { USER_UID } from '@/../config/stroage.conf'
 import cookie from '@utils/cookies'
 const initState = {
   data: {},
@@ -17,7 +17,7 @@ export default (state = initState, action) => {
 
       return {
         ...state,
-        data: action.data,
+        ...action.data,
         userName : action.data.firstName + ' ' + action.data.lastName,
         loading: false
       }
@@ -33,8 +33,6 @@ export default (state = initState, action) => {
         loading: true
       }
     case actionTypes.LOGIN_FULFILLED:
-      cookie.set(USER_UID,action.user.uid)
-      cookie.set(USER_TOKEN,action.user.token)
       return {
         ...state,
         ...action.user,
@@ -52,6 +50,11 @@ export default (state = initState, action) => {
         ...action.user,
         isLogin: false,
         anonymous: true
+      }
+    case actionTypes.UPDATE_USER:
+      return{
+        ...state,
+        userName: action.playload.firstName + ' ' + action.playload.lastName
       }
     case actionTypes.LOGOUT:
       return {

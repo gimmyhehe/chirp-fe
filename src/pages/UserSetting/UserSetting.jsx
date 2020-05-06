@@ -3,7 +3,7 @@ import styled,{ keyframes } from 'styled-components'
 import { fadeInUp } from 'react-animations'
 import api from '@/api'
 import { shouldContainLetters, shouldContainNumber, shouldNotHaveSpecialChar } from '@/utils/validation'
-import { Form, Input, Alert, Avatar, message } from 'antd'
+import { Form, Input, Alert, Avatar, message, Modal } from 'antd'
 import { Button } from '@components'
 import NProgress from 'nprogress'
 
@@ -66,6 +66,20 @@ class UserSettings extends Component{
     }
   }
 
+  resetPassword = ()=> {
+    Modal.info({
+      title: 'Reset password success',
+      content: (
+        <p>reset password success! you should relogin now! </p>
+      ),
+      async onOk() {
+        await api.logout().then(() => {
+        }).catch((error)=>{ console.error(`logout error ${error}`) })
+        this.props.history.replace('/signin')
+      },
+    })
+  }
+
   handleSubmit = (e) =>{
     e.preventDefault()
     this.props.form.validateFields(async (err, values) => {
@@ -82,14 +96,13 @@ class UserSettings extends Component{
           console.log(response)
           if (response.code === 0) {
             NProgress.done()
-            message.success('modify userInfo success!')
-            // const login = await Promise.resolve(
-            //   api.login({
-            //     emailAddress: values.emailAddress,
-            //     hashedPassword: values.hashedPassword,
-            //   })
-            // )
-            // if(login.code === 200) this.props.history.push('/home')
+            if(values.password){
+              this.resetPassword()
+            }else{
+              message.success('modify userInfo success!')
+              this.props.updateUser(response.data)
+            }
+
           }else {
             NProgress.done()
             message.error(response.message)
@@ -106,9 +119,57 @@ class UserSettings extends Component{
     })
   }
 
+  handleCancel = ()=> {
+    this.props.form.setFieldsValue(
+      {
+        firstName: this.props.user.firstName,
+        lastName: this.props.user.lastName,
+        password: undefined,
+        confirm: undefined
+      }
+    )
+  }
   render(){
-    const userData = this.props.user.data
+    const userData = this.props.user
     const { getFieldDecorator } = this.props.form
+    const getPasswordRules = ()=> {
+      if( this.props.form.getFieldValue('password') || this.props.form.getFieldValue('confirm') ){
+        return {
+          rules: [{
+            required: true, message: 'Please enter your password.',
+          }, {
+            validator: this.validateToNextPassword,
+          }, {
+            min: 8, message: 'The password should contain at least 8 characters, at least one number and at least one letter. Upper case letter and special letter are not recommended.'
+          }, {
+            validator: shouldContainLetters
+          }, {
+            validator: shouldContainNumber
+          }, {
+            validator: shouldNotHaveSpecialChar
+          }], validateFirst: true,
+          validateTrigger: ['onBlur']
+        }
+      }else{
+        return {}
+      }
+    }
+
+    const getConfirmRules = ()=> {
+      if( this.props.form.getFieldValue('password') || this.props.form.getFieldValue('confirm') ){
+        return {
+          rules: [{
+            required: true, message: 'Please confirm your password!',
+          }, {
+            validator: this.compareToFirstPassword,
+          }],
+          validateTrigger: ['onBlur']
+        }
+      }else{
+        return {}
+      }
+    }
+
     return(
       <div className='center-box'>
         {
@@ -140,7 +201,7 @@ class UserSettings extends Component{
                 initialValue: userData.firstName,
                 rules: [{ required: true, message: 'Please enter your first name.' }],
               })(
-                <CustomInput placeholder="Given name"></CustomInput>
+                <CustomInput placeholder="First Name"></CustomInput>
               )
             }
           </Form.Item>
@@ -156,22 +217,7 @@ class UserSettings extends Component{
           </Form.Item>
           <Form.Item label='New Password'>
             {
-              getFieldDecorator('password', {
-                rules: [{
-                  required: true, message: 'Please enter your password.',
-                }, {
-                  validator: this.validateToNextPassword,
-                }, {
-                  min: 8, message: 'The password should contain at least 8 characters, at least one number and at least one letter. Upper case letter and special letter are recommended.'
-                }, {
-                  validator: shouldContainLetters
-                }, {
-                  validator: shouldContainNumber
-                }, {
-                  validator: shouldNotHaveSpecialChar
-                }], validateFirst: true,
-                validateTrigger: ['onBlur']
-              })(
+              getFieldDecorator('password', getPasswordRules())(
                 <CustomInput  type="password" placeholder="Your password"></CustomInput>
               )
             }
@@ -179,20 +225,17 @@ class UserSettings extends Component{
           </Form.Item>
           <Form.Item label='Confirm Password'>
             {
-              getFieldDecorator('confirm', {
-                rules: [{
-                  required: true, message: 'Please confirm your password!',
-                }, {
-                  validator: this.compareToFirstPassword,
-                }],
-                validateTrigger: ['onBlur']
-              })(
+              getFieldDecorator('confirm', getConfirmRules())(
                 <CustomInput  type="password" placeholder="Type password again"></CustomInput>
               )
             }
           </Form.Item>
           <ButtonBox>
-            <Button style={{width:'152px', maxWidth: '10rem', height:'48px'}} type='normal'>Cancel</Button>
+            <Button
+              style={{width:'152px', maxWidth: '10rem', height:'48px'}}
+              type='normal'
+              onClick = { this.handleCancel }
+            >Cancel</Button>
             <Button style={{width:'152px', maxWidth: '10rem', height:'48px',marginRight:'0'}} onClick={this.handleSubmit} type='primary'>Save</Button>
           </ButtonBox>
         </Form>

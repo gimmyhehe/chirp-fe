@@ -4,7 +4,7 @@ import { doLogout } from '@actions/user'
 import { serialize } from '@utils/tool'
 import NProgress from 'nprogress'
 import { message } from 'antd'
-import { USER_UID } from '@/../config/stroage.conf'
+import { USER_UID, USER_TOKEN } from '@/../config/stroage.conf'
 import cookies from '@utils/cookies'
 function SocketBase(obj){
   this.params = obj.params
@@ -18,7 +18,8 @@ function SocketBase(obj){
       this.timeoutObj && clearTimeout(this.timeoutObj)
       this.serverTimeoutObj && clearTimeout(this.serverTimeoutObj)
       this.timeoutObj = setTimeout(function(){
-        window.appSocket.send('heartCheck','test heart beat')
+        const heartBeatParams = { cmd: 13, data: { hbbyte: -127 } }
+        window.appSocket.send(13, JSON.stringify(heartBeatParams), ()=>{})
         self.serverTimeoutObj = setTimeout(function(){
           window.appSocket.isHeartflag = false
           window.appSocket.reConnect()
@@ -255,6 +256,7 @@ export function socketLogin(params) {
 
 export function socketLogout() {
   cookies.remove(USER_UID)
+  cookies.remove(USER_TOKEN)
   cookies.remove('userEmail')
   cookies.remove('password')
   store.dispatch(doLogout())

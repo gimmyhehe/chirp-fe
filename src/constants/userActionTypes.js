@@ -14,3 +14,5 @@ export const USER_INFO_FULFILLED = 'USER_INFO_FULFILLED'
 export const USER_INFO_REJECTED = 'USER_INFO_REJECTED'
 //用户登出
 export const LOGOUT = 'LOGOUT'
+//更新用户信息
+export const UPDATE_USER = 'UPDATE_USER'
