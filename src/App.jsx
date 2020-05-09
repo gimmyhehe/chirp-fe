@@ -16,7 +16,6 @@ import './App.less'
 import './antd.less'
 
 Calendar.setLocalizer(Calendar.momentLocalizer(moment))
-console.log('66666666666666666666666666666666666')
 if(cookies.get('password')){
   let values = {
     email: cookies.get('userEmail'),

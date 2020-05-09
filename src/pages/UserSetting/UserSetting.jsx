@@ -93,7 +93,6 @@ class UserSettings extends Component{
         }
         try {
           const response = await api.modifyUser(params)
-          console.log(response)
           if (response.code === 0) {
             NProgress.done()
             if(values.password){

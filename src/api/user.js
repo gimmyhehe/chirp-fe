@@ -7,7 +7,15 @@ export function getUserInfo(params){
 export function modifyUser(params) {
   return requests.post('/api/user/modify', params)
 }
+export function forgotPassword(params) {
+  return requests.post('/api/user/forgetPwd', params)
+}
+export function resetPassword(params) {
+  return requests.post('/api/user/reset', params)
+}
 export default {
   getUserInfo,
-  modifyUser
+  modifyUser,
+  forgotPassword,
+  resetPassword
 }

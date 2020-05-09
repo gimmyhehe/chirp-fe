@@ -2,7 +2,8 @@ import {
   ChirpJoin,
   SignupForm,
   ChirpSetting,
-  ForgotPassword
+  ForgotPassword,
+  Reset
 } from '@pages'
 import SigninPage from '@containers/SigninPage'
 import ChirpPage from '@containers/ChirpPage'
@@ -55,6 +56,12 @@ const routes = [
     component: UserSettingPage,
     requiresAuth: true, //需要登陆后才能跳转的页面
   },
+  {
+    path: '/reset',
+    exact: true,
+    component: Reset,
+    requiresAuth: false
+  }
 ]
 
 export default routes

@@ -1,8 +1,9 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Link } from 'react-router-dom'
-import { Input,Form } from 'antd'
+import api from '@/api'
+import { Input, Form, Modal, message } from 'antd'
 import { Button } from '@components'
+import nProgress from 'nprogress'
 
 const Title = styled.h1`
   font-size: 1.8rem;
@@ -11,20 +12,7 @@ const Title = styled.h1`
   font-weight: 600;
   margin-top: 5rem;
 `
-const SignupLink = styled(Link)`
-  margin: 18px 0 0;
-  text-decoration: underline;
-  text-align: center;
-  color: #000;
-  font-weight: 600;
-  font-size: 14px;
-  display: block;
-`
-const ForgotPwd = styled(SignupLink)`
-  text-decoration: underline;
-  margin: 8px 0 0 0;
-  display: inline-block;
-`
+
 const CustomInput = styled(Input)`
 &&{
   width: 327px;
@@ -47,6 +35,21 @@ function ForgotPassord(props) {
   const { getFieldDecorator } = props.form
   function handleSubmit(e) {
     e.preventDefault()
+    props.form.validateFields(async (err, values) => {
+      if(!err){
+        nProgress.start()
+        const res = await api.forgotPassword({ email: values.email })
+        nProgress.done()
+        if(res.code===0){
+          Modal.success({
+            title: 'Success',
+            content: 'An email is send to your inbox. It may take a few minutes. Please check your inbox and complete to reset your password! ',
+          })
+        }else{
+          message.error(res.message)
+        }
+      }
+    })
   }
   return (
     <div>
