@@ -18,10 +18,11 @@ const Title = styled.h1`
 class ChirpSetting extends Component{
 
   render(){
+    const search = getParams(this.props.location.search) || {}
     return(
       <div className='center-box'>
         <Title>Chirp Setting</Title>
-        <ChirpSettingFrom operation ='create' history={this.props.history} chirpName={ getParams(this.props.location.search).chirpName } />
+        <ChirpSettingFrom operation ='create' history={this.props.history} chirpName={ search.chirpName } />
       </div>
     )
   }

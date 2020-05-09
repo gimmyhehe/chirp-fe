@@ -127,7 +127,6 @@ class AppLayout extends Component{
       api.logout().then(() => {
         NProgress.done()
       }).catch((error)=>{ console.error(`logout error ${error}`) })
-      this.props.history.replace('/signin')
     }
   }
 

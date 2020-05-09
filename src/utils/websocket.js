@@ -261,5 +261,5 @@ export function socketLogout() {
   cookies.remove('password')
   store.dispatch(doLogout())
   window.appSocket.disconnect()
-  window.location.reload()
+  window.location.href = '/signin'
 }
