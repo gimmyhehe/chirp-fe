@@ -153,7 +153,7 @@ class AppLayout extends Component{
           <Logo to={linkList.home.to} onClick={this.handleJump}>Chirp</Logo>
           <Title>Chirps</Title>
           {
-            userName && isLogin ?
+            isLogin ?
               <HeaderRight>
                 <Dropdown overlay={DropdwonMenu} placement="bottomCenter" trigger={['click']}>
                   <User>
@@ -169,12 +169,12 @@ class AppLayout extends Component{
                   <Button to={linkList.signup.to} type="primary" onClick={this.handleJump}>Sign Up</Button>
                   <Button to={linkList.signin.to} type="normal" onClick={this.handleJump}>Sign In</Button>
                   <img src={defaultAvatar} alt=""/>
-                  <span>Anonymous</span>
+                  <span>{userName}</span>
                 </div>
                 <Dropdown className='s-screen' overlay={anonymousDropdown} placement="bottomCenter" trigger={['click']}>
                   <User>
                     <Avatar src={defaultAvatar} />
-                    <span>Anonymous</span>
+                    <span>{userName}</span>
                     <DownArrow />
                   </User>
                 </Dropdown>

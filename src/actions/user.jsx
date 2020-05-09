@@ -73,7 +73,6 @@ export function anonymousLoginAct() {
     NProgress.start()
     var chirpUid = getChirpUid()
     return api.anonymousLogin({ authToken: chirpUid, isAnonymous: 1 }).then(async (response)=>{
-      console.log(response)
       if (response.code == 10007) {
         let { uid  } = response
         cookies.set(USER_UID,uid)
