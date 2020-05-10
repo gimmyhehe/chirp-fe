@@ -4,11 +4,11 @@ import { doLogout } from '@actions/user'
 import { serialize } from '@utils/tool'
 import NProgress from 'nprogress'
 import { message } from 'antd'
+import { USER_UID, USER_TOKEN } from '@/../config/stroage.conf'
 import cookies from '@utils/cookies'
 function SocketBase(obj){
   this.params = obj.params
-  this.connectSuccess
-  this.connectFail
+  this.onmessageHandler={}
   this.heartCheck = {
     timeout: 15000,
     timeoutObj: null,
@@ -18,7 +18,8 @@ function SocketBase(obj){
       this.timeoutObj && clearTimeout(this.timeoutObj)
       this.serverTimeoutObj && clearTimeout(this.serverTimeoutObj)
       this.timeoutObj = setTimeout(function(){
-        window.appSocket.send('heartCheck','test heart beat')
+        const heartBeatParams = { cmd: 13, data: { hbbyte: -127 } }
+        window.appSocket.send(13, JSON.stringify(heartBeatParams), ()=>{})
         self.serverTimeoutObj = setTimeout(function(){
           window.appSocket.isHeartflag = false
           window.appSocket.reConnect()
@@ -26,19 +27,7 @@ function SocketBase(obj){
       },this.timeout)
     }
   }
-  this.handleResponse = () =>{}
 
-  this.receiveMessage = (res) =>{
-    let item =res.data
-    if(item.fileList){
-      if( typeof item.fileList == 'object' ) return
-      if(item.fileList[item.fileList.length-1] == ',') item.fileList = item.fileList.substr(0,item.fileList.length-1)
-      item.fileList = JSON.parse(item.fileList)
-      if(!(item.fileList instanceof Array)) item.fileList = [item.fileList]
-      store.dispatch(sendMsgSuccess({type:'img',index:null,chirpId:item.group_id,imgObj:item.fileList[0]}))
-    }
-    store.dispatch(setChirpList(item))
-  }
   //socket对象,用于保存原生websocket的属性、方法
   this.socket = null
   //心跳状态  为false时不能执行操作 等待重连
@@ -47,7 +36,6 @@ function SocketBase(obj){
   this.isReconnect = false
   //自定义Ws连接函数：服务器连接成功
   this.onopen = (() => {
-
   })
   //自定义Ws消息接收函数：服务器向前端推送消息时触发
   this.onmessage = (res) => {
@@ -61,47 +49,16 @@ function SocketBase(obj){
       console.log(data)
     }
     //心跳检测
-    this.heartCheck.start()
-    //不是登录请求的响应直接跳过
-    if(data.command==6) {
-
-      if(data.code!=10007){
-        NProgress.done()
-        message.error(data.msg)
-        return
-      }
-      this.loginState = true
-      this.isHeartflag = true
-      this.connectSuccess(data)
+    if(this.loginState){
+      this.heartCheck.start()
     }
-
-    if(data.command == 11 ){
-      //判断如果是自己的消息则不做处理
-      if(cookies.get('uid') == data.data.from){
-        return
-      }else{
-        this.receiveMessage(data)
-      }
-    }else if(data.command == 12 ){
-      this.emit('sendMessage',res)
-    }else if(data.command == 18 ){
-      this.emit('getUserInfo',res)
-    }else if(data.command == 22 ){
-      this.emit('createChirp',res)
-    }else if(data.command == 24 ){
-      this.emit('joinChirp',res)
-    }else if(data.command == 28 ){
-      this.emit('saveChirpSetting', res)
-    }else if(data.command == 30 ){
-      this.emit('deleteChirp',res)
-    }else if(data.command == 26 ){
-      this.emit('getChirpList',res)
-    }else if(data.command == 31 ){
-      this.emit('getHistoryMessage',res)
-    }else if(data.command == 33 ){
-      store.dispatch(deleteChirp({ chirpId: data.data, msg: data.msg, code: data.code }))
+    if(data.command && this.onmessageHandler[data.command]){
+      this.emit(data.command, data)
     }else{
-      this.emit('default',res)
+      // eslint-disable-next-line no-undef
+      if(process.env.NODE_ENV == 'development'){
+        console.error(`命令${data.command}未定义onmessageHandler方法`)
+      }
     }
   }
   //自定义Ws异常事件：Ws报错后触发
@@ -125,15 +82,19 @@ function SocketBase(obj){
   })
   this.connect()
 }
+SocketBase.prototype.addServerListener = function(command, callback) {
+  this.onmessageHandler = this.onmessageHandler || {}
+  this.onmessageHandler[command] = callback
+}
 
-SocketBase.prototype.send =
-SocketBase.prototype.addEventListener = function(event, data,callback){
+SocketBase.prototype.send  = function(command, data, callback){
   if(!this.isHeartflag){
     message.error('server disconnect! please retry later')
     return false
   }
-  this._callbacks = this._callbacks || {};
-  (this._callbacks['$' + event] = this._callbacks['$' + event] || []).unshift(callback)
+  console.log(callback)
+  this.onmessageHandler = this.onmessageHandler || {};
+  (this.onmessageHandler[command] = this.onmessageHandler[command] || []).unshift(callback)
   // eslint-disable-next-line no-undef
   if(process.env.NODE_ENV == 'development'){
     console.log('websocket 请求发送中 参数如下')
@@ -143,19 +104,24 @@ SocketBase.prototype.addEventListener = function(event, data,callback){
   return this
 }
 
-SocketBase.prototype.emit = function(event){
-  if(!this.isHeartflag) return
-  this._callbacks = this._callbacks || {}
+SocketBase.prototype.emit = function(command){
+  if(!this.isHeartflag && +command != 6) return
+  this.onmessageHandler = this.onmessageHandler || {}
 
   var args = new Array(arguments.length - 1)
-    , callbacks = this._callbacks['$' + event]
+    , callbacks = this.onmessageHandler[command]
 
   for (var i = 1; i < arguments.length; i++) {
     args[i - 1] = arguments[i]
   }
   if (callbacks) {
-    var callback = callbacks.pop()
-    callback.apply(this, args)
+    console.log(this.onmessageHandler)
+    if(callbacks instanceof Array){
+      var callback = callbacks.pop()
+      callback.apply(this, args)
+    }else{
+      callbacks.apply(this, args)
+    }
 
   }
   return this
@@ -168,12 +134,14 @@ SocketBase.prototype.connect = function () {
     alert('错误: 浏览器不支持websocket')
     return
   }
-  let paramsStr = serialize(this.params)
+  let paramsStr = typeof this.params === 'object' ? serialize(this.params) : this.params
   console.log('与服务器器连接websocket中。。。')
-  //process.env.WEBSOCKET_URL是webpack的DefinePlugin需要替换的变量
   let protocal = window.location.protocol == 'https:' ? 'wss:' : 'ws:'
+  //process.env.WEBSOCKET_URL是webpack的DefinePlugin需要替换的变量
   // eslint-disable-next-line no-undef
   this.socket = new WebSocket(protocal+process.env.WEBSOCKET_URL+`?${paramsStr}`)
+  console.log(paramsStr)
+  this.initServerListener()
   //将原生socket的各种方法绑定到自定义的Socket类上
   this.socket.onopen = (msg)=>{
     this.onopen(msg)
@@ -189,6 +157,30 @@ SocketBase.prototype.connect = function () {
     this.onmessage(res)
   }
 }
+
+SocketBase.prototype.initServerListener = function() {
+  this.addServerListener(11, (res)=> {
+    if(cookies.get(USER_UID) == res.data.from){
+      return
+    }else{
+      let item =res.data
+      if(item.fileList){
+        if( typeof item.fileList == 'object' ) return
+        if(item.fileList[item.fileList.length-1] == ',') item.fileList = item.fileList.substr(0,item.fileList.length-1)
+        item.fileList = JSON.parse(item.fileList)
+        if(!(item.fileList instanceof Array)) item.fileList = [item.fileList]
+        store.dispatch(sendMsgSuccess({type:'img',index:null,chirpId:item.group_id,imgObj:item.fileList[0]}))
+      }
+      store.dispatch(setChirpList(item))
+
+    }
+  })
+
+  this.addServerListener(33, res=> {
+    store.dispatch(deleteChirp({ chirpId: res.data, msg: res.msg, code: res.code }))
+  })
+}
+
 SocketBase.prototype.close = function(){
   this.socket.close()
 }
@@ -198,13 +190,10 @@ SocketBase.prototype.disconnect = function () {
   if(this.isHeartflag){
     this.close()
   }
-  return new Promise((resolve)=>{
-    delete this.socket
-    clearTimeout(window.appSocket.heartCheck.timeoutObj)
-    clearTimeout(window.appSocket.heartCheck.serverTimeoutObj)
-    delete window.appSocket
-    resolve('')
-  })
+  delete this.socket
+  clearTimeout(window.appSocket.heartCheck.timeoutObj)
+  clearTimeout(window.appSocket.heartCheck.serverTimeoutObj)
+  delete window.appSocket
 }
 
 SocketBase.prototype.reConnect = function () {
@@ -229,12 +218,11 @@ SocketBase.prototype.reConnect = function () {
 // })()
 
 
-export function sendRequest(params,event = 'default') {
+export function sendRequest(params, command) {
   return new Promise((reslove)=>{
     try{
-      const isConnect =  window.appSocket.send(event, JSON.stringify(params), function(res){
-        let data = JSON.parse(res.data)
-        reslove(data)
+      const isConnect =  window.appSocket.send(command, JSON.stringify(params), function(res){
+        reslove(res)
       })
       if(!isConnect){
         throw new Error('server disconnect! please retry later')
@@ -247,25 +235,31 @@ export function sendRequest(params,event = 'default') {
 
 export function socketLogin(params) {
   if(window.appSocket){
-    let response = {code:10007,command: 6,uid: cookies.get('uid'), token: cookies.get('chirp-token')}
-    return Promise.resolve(response)
+    window.appSocket.disconnect()
   }
   var appSocket = new SocketBase({params})
-  return new Promise((resolve,reject)=>{
-    appSocket.connectSuccess = (response) =>{
+  return new Promise((resolve)=>{
+    appSocket.addServerListener(6, res=> {
+      if(res.code!=10007){
+        NProgress.done()
+        message.error(res.msg)
+        resolve({ error: true })
+        return
+      }
       window.appSocket = appSocket
-      resolve(response)
-    }
-    appSocket.connectFail = (error) =>{
-      reject(error)
-    }
+      appSocket.loginState = true
+      appSocket.isHeartflag = true
+      resolve(res)
+    })
   })
 }
 
 export function socketLogout() {
-  cookies.remove('uid')
-  cookies.remove('userName')
+  cookies.remove(USER_UID)
+  cookies.remove(USER_TOKEN)
+  cookies.remove('userEmail')
   cookies.remove('password')
   store.dispatch(doLogout())
-  return window.appSocket.disconnect()
+  window.appSocket.disconnect()
+  window.location.href = '/signin'
 }

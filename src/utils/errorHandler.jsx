@@ -12,7 +12,7 @@ export function requestErrorHandler(error) {
       case 0:
       case 401:
       case 500:
-        if (!cookies.get('userName')) {
+        if (!cookies.get('userEmail')) {
           message.error('Please Login!')
           history.replace({
             pathname: '/',

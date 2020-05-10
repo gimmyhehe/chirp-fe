@@ -1,10 +1,10 @@
 import * as actionTypes from '@constants/userActionTypes'
-// import { user } from '@utils/storage'
+import { USER_UID } from '@/../config/stroage.conf'
 import cookie from '@utils/cookies'
 const initState = {
   data: {},
   userName : null,
-  uid : cookie.get('uid')
+  uid : cookie.get(USER_UID)
 }
 export default (state = initState, action) => {
   switch (action.type) {
@@ -17,7 +17,7 @@ export default (state = initState, action) => {
 
       return {
         ...state,
-        data: action.data,
+        ...action.data,
         userName : action.data.firstName + ' ' + action.data.lastName,
         loading: false
       }
@@ -33,19 +33,28 @@ export default (state = initState, action) => {
         loading: true
       }
     case actionTypes.LOGIN_FULFILLED:
-      cookie.set('uid',action.user.uid)
-      cookie.set('chirp-token',action.user.token)
       return {
         ...state,
         ...action.user,
-        isLogin: true,
-        loading: false
+        isLogin: true
       }
     case actionTypes.LOGIN_REJECTED:
       return {
         ...state,
         error: action.error,
         loading: false
+      }
+    case actionTypes.ANONYMOUS_LOGIN_FULFILLED:
+      return{
+        ...state,
+        ...action.user,
+        isLogin: false,
+        anonymous: true
+      }
+    case actionTypes.UPDATE_USER:
+      return{
+        ...state,
+        userName: action.playload.firstName + ' ' + action.playload.lastName
       }
     case actionTypes.LOGOUT:
       return {

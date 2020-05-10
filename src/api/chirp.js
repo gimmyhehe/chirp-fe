@@ -10,26 +10,26 @@ import requests from '@utils/requests'
 import { sendRequest } from '@utils/websocket'
 
 export function createChirp(params){
-  return sendRequest(params,'createChirp')
+  return sendRequest(params, 22)
 }
 export function saveChirpSetting(params){
-  return sendRequest(params,'saveChirpSetting')
+  return sendRequest(params, 28)
 }
 export function joinChirp(params) {
-  return sendRequest(params,'joinChirp')
+  return sendRequest(params, 24)
 }
 export function deleteChirp(params){
-  return sendRequest(params,'deleteChirp')
+  return sendRequest(params, 30)
 }
 export function getChirpList(params) {
-  return sendRequest(params,'getChirpList')
+  return sendRequest(params, 26)
 }
 
 export function sendMessage(params) {
-  return sendRequest(params,'sendMessage')
+  return sendRequest(params, 12)
 }
 export function getHistoryMessage(params) {
-  return sendRequest(params,'getHistoryMessage')
+  return sendRequest(params, 31)
 }
 
 

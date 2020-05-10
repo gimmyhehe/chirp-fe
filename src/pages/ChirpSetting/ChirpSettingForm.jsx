@@ -111,6 +111,24 @@ const Label = styled.span`
   font-weight:600;
 `
 
+const anonymousDaySetting = {
+  maxDay: 7,
+  defaultDay: 3,
+  marks: {
+    1: '1Day',
+    7: '7Day'
+  }
+}
+const loginDaySetting = {
+  maxDay: 365,
+  defaultDay: 30,
+  marks: {
+    1: '1Day',
+    365: '365Day'
+  }
+}
+
+
 class ChirpSettingForm extends Component{
 
   constructor(porps){
@@ -255,10 +273,7 @@ class ChirpSettingForm extends Component{
       }
     }
     const { expirationDay } = this.state
-    const marks ={
-      1: '1Day',
-      365: '365Day'
-    }
+    const daySetting = this.props.isLogin ? loginDaySetting : anonymousDaySetting
     return(
       <div>
         <Modal
@@ -279,15 +294,6 @@ class ChirpSettingForm extends Component{
             <p>Setting password will avoid people join chirp with only chirp name.</p>
             {
               this.state.pwdChecked ?
-              // getFieldDecorator('password',{
-              //   rules:[
-              //     {
-              //       required: true,
-              //       message: 'Please input your password!',
-              //     },
-              //   ],
-              //   validateTrigger: ['onBlur']
-              // })(<Input.Password style={{height:'40px'}} placeholder='type password here…' />)
                 <Input
                   style={{height:'40px'}}
                   value={this.state.password}
@@ -311,12 +317,15 @@ class ChirpSettingForm extends Component{
           </Item>
           <Item style={{borderBottom:'none'}}>
             <Label>Chirp Expiration Date</Label>
-            <CustomSlider marks={marks} min={1} max={365}
+            <CustomSlider marks={daySetting.marks} min={1} max={daySetting.maxDay}
               onChange={this.handleChange}
               tipFormatter={(value)=> `${value}Day` }
               value={expirationDay}
-              defaultValue={30} />
-            <p>You can have a maximum of 365 days if you had account with us.  </p>
+              defaultValue={daySetting.defaultDay} />
+            {
+              this.props.isLogin ? null :
+                <p>You can have a maximum of 365 days if you had account with us.  </p>
+            }
           </Item>
           <ButtonGroup />
         </FormBox>
@@ -325,4 +334,8 @@ class ChirpSettingForm extends Component{
   }
 }
 
-export default connect(null, { createChirpAction, updateChirp})(Form.create({name:'chirpSettingForm'})(ChirpSettingForm))
+const mapStateToProps = state => ({
+  isLogin: state.user.isLogin
+})
+
+export default connect(mapStateToProps, { createChirpAction, updateChirp})(Form.create({name:'chirpSettingForm'})(ChirpSettingForm))

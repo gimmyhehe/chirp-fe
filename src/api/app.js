@@ -15,6 +15,9 @@ export const logout = () => {
   return socketLogout()
 }
 
+export const anonymousLogin = (data)=> {
+  return socketLogin(data)
+}
 /**
  * 用户注册的接口
  * @param {object} data 用户注册的表单数据
@@ -25,5 +28,6 @@ export const signUp = data => requests.post('/api/user/register', data)
 export default {
   login,
   logout,
-  signUp
+  signUp,
+  anonymousLogin
 }

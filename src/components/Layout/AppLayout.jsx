@@ -3,7 +3,6 @@ import styled from 'styled-components'
 import { Layout,Avatar,Dropdown,Menu } from 'antd'
 import {  Button } from '@components'
 import { connect } from 'react-redux'
-import cookies from '@utils/cookies'
 import { withRouter } from 'react-router-dom'
 import api from '@api'
 // import yueyiTTF from '@assets/yueyi.ttf'
@@ -107,7 +106,7 @@ const userLinks = [
 ]
 
 const  linkList = {
-  home : { key: 'home' , to: '/'},
+  home : { key: 'home' , to: '/chirpindex'},
   signin : { key: 'signin' , to: '/signin'},
   signup : { key: 'signup' , to: '/signup'},
 }
@@ -124,15 +123,10 @@ const anonymousDropdown = ()=>(
 class AppLayout extends Component{
   onUserLinkSelect = item => {
     if (item.key === 'Log Out') {
-      cookies.remove('userName')
-      cookies.remove('password')
-      cookies.remove('uid')
-      cookies.remove('chirp-token')
       NProgress.start()
       api.logout().then(() => {
         NProgress.done()
       }).catch((error)=>{ console.error(`logout error ${error}`) })
-      this.props.history.replace('/signin')
     }
   }
 
@@ -142,7 +136,7 @@ class AppLayout extends Component{
   }
   render(){
     const userInfo = this.props.user
-    const userName = userInfo.userName
+    const { userName, isLogin } = userInfo
     const DropdwonMenu = (
       <Menu >
         {userLinks.map(({ to, text }) => (
@@ -159,7 +153,7 @@ class AppLayout extends Component{
           <Logo to={linkList.home.to} onClick={this.handleJump}>Chirp</Logo>
           <Title>Chirps</Title>
           {
-            userName ?
+            isLogin ?
               <HeaderRight>
                 <Dropdown overlay={DropdwonMenu} placement="bottomCenter" trigger={['click']}>
                   <User>
@@ -175,12 +169,12 @@ class AppLayout extends Component{
                   <Button to={linkList.signup.to} type="primary" onClick={this.handleJump}>Sign Up</Button>
                   <Button to={linkList.signin.to} type="normal" onClick={this.handleJump}>Sign In</Button>
                   <img src={defaultAvatar} alt=""/>
-                  <span>Anonymous</span>
+                  <span>{userName}</span>
                 </div>
                 <Dropdown className='s-screen' overlay={anonymousDropdown} placement="bottomCenter" trigger={['click']}>
                   <User>
                     <Avatar src={defaultAvatar} />
-                    <span>Anonymous</span>
+                    <span>{userName}</span>
                     <DownArrow />
                   </User>
                 </Dropdown>

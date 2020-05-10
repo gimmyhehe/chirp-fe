@@ -1,11 +1,3 @@
-/*
- * @Author: your name
- * @Date: 2019-12-27 09:01:34
- * @LastEditTime : 2019-12-27 15:09:19
- * @LastEditors  : Please set LastEditors
- * @Description: In User Settings Edit
- * @FilePath: \chrip-fe\src\utils\sessionStroage.js
- */
 import { guid } from './tool'
 const deviceIDKey = 'deviceID'
 
