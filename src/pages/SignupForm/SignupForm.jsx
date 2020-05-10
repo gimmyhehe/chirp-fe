@@ -1,9 +1,10 @@
 import React,{ Component } from 'react'
 import styled,{ keyframes } from 'styled-components'
 import { fadeInUp } from 'react-animations'
-import api from '../../api'
+import api from '@/api'
+import { browserType } from '@utils/ua'
 import { Link } from 'react-router-dom'
-import { shouldContainLetters, shouldContainNumber, shouldNotHaveSpecialChar } from '../../utils/validation'
+import { shouldContainLetters, shouldContainNumber, shouldNotHaveSpecialChar } from '@/utils/validation'
 import { doLogin } from '@actions/user'
 import { connect } from 'react-redux'
 import { Form, Input, Alert } from 'antd'
@@ -106,7 +107,7 @@ class SignupForm extends Component{
             let param = {
               email: values.email,
               password: values.password,
-              deviceID: '123'
+              deviceID: browserType()
             }
             await this.props.doLogin(param).then(()=>{
               this.props.history.replace('/')

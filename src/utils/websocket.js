@@ -73,11 +73,10 @@ function SocketBase(obj){
     this.reConnect()
   })
   //自定义Ws关闭事件：Ws连接关闭后触发
-  this.onclose = ((msg) => {
+  this.onclose = (() => {
     this.isHeartflag = false
     if(!this.loginState) return
     console.log('The websocket is close')
-    console.error(msg)
     this.reConnect()
   })
   this.connect()
@@ -92,7 +91,6 @@ SocketBase.prototype.send  = function(command, data, callback){
     message.error('server disconnect! please retry later')
     return false
   }
-  console.log(callback)
   this.onmessageHandler = this.onmessageHandler || {};
   (this.onmessageHandler[command] = this.onmessageHandler[command] || []).unshift(callback)
   // eslint-disable-next-line no-undef
@@ -115,7 +113,6 @@ SocketBase.prototype.emit = function(command){
     args[i - 1] = arguments[i]
   }
   if (callbacks) {
-    console.log(this.onmessageHandler)
     if(callbacks instanceof Array){
       var callback = callbacks.pop()
       callback.apply(this, args)
@@ -140,7 +137,10 @@ SocketBase.prototype.connect = function () {
   //process.env.WEBSOCKET_URL是webpack的DefinePlugin需要替换的变量
   // eslint-disable-next-line no-undef
   this.socket = new WebSocket(protocal+process.env.WEBSOCKET_URL+`?${paramsStr}`)
-  console.log(paramsStr)
+  // eslint-disable-next-line no-undef
+  if(process.env.NODE_ENV == 'development'){
+    console.log(paramsStr)
+  }
   this.initServerListener()
   //将原生socket的各种方法绑定到自定义的Socket类上
   this.socket.onopen = (msg)=>{

@@ -2,7 +2,8 @@ import React,{ Component } from 'react'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
 import { Input,Form } from 'antd'
-import cookies from '../../utils/cookies'
+import cookies from '@/utils/cookies'
+import { browserType } from '@utils/ua'
 import { Button } from '@components'
 import { store } from '@store'
 import NProgress from 'nprogress'
@@ -57,7 +58,7 @@ class SigninForm extends Component{
         values = {
           email: values.email,
           password: values.password,
-          deviceID: '123'
+          deviceID: browserType()
         }
         try {
           this.props.doLogin(values).then((res)=>{

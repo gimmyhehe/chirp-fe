@@ -7,6 +7,7 @@ import RouterMap from './router/RouterMap'
 import history from './router/history'
 import { store } from './store'
 import cookies from '@utils/cookies'
+import { browserType } from '@utils/ua'
 import { doLogin, anonymousLoginAct } from './actions/user'
 
 import 'react-big-calendar/lib/css/react-big-calendar.css'
@@ -20,7 +21,7 @@ if(cookies.get('password')){
   let values = {
     email: cookies.get('userEmail'),
     password: cookies.get('password'),
-    deviceID: '123'
+    deviceID: browserType()
   }
   store.dispatch(doLogin(values)).then(()=>{
   })
