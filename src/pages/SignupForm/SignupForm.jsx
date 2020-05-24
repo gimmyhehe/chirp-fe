@@ -229,7 +229,7 @@ class SignupForm extends Component{
               )
             }
           </Form.Item>
-          <SignupProtocol>By clicking sign up, you agree to our <span onClick={() => window.open('https://www.onepro.io/terms')} style={{color: '#4a90e2', textDecoration: 'underline', cursor: 'pointer'}}>Terms</span> and <span onClick={() => window.open('https://www.onepro.io/privacy')} style={{color: '#4a90e2', textDecoration: 'underline', cursor: 'pointer'}}>Privacy Policy</span>.</SignupProtocol>
+          <SignupProtocol>By clicking sign up, you agree to our <span onClick={() => window.open('https://www.mychirp.net/terms')} style={{color: '#4a90e2', textDecoration: 'underline', cursor: 'pointer'}}>Terms</span> and <span onClick={() => window.open('https://www.mychirp.net/privacy')} style={{color: '#4a90e2', textDecoration: 'underline', cursor: 'pointer'}}>Privacy Policy</span>.</SignupProtocol>
           <SigninButton type='primary' htmlType="submit">Sign Up</SigninButton>
           <SignupLink to='/signin'>Has Account? Sign In</SignupLink>
         </Form>

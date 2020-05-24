@@ -44,7 +44,7 @@ function SocketBase(obj){
       data = JSON.parse(data)
     }
     // eslint-disable-next-line no-undef
-    if(process.env.NODE_ENV == 'development'){
+    if(process.env.NODE_ENV === 'development'){
       console.log('onmessage返回结果')
       console.log(data)
     }
@@ -56,7 +56,7 @@ function SocketBase(obj){
       this.emit(data.command, data)
     }else{
       // eslint-disable-next-line no-undef
-      if(process.env.NODE_ENV == 'development'){
+      if(process.env.NODE_ENV === 'development'){
         console.error(`命令${data.command}未定义onmessageHandler方法`)
       }
     }
@@ -94,7 +94,7 @@ SocketBase.prototype.send  = function(command, data, callback){
   this.onmessageHandler = this.onmessageHandler || {};
   (this.onmessageHandler[command] = this.onmessageHandler[command] || []).unshift(callback)
   // eslint-disable-next-line no-undef
-  if(process.env.NODE_ENV == 'development'){
+  if(process.env.NODE_ENV === 'development'){
     console.log('websocket 请求发送中 参数如下')
     console.log(data)
   }
@@ -138,7 +138,7 @@ SocketBase.prototype.connect = function () {
   // eslint-disable-next-line no-undef
   this.socket = new WebSocket(protocal+process.env.WEBSOCKET_URL+`?${paramsStr}`)
   // eslint-disable-next-line no-undef
-  if(process.env.NODE_ENV == 'development'){
+  if(process.env.NODE_ENV === 'development'){
     console.log(paramsStr)
   }
   this.initServerListener()
