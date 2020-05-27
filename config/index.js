@@ -21,7 +21,7 @@ module.exports = {
     assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    websocketUrl: '"//ec2-54-144-207-148.compute-1.amazonaws.com"',
+    websocketUrl: '"//backend.mychirp.net:8888"',
     productionSourceMap: false,
     // Gzip off by default as many popular static hosts such as
     // Surge or Netlify already gzip all static assets for you.
@@ -56,7 +56,7 @@ module.exports = {
     env: '"development"',
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    websocketUrl: '"//54.144.207.148:8888"',
+    websocketUrl: '"//backend.mychirp.net:8888"',
     // Various Dev Server settings
     port: 3000, // can be overwritten by process.env.PORT
     autoOpenBrowser: false,
