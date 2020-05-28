@@ -78,7 +78,7 @@ module.exports = {
         changeOrigin: true,
       },
       '/upload': {
-        target: 'http://54.144.207.148:80800',
+        target: 'http://54.144.207.148:8080',
         secure: false,
         changeOrigin: true,
       }
