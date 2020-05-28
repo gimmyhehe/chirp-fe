@@ -14,8 +14,8 @@ import {
   SEND_MSG_SUCCESS_PENDING, SEND_MSG_SUCCESS_FULFILLED, SEND_MSG_SUCCESS_REJECTED,
   CREATE_CHIRP, DELETE_CHIRP_FULFILLED,
   HISTORY_MESSAGE_PENDING,  HISTORY_MESSAGE_FULFILLED,  HISTORY_MESSAGE_REJECTED,
-  SEND_IMG_PENDING,
-  APPEND_IMG_PENDING, APPEND_IMG_FULFILLED, APPEND_IMG_REJECTED,
+  SEND_FILE_PENDING, SEND_FILE_REJECTED,
+  APPEND_FILE_PENDING, APPEND_FILE_FULFILLED, APPEND_FILE_REJECTED,
   UPDATE_CHIRP_SETTING
 
 } from '@constants/actionTypes'
@@ -24,7 +24,7 @@ import cookies from '@utils/cookies'
 import { get_filemd5sum } from '@utils/fileHandle'
 import { getImgWH } from '@utils/imageHandle'
 import api from '@api'
-import { message } from 'antd'
+import { message, Modal } from 'antd'
 
 export function getChirpList() {
   return async (dispatch) => {
@@ -83,9 +83,14 @@ export function sendMsg(msg){
   }
 }
 
-export function sendImg(msgItem){
+export function sendFileList(msgItem){
   return async (dispatch)=>{
-    dispatch({ type: SEND_IMG_PENDING, payload: msgItem })
+    dispatch({ type: SEND_FILE_PENDING, payload: msgItem })
+  }
+}
+export function cancelSendFileList(msgItem){
+  return async (dispatch)=>{
+    dispatch({ type: SEND_FILE_REJECTED, payload: msgItem })
   }
 }
 
@@ -97,7 +102,7 @@ export function appendImg(chirpFile){
     const {  width, height } = await getImgWH(imgUrl)
     const index = sendFileList.length
     sendFileList[index] =  { ...fileObj, width, height, status: 'sending' }
-    dispatch({ type: APPEND_IMG_PENDING, payload: { chirpId, id, fileList: sendFileList } })
+    dispatch({ type: APPEND_FILE_PENDING, payload: { chirpId, id, fileList: sendFileList } })
 
     var formData = new FormData()
     formData.append('chirpId', chirpId)
@@ -113,7 +118,7 @@ export function appendImg(chirpFile){
           URL.revokeObjectURL(fileObj.imgUrl)
           const photoItem = { ...fileObj, imgUrl: res.data, width, height }
           sendFileList[index] = photoItem
-          dispatch({ type: APPEND_IMG_FULFILLED, payload: { chirpId, id, fileList: sendFileList, photoItem } })
+          dispatch({ type: APPEND_FILE_FULFILLED, payload: { chirpId, id, fileList: sendFileList, photoItem } })
           return ( photoItem )
         }else{
           message.error(`${file.name} upload fail! ${res.message}`)
@@ -123,12 +128,14 @@ export function appendImg(chirpFile){
       .catch(err=>{
         URL.revokeObjectURL(fileObj.imgUrl)
         delete sendFileList[index]
-        dispatch({ type: APPEND_IMG_REJECTED, payload: { chirpId, id, fileList: sendFileList } })
+        dispatch({ type: APPEND_FILE_REJECTED, payload: { chirpId, id, fileList: sendFileList } })
         if(err == 'upload fail' ){
           //空操作
         }else{
-          message.error('Upload fail! upload server has error!')
-          console.error(err)
+          Modal.destroyAll()
+          Modal.error({
+            content: 'Upload fail! The upload server is busy now.'
+          })
         }
         return null
       })
@@ -142,7 +149,7 @@ export function appendFile(chirpFile){
     const { file } = fileObj
     const index = sendFileList.length
     sendFileList[index] =  { ...fileObj, status: 'sending' }
-    dispatch({ type: APPEND_IMG_PENDING, payload: { chirpId, id, fileList: sendFileList } })
+    dispatch({ type: APPEND_FILE_PENDING, payload: { chirpId, id, fileList: sendFileList } })
 
     var formData = new FormData()
     formData.append('chirpId', chirpId)
@@ -157,7 +164,7 @@ export function appendFile(chirpFile){
         if(res.code ===0){
           delete fileObj.file
           sendFileList[index] = { ...fileObj, fileUrl: res.data }
-          dispatch({ type: APPEND_IMG_FULFILLED, payload: { chirpId, id, fileList: sendFileList } })
+          dispatch({ type: APPEND_FILE_FULFILLED, payload: { chirpId, id, fileList: sendFileList } })
           return ( { ...fileObj, fileUrl: res.data } )
         }else{
           message.error(`${file.name} upload fail. ${res.message}`)
@@ -166,11 +173,14 @@ export function appendFile(chirpFile){
       })
       .catch(err=>{
         delete sendFileList[index]
-        dispatch({ type: APPEND_IMG_REJECTED, payload: { chirpId, id, fileList: sendFileList } })
+        dispatch({ type: APPEND_FILE_REJECTED, payload: { chirpId, id, fileList: sendFileList } })
         if(err == 'upload fail' ){
           //空操作
         }else{
-          message.error('upload fail! upload server has error.')
+          Modal.destroyAll()
+          Modal.error({
+            content: 'Upload fail! The upload server is busy now.'
+          })
           console.error(err)
         }
         return null

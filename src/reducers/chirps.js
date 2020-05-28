@@ -108,7 +108,7 @@ export default (state = {
         loading: false
       }
     }
-    case actionTypes.SEND_IMG_PENDING:{
+    case actionTypes.SEND_FILE_PENDING:{
       let allChirpsMessage = state.allChirpsMessage
       allChirpsMessage[action.payload.chirpId].push(action.payload.msgItem)
       return {
@@ -116,26 +116,22 @@ export default (state = {
         allChirpsMessage
       }
     }
-    case actionTypes.SEND_IMG_FULFILLED:{
+    case actionTypes.SEND_FILE_REJECTED:{
       let allChirpsMessage = state.allChirpsMessage
-      allChirpsMessage[action.data.chirpId][action.data.index] = action.data.msgItem
+      console.log(allChirpsMessage[action.payload.chirpId])
+      const index = allChirpsMessage[action.payload.chirpId].findIndex( ( item )=>{
+        return item && item.id  == action.payload.id
+      } )
+      delete allChirpsMessage[action.payload.chirpId][index]
       return{
         ...state,
         allChirpsMessage
       }
     }
-    case actionTypes.SEND_IMG_REJECTED:{
-      let allChirpsMessage = state.allChirpsMessage
-      delete allChirpsMessage[action.data.chirpId][action.data.index]
-      return{
-        ...state,
-        allChirpsMessage
-      }
-    }
-    case actionTypes.APPEND_IMG_PENDING: case actionTypes.APPEND_IMG_FULFILLED: case actionTypes.APPEND_IMG_REJECTED:{
+    case actionTypes.APPEND_FILE_PENDING: case actionTypes.APPEND_FILE_FULFILLED: case actionTypes.APPEND_FILE_REJECTED:{
       let allChirpsMessage = state.allChirpsMessage
       const index = allChirpsMessage[action.payload.chirpId].findIndex( ( item )=>{
-        return item.id  == action.payload.id
+        return item && item.id  == action.payload.id
       } )
       allChirpsMessage[action.payload.chirpId][index].fileList = action.payload.fileList
       return {

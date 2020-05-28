@@ -4,7 +4,7 @@ import { Icon, Dropdown, message } from 'antd'
 import { readDiskFile } from '@/utils/fileHandle'
 import { useSelector, useDispatch  } from 'react-redux'
 import { USER_UID } from '@/../config/stroage.conf'
-import { sendMsg, sendMsgSuccess, sendImg, appendImg, appendFile } from '@actions/chirps'
+import { sendMsg, sendMsgSuccess, sendFileList as sendFileAct, cancelSendFileList, appendImg, appendFile } from '@actions/chirps'
 import Picker from  './EmojiPicker'
 import xss from '@utils/xss'
 import api from '@api'
@@ -70,7 +70,7 @@ export default function ChirpInput(){
   }
   async function selectFile(fileType) {
     if(currentChirp.uploadPermissionEnabled != 1  && cookies.get(USER_UID)!= currentChirp.hostUid ){
-      message.warn('sorry this chirp does not open the upload permission')
+      message.warn('Sorry, this chirp does not open the upload permission.')
       return false
     }
     setuploadVisiable(false)
@@ -95,7 +95,7 @@ export default function ChirpInput(){
       'content': '',
       fileList: sendFileList
     }
-    dispatch(sendImg({ msgItem, chirpId: currentChirp.id }))
+    dispatch(sendFileAct({ msgItem, chirpId: currentChirp.id }))
     const promises = fileList.map( item =>{
       if(fileType === 'video'){
         return new Promise( ( resolve )=>{
@@ -123,16 +123,24 @@ export default function ChirpInput(){
 
     Promise.all( promises )
       .then( res =>{
-        msgItem.fileList = res
-        api.sendMessage(msgItem).then((res)=>{
-          if( !res.error && res.code == 10000){
-            // this.props.sendMsgSuccess({type:'img',index,chirpId,imgObj})
-          }else{
-            throw new Error('send file fail')
-          }
-        }).catch((error)=>{
-          console.error(error)
+        console.log(res)
+        msgItem.fileList = res.filter((item)=>{
+          return item && (item.fileUrl || item.imgUrl)
         })
+        if(msgItem.fileList>0){
+          api.sendMessage(msgItem).then((res)=>{
+            if( !res.error && res.code == 10000){
+              // this.props.sendMsgSuccess({type:'img',index,chirpId,imgObj})
+            }else{
+              throw new Error('send file fail')
+            }
+          }).catch((error)=>{
+            console.error(error)
+          })
+        }else{
+          dispatch(cancelSendFileList({ id, chirpId: currentChirp.id }))
+        }
+
       } )
       .catch( error =>{
         message.error( 'Upload file has error.' )
