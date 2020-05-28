@@ -70,7 +70,7 @@ class UserSettings extends Component{
     Modal.info({
       title: 'Reset password success',
       content: (
-        <p>reset password success! you should relogin now! </p>
+        <p>Reset password success! you should relogin now. </p>
       ),
       async onOk() {
         await api.logout().then(() => {

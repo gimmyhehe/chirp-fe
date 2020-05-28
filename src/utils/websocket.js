@@ -3,7 +3,7 @@ import { setChirpList,sendMsgSuccess, deleteChirp } from '@actions/chirps'
 import { doLogout } from '@actions/user'
 import { serialize } from '@utils/tool'
 import NProgress from 'nprogress'
-import { message } from 'antd'
+import { message, Modal } from 'antd'
 import { USER_UID, USER_TOKEN } from '@/../config/stroage.conf'
 import cookies from '@utils/cookies'
 function SocketBase(obj){
@@ -63,6 +63,7 @@ function SocketBase(obj){
   }
   //自定义Ws异常事件：Ws报错后触发
   this.onerror = ((e) => {
+    console.log(e)
     if(!this.loginState) return
     console.log('websocket connect error')
     console.error(e)
@@ -135,26 +136,32 @@ SocketBase.prototype.connect = function () {
   console.log('与服务器器连接websocket中。。。')
   let protocal = window.location.protocol == 'https:' ? 'wss:' : 'ws:'
   //process.env.WEBSOCKET_URL是webpack的DefinePlugin需要替换的变量
-  // eslint-disable-next-line no-undef
-  this.socket = new WebSocket(protocal+process.env.WEBSOCKET_URL+`?${paramsStr}`)
-  // eslint-disable-next-line no-undef
-  if(process.env.NODE_ENV === 'development'){
-    console.log(paramsStr)
-  }
-  this.initServerListener()
-  //将原生socket的各种方法绑定到自定义的Socket类上
-  this.socket.onopen = (msg)=>{
-    this.onopen(msg)
-  }
-  this.socket.onerror =(error)=>{
-    this.onerror(error)
-  }
-  this.socket.onclose = (msg)=>{
-    this.onclose(msg)
-    this.socket = null // 清理
-  }
-  this.socket.onmessage = (res)=>{
-    this.onmessage(res)
+  try{
+    // eslint-disable-next-line no-undef
+    this.socket = new WebSocket(protocal+process.env.WEBSOCKET_URL+`?${paramsStr}`)
+    // eslint-disable-next-line no-undef
+    if(process.env.NODE_ENV === 'development'){
+      console.log(paramsStr)
+    }
+    this.initServerListener()
+    //将原生socket的各种方法绑定到自定义的Socket类上
+    this.socket.onopen = (msg)=>{
+      this.onopen(msg)
+    }
+    this.socket.onerror =(error)=>{
+      this.onerror(error)
+    }
+    this.socket.onclose = (msg)=>{
+      this.onclose(msg)
+      this.socket = null // 清理
+    }
+    this.socket.onmessage = (res)=>{
+      this.onmessage(res)
+    }
+  }catch(e){
+    console.log(e)
+    Modal.error({ content: 'Connect the chirp sever fail, please retry later.' })
+    NProgress.done()
   }
 }
 

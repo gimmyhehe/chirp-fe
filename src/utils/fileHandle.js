@@ -83,15 +83,15 @@ export  async function readDiskFile( config = { fileType : 'all'} ) {
       'all' : '*/*',
       'image' : {
         accept : 'image/gif, image/jpeg, image/png',
-        limit : 1024*1024*3 // 图片限制大小
+        limit : 1024*1024*5// 图片限制大小
       },
       file: {
         accept : fileAcceptType.join(','),
-        limit : 1024*1024*100 // 文件限制大小
+        limit : 1024*1024*50 // 文件限制大小
       },
       video: {
         accept : videoAcceptType.join(','),
-        limit : 1024*1024*100 // 视频限制大小
+        limit : 1024*1024*50 // 视频限制大小
       }
     }
     let accept =  config.accept ? config.accept : acceptConfig[config.fileType].accept

@@ -142,7 +142,7 @@ class PhotosTab extends Component{
         </ButtonBox>
         <PhotoBox>
           {
-            this.state.photosList.filter(item =>{ return item.imgUrl }).map((item,index)=>{
+            this.state.photosList.filter(item =>{ return item && item.imgUrl }).map((item,index)=>{
               return (
                 <PhotoItem
                   key={index}
