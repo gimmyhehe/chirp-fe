@@ -61,8 +61,7 @@ class SigninForm extends Component{
           deviceID: browserType()
         }
         try {
-          this.props.doLogin(values).then((res)=>{
-            console.log(res)
+          this.props.doLogin(values).then(()=>{
             let { user } = store.getState()
             if(user.isLogin){
               cookies.set('userEmail', values.email, { expires: '1d' })
@@ -75,7 +74,6 @@ class SigninForm extends Component{
           })
         } catch (err) {
           NProgress.done()
-          console.log(err)
           this.setState({
             error: true,
             errorMsg: 'Currently sign up service not avaliable Please retry later'

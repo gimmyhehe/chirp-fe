@@ -193,7 +193,7 @@ class ChirpSettingForm extends Component{
           }
         } catch (err) {
           NProgress.done()
-          console.log(err)
+
           this.setState({
             error: true,
             errorMsg: 'Currently sign up service not avaliable Please retry later'
@@ -216,7 +216,6 @@ class ChirpSettingForm extends Component{
           password: password
         }
         const res = await api.saveChirpSetting(values)
-        console.log(res)
         if(res.error){
           return
         }
@@ -252,9 +251,8 @@ class ChirpSettingForm extends Component{
     api.deleteChirp(param).then(()=>{
       this.props.hide()
     })
-      .catch(err=>{
+      .catch(()=>{
         message.error('Delete chirp fail')
-        console.log(err)
       })
     this.setState({ modalVisible: false})
   }

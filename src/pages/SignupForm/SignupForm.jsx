@@ -128,7 +128,6 @@ class SignupForm extends Component{
           }
         } catch (err) {
           NProgress.done()
-          console.log(err)
           this.setState({
             error: true,
             errorMsg: 'Currently sign up service not avaliable Please retry later'

@@ -24,7 +24,7 @@ const options = {
  * 对表单的数据进行序列化
  * @param {object} data 表单数据（注意类型不是 FormData）
  */
-function serialize(data) {
+export function serialize(data) {
   return Object.keys(data)
     .map(key => {
       return `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`

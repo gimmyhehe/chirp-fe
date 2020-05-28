@@ -118,7 +118,6 @@ export default (state = {
     }
     case actionTypes.SEND_FILE_REJECTED:{
       let allChirpsMessage = state.allChirpsMessage
-      console.log(allChirpsMessage[action.payload.chirpId])
       const index = allChirpsMessage[action.payload.chirpId].findIndex( ( item )=>{
         return item && item.id  == action.payload.id
       } )

@@ -29,7 +29,6 @@ export function removeItem(key) {
 
 export function setDeviceID(){
   if(!getItem(deviceIDKey)){
-    console.log(guid())
     setItem(deviceIDKey, guid())
   }
 }

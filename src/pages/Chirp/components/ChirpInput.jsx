@@ -123,11 +123,10 @@ export default function ChirpInput(){
 
     Promise.all( promises )
       .then( res =>{
-        console.log(res)
         msgItem.fileList = res.filter((item)=>{
           return item && (item.fileUrl || item.imgUrl)
         })
-        if(msgItem.fileList>0){
+        if(msgItem.fileList.length>0){
           api.sendMessage(msgItem).then((res)=>{
             if( !res.error && res.code == 10000){
               // this.props.sendMsgSuccess({type:'img',index,chirpId,imgObj})

@@ -100,7 +100,6 @@ class ChirpJoin extends Component{
     this.setState({chirpPassword: e.target.value})
   }
   createChirp = () =>{
-    console.log(this.state.chirpName)
     this.props.history.push({
       pathname: '/chirpsetting',
       search: `chirpName=${this.state.chirpName}`

@@ -108,7 +108,6 @@ class UserSettings extends Component{
           }
         } catch (err) {
           NProgress.done()
-          console.log(err)
           this.setState({
             error: true,
             errorMsg: 'Currently service not avaliable Please retry later'

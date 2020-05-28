@@ -63,7 +63,6 @@ function SocketBase(obj){
   }
   //自定义Ws异常事件：Ws报错后触发
   this.onerror = ((e) => {
-    console.log(e)
     if(!this.loginState) return
     console.log('websocket connect error')
     console.error(e)
@@ -159,7 +158,6 @@ SocketBase.prototype.connect = function () {
       this.onmessage(res)
     }
   }catch(e){
-    console.log(e)
     Modal.error({ content: 'Connect the chirp sever fail, please retry later.' })
     NProgress.done()
   }

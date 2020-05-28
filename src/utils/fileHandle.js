@@ -17,9 +17,8 @@ export const get_filemd5sum = (ofile) => {
       // console.log('read chunk nr', currentChunk + 1, 'of', chunks);
       spark.append(e.target.result) // Append array buffer
       currentChunk++
-      var md5_progress = Math.floor((currentChunk / chunks) * 100)
-
-      console.log(file.name + '  正在处理，请稍等,' + '已完成' + md5_progress + '%')
+      //var md5_progress = Math.floor((currentChunk / chunks) * 100)
+      //console.log(file.name + '  正在处理，请稍等,' + '已完成' + md5_progress + '%')
       if (currentChunk < chunks) {
         loadNext()
       } else {
@@ -223,10 +222,7 @@ export function getBlobFromUrl(url) {
         resolve(null)
       }
     }
-    xhr.onprogress = (event)=>{
-      // console.log(event.lengthComputable)
-      // console.log(event.loaded)
-      // console.log(event.total)
+    xhr.onprogress = ()=>{
     }
     xhr.onerror = ()=> {
       resolve(null)
