@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 import emojify  from 'emojify.js'
 import 'emojify.js/dist/css/sprites/emojify.css'
