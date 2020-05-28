@@ -43,7 +43,7 @@ function ForgotPassord(props) {
         if(res.code===0){
           Modal.success({
             title: 'Success',
-            content: 'An email is send to your inbox. It may take a few minutes. Please check your inbox and complete to reset your password! ',
+            content: 'An email is send to your inbox. It may take a few minutes. Please check your inbox and complete to reset your password.',
           })
         }else{
           message.error(res.message)

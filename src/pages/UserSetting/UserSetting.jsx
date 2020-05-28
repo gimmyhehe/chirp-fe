@@ -98,7 +98,7 @@ class UserSettings extends Component{
             if(values.password){
               this.resetPassword()
             }else{
-              message.success('modify userInfo success!')
+              message.success('Modify userInfo success.')
               this.props.updateUser(response.data)
             }
 

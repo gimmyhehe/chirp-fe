@@ -128,7 +128,7 @@ export  async function readDiskFile( config = { fileType : 'all'} ) {
         const ext = getFileExt( name )
         if( config.fileType === 'image'){
           if( ['image/gif', 'image/jpeg', 'image/png'].indexOf(file.type) == -1){
-            message.error('The image type is not support!')
+            message.error('The image type is not support.')
             fileResult.push(null)
           }
           else if(file.size > acceptConfig[config.fileType].limit){
@@ -144,7 +144,7 @@ export  async function readDiskFile( config = { fileType : 'all'} ) {
           const { name, size, type } = file
           const ext = getFileExt( name )
           if( !videoAcceptType.includes(file.type) && !videoAcceptType.includes('.'+ext) ){
-            message.error('The video type is not support!')
+            message.error('The video type is not support.')
             fileResult.push(null)
           }
           else if(file.size > acceptConfig[config.fileType].limit){
@@ -161,7 +161,7 @@ export  async function readDiskFile( config = { fileType : 'all'} ) {
           const ext = getFileExt( name )
 
           if( !fileAcceptType.includes(file.type) && !fileAcceptType.includes('.'+ext) ){
-            message.error('The file type is not support!')
+            message.error('The file type is not support.')
             fileResult.push(null)
 
           }

@@ -127,7 +127,7 @@ export function appendImg(chirpFile){
         if(err == 'upload fail' ){
           //空操作
         }else{
-          message.error('upload fail! upload server has error!')
+          message.error('Upload fail! upload server has error!')
           console.error(err)
         }
         return null
@@ -160,7 +160,7 @@ export function appendFile(chirpFile){
           dispatch({ type: APPEND_IMG_FULFILLED, payload: { chirpId, id, fileList: sendFileList } })
           return ( { ...fileObj, fileUrl: res.data } )
         }else{
-          message.error(`${file.name} upload fail! ${res.message}`)
+          message.error(`${file.name} upload fail. ${res.message}`)
           throw new Error('upload fail')
         }
       })
@@ -170,7 +170,7 @@ export function appendFile(chirpFile){
         if(err == 'upload fail' ){
           //空操作
         }else{
-          message.error('upload fail! upload server has error!')
+          message.error('upload fail! upload server has error.')
           console.error(err)
         }
         return null

@@ -119,13 +119,16 @@ class ChirpJoin extends Component{
       return
     }
     if(res.code == 10025){
-      message.success('join the chirp success!')
+      message.success('Join the chirp success.')
       await this.props.getChirpList()
       NProgress.done()
       this.props.history.replace('chirpindex')
     }else if(res.code == 10030){
       this.setState({hasPassword:true})
-      message.warning('This chirp need a password!')
+      message.warning('This chirp need a password.')
+      NProgress.done()
+    }else if(res.code == 10029){
+      message.warning('Join chirp fail, password incorrect.')
       NProgress.done()
     }else{
       message.error(res.msg)

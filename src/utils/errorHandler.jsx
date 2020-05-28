@@ -6,14 +6,14 @@ import cookies from '@utils/cookies'
 export function requestErrorHandler(error) {
   let errorMessage = ''
   if (error instanceof TypeError) {
-    errorMessage = 'Please check your Network!'
+    errorMessage = 'Please check your Network.'
   } else {
     switch (error.status) {
       case 0:
       case 401:
       case 500:
         if (!cookies.get('userEmail')) {
-          message.error('Please Login!')
+          message.error('Please Login.')
           history.replace({
             pathname: '/',
             state: {
@@ -27,7 +27,7 @@ export function requestErrorHandler(error) {
       case 503:
       case 504:
       default:
-        errorMessage = 'The System is busy now, please try again later!'
+        errorMessage = 'The System is busy now, please try again later.'
         break
     }
   }

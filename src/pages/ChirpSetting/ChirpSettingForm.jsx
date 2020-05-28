@@ -175,18 +175,21 @@ class ChirpSettingForm extends Component{
           password: password
         }
         try {
-          const response = await api.createChirp(param)
-          if(response.error){
+          const res = await api.createChirp(param)
+          if(res.error){
             NProgress.done()
             return
           }
-          if (response.code === 10022) {
-            await this.props.createChirpAction(response.data)
+          if (res.code === 10022) {
+            await this.props.createChirpAction(res.data)
             NProgress.done()
             this.props.history.replace('/chirpindex')
+          }else if(res.code === 10023){
+            NProgress.done()
+            Modal.error({ content: 'Chirp name already existed.' })
           } else {
             NProgress.done()
-            Modal.error({ content: response.msg })
+            Modal.error({ content: res.msg })
           }
         } catch (err) {
           NProgress.done()
@@ -212,22 +215,25 @@ class ChirpSettingForm extends Component{
           passwordEnabled: +pwdChecked,
           password: password
         }
-        const response = await api.saveChirpSetting(values)
-        console.log(response)
-        if(response.error){
+        const res = await api.saveChirpSetting(values)
+        console.log(res)
+        if(res.error){
           return
         }
-        if( response.code == 10033 ){
-          message.success('save setting success')
+        if( res.code == 10033 ){
+          message.success('Save setting success.')
           this.props.updateChirp( {
             id: this.props.currentChirp.id,
             uploadPermissionEnabled: +uploadPermission,
             expiredDate: this.props.currentChirp.createTime + expirationDay *24*60*60*1000  } )
 
           this.props.hide()
+        }else if( res.code === 10034){
+          this.setState({ modalVisible: false})
+          message.error('Update chirp setting fail.')
         }else{
           this.setState({ modalVisible: false})
-          message.error(response.msg)
+          message.error(res.msg)
         }
       }else{
         console.log(err)
@@ -247,7 +253,7 @@ class ChirpSettingForm extends Component{
       this.props.hide()
     })
       .catch(err=>{
-        message.error('delete chirp fail')
+        message.error('Delete chirp fail')
         console.log(err)
       })
     this.setState({ modalVisible: false})

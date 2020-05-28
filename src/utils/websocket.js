@@ -88,14 +88,14 @@ SocketBase.prototype.addServerListener = function(command, callback) {
 
 SocketBase.prototype.send  = function(command, data, callback){
   if(!this.isHeartflag){
-    message.error('server disconnect! please retry later')
+    message.error('Server disconnect! please retry later')
     return false
   }
   this.onmessageHandler = this.onmessageHandler || {};
   (this.onmessageHandler[command] = this.onmessageHandler[command] || []).unshift(callback)
   // eslint-disable-next-line no-undef
   if(process.env.NODE_ENV === 'development'){
-    console.log('websocket 请求发送中 参数如下')
+    console.log('Websocket 请求发送中 参数如下')
     console.log(data)
   }
   this.socket.send(data)
@@ -198,7 +198,7 @@ SocketBase.prototype.disconnect = function () {
 
 SocketBase.prototype.reConnect = function () {
   if (this.isReconnect) return
-  console.info('wecsocket is reconnenting')
+  console.info('Wecsocket is reconnenting')
   this.isReconnect = true
   //没连接上会一直重连，设置延迟避免请求过多
   setTimeout( ()=> {

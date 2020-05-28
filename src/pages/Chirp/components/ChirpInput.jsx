@@ -135,7 +135,7 @@ export default function ChirpInput(){
         })
       } )
       .catch( error =>{
-        message.error( 'upload file has error!' )
+        message.error( 'Upload file has error.' )
         console.error(error)
       } )
 

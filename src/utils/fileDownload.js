@@ -71,7 +71,7 @@ function downloadFile(url, file) {
       saveAs(res, fileName)
       resolve()
     }).catch(()=> {
-      message.error(`${fileName} download fail`)
+      message.error(`${fileName} download fail.`)
       resolve()
     })
   })
