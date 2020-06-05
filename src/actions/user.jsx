@@ -57,11 +57,11 @@ export function doLogin(param){
         await dispatch(getChirpList())
         NProgress.done()
         dispatch({ type: LOGIN_FULFILLED, user: { uid, token } })
-        return { error: null, res: '' }
+        return { err: null, res: '' }
       } else {
         dispatch({ type: LOGIN_REJECTED, data: 'login fail!' })
         NProgress.done()
-        return { error: 'login fail', res: '' }
+        return { err: 'login fail', res: '' }
       }
     })
 

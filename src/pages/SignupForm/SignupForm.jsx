@@ -80,7 +80,7 @@ class SignupForm extends Component{
   compareToFirstPassword = (rule, value, callback) => {
     const form = this.props.form
     if (value && value !== form.getFieldValue('password')) {
-      callback('The confirm password does not match the new password.')
+      callback('The confirm password does not match the password.')
     } else {
       callback()
     }
@@ -116,9 +116,8 @@ class SignupForm extends Component{
             NProgress.done()
             this.setState({
               error: true,
-              errorMsg: response.message
+              errorMsg: 'Email already being used.'
             })
-
           } else {
             NProgress.done()
             this.setState({
@@ -130,7 +129,7 @@ class SignupForm extends Component{
           NProgress.done()
           this.setState({
             error: true,
-            errorMsg: 'Currently sign up service not avaliable Please retry later'
+            errorMsg: 'Currently sign up service not avaliable Please retry later.'
           })
         }
       }
@@ -218,7 +217,7 @@ class SignupForm extends Component{
             {
               getFieldDecorator('confirm', {
                 rules: [{
-                  required: true, message: 'Please confirm your password!',
+                  required: true, message: 'Please confirm your password.',
                 }, {
                   validator: this.compareToFirstPassword,
                 }],

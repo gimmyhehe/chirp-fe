@@ -152,15 +152,6 @@ class ChirpSettingForm extends Component{
     this.setState({ expirationDay })
   };
 
-  compareToFirstPassword = (rule, value, callback) => {
-    const form = this.props.form
-    if (value && value !== form.getFieldValue('password')) {
-      callback('The confirm password does not match the new password.')
-    } else {
-      callback()
-    }
-  }
-
   handleSubmit = (e) =>{
     e.preventDefault()
     this.props.form.validateFields(async (err) => {
@@ -189,7 +180,7 @@ class ChirpSettingForm extends Component{
             Modal.error({ content: 'Chirp name already existed.' })
           } else {
             NProgress.done()
-            Modal.error({ content: res.msg })
+            Modal.error({ content: 'Failed to create chirp.' })
           }
         } catch (err) {
           NProgress.done()
@@ -220,7 +211,7 @@ class ChirpSettingForm extends Component{
           return
         }
         if( res.code == 10033 ){
-          message.success('Save setting success.')
+          message.success('Update chirp setting success.')
           this.props.updateChirp( {
             id: this.props.currentChirp.id,
             uploadPermissionEnabled: +uploadPermission,
@@ -252,7 +243,7 @@ class ChirpSettingForm extends Component{
       this.props.hide()
     })
       .catch(()=>{
-        message.error('Delete chirp fail')
+        message.error('Delete chirp fail.')
       })
     this.setState({ modalVisible: false})
   }

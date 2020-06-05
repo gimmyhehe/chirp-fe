@@ -14,7 +14,7 @@ export const downloadZip = async (fileList)=>{
     var zip = new JsZip()
     let failNum = 0
     if(fileList.length == 0){
-      message.info('nothing to download!')
+      message.info('Nothing to be downloaded.')
       resolve(null)
     }
     const hide = message.loading('Download Loading...',0)
@@ -32,7 +32,7 @@ export const downloadZip = async (fileList)=>{
         zip.file(getFileName({ ...fileList[index] }, true), item)
       })
 
-      if(failNum!=0) message.warn(`${failNum} photo download fail`)
+      if(failNum!=0) message.warn(`${failNum} file download fail.`)
       zip.generateAsync({type:'blob'})
         .then(function(content) {
           saveAs(content, 'download.zip')
@@ -45,7 +45,7 @@ export const downloadZip = async (fileList)=>{
 export const downloadOneByOne = async (fileList)=> {
   return new Promise( resolve=> {
     if(fileList.length == 0){
-      message.info('nothing to download!')
+      message.info('Nothing to be downloaded.')
       resolve(null)
     }
     const hide = message.loading('Download Loading...',0)

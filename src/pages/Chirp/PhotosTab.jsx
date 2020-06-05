@@ -142,18 +142,20 @@ class PhotosTab extends Component{
         </ButtonBox>
         <PhotoBox>
           {
-            this.state.photosList.filter(item =>{ return item && item.imgUrl }).map((item,index)=>{
+            this.state.photosList.map((item,index)=>{
               return (
-                <PhotoItem
-                  key={index}
-                  onClick = {this.changeSelect.bind(this,index)}
-                >
-                  <img src={item.imgUrl}
-                    width={ thumbnail(item.width,item.height).width }
-                    height={ thumbnail(item.width,item.height).height }
-                    onError={this.handleImgError} />
-                  { item.selected ? <SelectCheck /> : <Check /> }
-                </PhotoItem>
+                item && item.imgUrl ?
+                  <PhotoItem
+                    key={index}
+                    onClick = {this.changeSelect.bind(this,index)}
+                  >
+                    <img src={item.imgUrl}
+                      width={ thumbnail(item.width,item.height).width }
+                      height={ thumbnail(item.width,item.height).height }
+                      onError={this.handleImgError} />
+                    { item.selected ? <SelectCheck /> : <Check /> }
+                  </PhotoItem>
+                  : null
               )
             })
           }

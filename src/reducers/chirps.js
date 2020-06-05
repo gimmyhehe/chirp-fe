@@ -71,21 +71,18 @@ export default (state = {
 
       return {
         ...state,
-        allChirpsMessage: allChirpsMessage,
-        loading: false
+        allChirpsMessage: allChirpsMessage
       }
     }
     case actionTypes.SET_CHIRP_REJECTED:
       chirps.set('error', action.error)
       return {
         ...state,
-        error: action.error,
-        loading: false
+        error: action.error
       }
     case actionTypes.SEND_MSG_PENDING:{
       return {
-        ...state,
-        loading: true
+        ...state
       }
     }
     case actionTypes.SEND_MSG_FULFILLED:{
@@ -96,16 +93,14 @@ export default (state = {
       // chirps.set('allChirpsMessage',allChirpsMessage)
       return {
         ...state,
-        allChirpsMessage: allChirpsMessage,
-        loading: false
+        allChirpsMessage: allChirpsMessage
       }
     }
     case actionTypes.SEND_MSG_REJECTED:{
       chirps.set('error', action.error)
       return {
         ...state,
-        error: action.error,
-        loading: false
+        error: action.error
       }
     }
     case actionTypes.SEND_FILE_PENDING:{
@@ -140,8 +135,7 @@ export default (state = {
     }
     case actionTypes.SEND_MSG_SUCCESS_PENDING:{
       return {
-        ...state,
-        loading: true
+        ...state
       }
     }
     case actionTypes.SEND_MSG_SUCCESS_FULFILLED:{
@@ -151,22 +145,22 @@ export default (state = {
       }
       return {
         ...state,
-        allChirpsMessage,
-        loading: false
+        allChirpsMessage
       }
     }
     case actionTypes.SEND_MSG_SUCCESS_REJECTED:{
       chirps.set('error', action.error)
       return {
         ...state,
-        error: action.error,
-        loading: false
+        error: action.error
       }
     }
     case actionTypes.HISTORY_MESSAGE_PENDING:{
+      let allChirpsMessage = state.allChirpsMessage
+      allChirpsMessage[action.chirpId].loading = true
       return {
         ...state,
-        loading: true
+        allChirpsMessage
       }
     }
     case actionTypes.HISTORY_MESSAGE_FULFILLED:{
@@ -174,8 +168,7 @@ export default (state = {
       allChirpsMessage[action.chirpId] = action.data.concat(allChirpsMessage[action.chirpId])
       return {
         ...state,
-        allChirpsMessage,
-        loading: false
+        allChirpsMessage
       }
     }
     case actionTypes.CREATE_CHIRP:{
@@ -222,9 +215,9 @@ export default (state = {
       delete allChirpsMessage[data.chirpId]
       if(currentChirp.id == data.chirpId) currentChirp = chirpList[0] ? chirpList[0] : null
       if(data.code == 10136  ){
-        message.warn(deleteChirpName + ' was deleted')
+        message.success('Success: '+ deleteChirpName + ' is deleted.')
       }else{
-        message.warn(deleteChirpName + ' is expired' )
+        message.warn(deleteChirpName + ' is expired.' )
       }
       return {
         ...state,

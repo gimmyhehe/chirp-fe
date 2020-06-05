@@ -91,14 +91,16 @@ class VideosTab extends Component{
         </ButtonBox>
         <VideoBox>
           {
-            this.state.videoList.filter(item =>{ return item }).map( ( fileObj, index ) =>{
+            this.state.videoList.map( ( fileObj, index ) =>{
               return (
-                <VideoItem
-                  key={index}
-                  { ...fileObj }
-                  selected={ Boolean(fileObj.selected) }
-                  changeSelected ={this.changeSelected.bind(this, index)}
-                />
+                fileObj && fileObj.fileUrl ?
+                  <VideoItem
+                    key={index}
+                    { ...fileObj }
+                    selected={ Boolean(fileObj.selected) }
+                    changeSelected ={this.changeSelected.bind(this, index)}
+                  />
+                  : null
               )
             } )}
           <EmptyItem />

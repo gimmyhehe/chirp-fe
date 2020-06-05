@@ -83,7 +83,7 @@ function Reset(props) {
           password: values.password
         }
         const res = await api.resetPassword(params)
-        if(res.code ===0){
+        if(res.code === 0){
           message.success('Reset password success. You can signin now.')
           history.replace('/signin')
         }else{

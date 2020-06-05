@@ -245,16 +245,23 @@ export function socketLogin(params) {
   var appSocket = new SocketBase({params})
   return new Promise((resolve)=>{
     appSocket.addServerListener(6, res=> {
-      if(res.code!=10007){
-        NProgress.done()
-        message.error(res.msg)
-        resolve({ error: true })
-        return
+      if(res.code === 10007){
+        window.appSocket = appSocket
+        appSocket.loginState = true
+        appSocket.isHeartflag = true
+        resolve(res)
+      }else if(res.code === 1102){
+        message.error('Login fail. Email does not exist.')
+      }else if( res.code === 1103 ){
+        message.error('Login fail. Params error.')
+      }else if( res.code === 1104 ){
+        message.error('Login fail. Password incorrect.')
+      }else{
+        message.error('Login fail.')
       }
-      window.appSocket = appSocket
-      appSocket.loginState = true
-      appSocket.isHeartflag = true
-      resolve(res)
+      NProgress.done()
+      resolve({ error: true })
+      return
     })
   })
 }

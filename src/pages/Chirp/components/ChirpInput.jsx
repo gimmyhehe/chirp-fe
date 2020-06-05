@@ -70,7 +70,7 @@ export default function ChirpInput(){
   }
   async function selectFile(fileType) {
     if(currentChirp.uploadPermissionEnabled != 1  && cookies.get(USER_UID)!= currentChirp.hostUid ){
-      message.warn('Sorry, this chirp does not open the upload permission.')
+      message.warn('This chirp does not allow you to upload files.')
       return false
     }
     setuploadVisiable(false)

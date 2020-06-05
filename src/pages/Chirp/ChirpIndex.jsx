@@ -176,7 +176,7 @@ class ChirpIndex extends Component{
   }
   handleSettings = (chirp) =>{
     if(cookies.get(USER_UID) !=  chirp.hostUid){
-      message.warn('you are not the owner of this chirp')
+      message.warn('You are not the owner of this chirp.')
     }
   }
   state = {

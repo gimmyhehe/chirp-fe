@@ -91,13 +91,15 @@ class FilePage extends Component{
         </ButtonBox>
         <FileBox>
           {
-            this.state.fileList.filter(item =>{ return item }).map( ( fileObj, index ) =>{
+            this.state.fileList.map( ( fileObj, index ) =>{
               return (
-                <FileItem
-                  key={index} { ...fileObj }
-                  selected={ Boolean(fileObj.selected) }
-                  changeSelected ={this.changeSelected.bind(this, index)}
-                />
+                fileObj && fileObj.fileUrl ?
+                  <FileItem
+                    key={index} { ...fileObj }
+                    selected={ Boolean(fileObj.selected) }
+                    changeSelected ={this.changeSelected.bind(this, index)}
+                  />
+                  : null
               )
             } )}
           <EmptyItem />

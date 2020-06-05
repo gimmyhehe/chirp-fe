@@ -222,7 +222,7 @@ export function deleteChirp({ chirpId, msg, code  }){
 
 export function getHistoryMessage(chirpId){
   return async (dispatch)=>{
-    dispatch({ type: HISTORY_MESSAGE_PENDING })
+    dispatch({ type: HISTORY_MESSAGE_PENDING, chirpId })
     api.getHistoryMessage({ cmd: 31, chirpId  }).then(res=>{
       if( !res.error && res.code == 10039){
         res.data.forEach(item=>{

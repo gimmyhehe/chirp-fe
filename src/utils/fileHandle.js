@@ -131,7 +131,7 @@ export  async function readDiskFile( config = { fileType : 'all'} ) {
             fileResult.push(null)
           }
           else if(file.size > acceptConfig[config.fileType].limit){
-            message.error(`The image is too large! limit ${bytesToSize(acceptConfig[config.fileType].limit)}`)
+            message.error(`The image is too large! limit ${bytesToSize(acceptConfig[config.fileType].limit)}.`)
             fileResult.push(null)
           }
           else{
